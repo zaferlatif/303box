@@ -1,0 +1,16 @@
+# 303box / 303 Pattern Playground
+# Public discovery is allowed for search engines and AI-assisted search.
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: *
+Allow: /
+
+Sitemap: https://303box.com/sitemap.xml
