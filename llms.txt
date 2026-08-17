@@ -1,0 +1,22 @@
+# 303 Pattern Playground
+
+Canonical URL: https://303box.com/
+
+303 Pattern Playground is a free browser-based 16-step acid bassline pattern generator inspired by classic TB-303 and TD-3 sequencing workflows.
+
+Core capabilities:
+- 16-step note sequencing
+- Gate, tie and rest programming
+- Octave down / up
+- Accent and slide
+- Saw and square waveforms
+- Cutoff, resonance, envelope modulation, decay and accent controls
+- 50–250 BPM
+- Browser audio preview with Web Audio API
+- JPG pattern-sheet export
+- English and Turkish interface
+- Local browser session persistence
+
+Audience: electronic music producers, acid house and acid techno musicians, TB-303 / TD-3 users and people learning 303-style sequencing.
+
+Main page: https://303box.com/
