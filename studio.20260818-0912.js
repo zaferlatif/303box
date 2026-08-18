@@ -43,9 +43,14 @@
   let midiReady=false;
 
   function applyBassGain(){
-    const target=(midiMode==='midi'&&midiReady)?0:bassLevel/100;
-    bassBuses.forEach(bus=>{if(bus.ctx.state!=='closed'){try{bus.gain.gain.setTargetAtTime(target,bus.ctx.currentTime,.018)}catch(_){}}});
+    const muteForMidi=midiMode==='midi'&&midiReady;
+    const target=muteForMidi?0:bassLevel/100;
+    bassBuses.forEach(bus=>{
+      if(bus.ctx.state==='closed')return;
+      try{bus.gain.gain.setTargetAtTime(target,bus.ctx.currentTime,.018)}catch(_){}
+    });
   }
+
   if(nativeConnect){
     window.AudioNode.prototype.connect=function(dest,...args){
       try{
@@ -53,36 +58,90 @@
         if(ctx&&dest===ctx.destination&&!excludedContexts.has(ctx)&&!internalNodes.has(this)){
           let bus=bassBuses.get(ctx);
           if(!bus){
-            const gain=ctx.createGain(),analyser=ctx.createAnalyser();
-            analyser.fftSize=2048;analyser.smoothingTimeConstant=.7;internalNodes.add(gain);internalNodes.add(analyser);
-            nativeConnect.call(gain,analyser);nativeConnect.call(analyser,dest);bus={ctx,gain,analyser};bassBuses.set(ctx,bus);
+            const gain=ctx.createGain();
+            const analyser=ctx.createAnalyser();
+            analyser.fftSize=2048;
+            analyser.smoothingTimeConstant=.7;
+            internalNodes.add(gain);internalNodes.add(analyser);
+            nativeConnect.call(gain,analyser);
+            nativeConnect.call(analyser,dest);
+            bus={ctx,gain,analyser};
+            bassBuses.set(ctx,bus);
           }
-          activeBus=bus;applyBassGain();nativeConnect.call(this,bus.gain);return dest;
+          activeBus=bus;
+          applyBassGain();
+          nativeConnect.call(this,bus.gain);
+          return dest;
         }
       }catch(err){console.warn('303box audio bus',err)}
       return nativeConnect.call(this,dest,...args);
     };
   }
-  function resumeAudio(){bassBuses.forEach(bus=>{if(bus.ctx.state==='suspended')bus.ctx.resume().catch(()=>{})});if(drum.ctx?.state==='suspended')drum.ctx.resume().catch(()=>{})}
-  document.addEventListener('pointerdown',resumeAudio,{passive:true});document.addEventListener('touchstart',resumeAudio,{passive:true});document.addEventListener('visibilitychange',()=>{if(!document.hidden)resumeAudio()});
+
+  function resumeAudio(){
+    bassBuses.forEach(bus=>{
+      if(bus.ctx.state==='suspended')bus.ctx.resume().catch(()=>{});
+    });
+    if(drum.ctx?.state==='suspended')drum.ctx.resume().catch(()=>{});
+  }
+  document.addEventListener('pointerdown',resumeAudio,{passive:true});
+  document.addEventListener('touchstart',resumeAudio,{passive:true});
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)resumeAudio()});
 
   function bpm(){return clamp(Number($('[data-knob-id="bpm"]')?.getAttribute('aria-valuenow'))||140,50,250)}
-  function setBpm(value){const input=$('#tempoInput'),form=$('#tempoForm'),submit=$('#tempoApply');if(!input||!form||!submit)return;input.value=String(clamp(Math.round(value),50,250));form.dispatchEvent(new SubmitEvent('submit',{bubbles:true,cancelable:true,submitter:submit}))}
+  function setBpm(value){
+    const input=$('#tempoInput'),form=$('#tempoForm'),submit=$('#tempoApply');
+    if(!input||!form||!submit)return;
+    input.value=String(clamp(Math.round(value),50,250));
+    form.dispatchEvent(new SubmitEvent('submit',{bubbles:true,cancelable:true,submitter:submit}));
+  }
   function bassPlaying(){return $('#playButton')?.getAttribute('aria-pressed')==='true'}
-  function bassStep(){const x=$('[data-step-header][data-playing="true"]');return x?Number(x.dataset.stepHeader):-1}
-  function saveBassSession(){const a=$('#authorInput');if(a)a.dispatchEvent(new Event('input',{bubbles:true}))}
+  function bassStep(){
+    const x=$('[data-step-header][data-playing="true"]');
+    return x?Number(x.dataset.stepHeader):-1;
+  }
+  function saveBassSession(){
+    const a=$('#authorInput');
+    if(a)a.dispatchEvent(new Event('input',{bubbles:true}));
+  }
 
-  const NOTES=[{v:'',l:'—'},{v:'C',l:'C'},{v:'C#',l:'C#'},{v:'D',l:'D'},{v:'D#',l:'D#'},{v:'E',l:'E'},{v:'F',l:'F'},{v:'F#',l:'F#'},{v:'G',l:'G'},{v:'G#',l:'G#'},{v:'A',l:'A'},{v:'A#',l:'A#'},{v:'B',l:'B'},{v:'C_TOP',l:'C'}];
-  function syncNotePicker(step){const input=$$('.note-input')[step],select=$(`[data-note-picker="${step}"]`);if(!input||!select)return;const oct=$$('.octave-cell')[step]?.textContent.trim(),wanted=input.value==='C'&&oct==='U'?'C_TOP':input.value||'';if(select.value!==wanted)select.value=wanted}
+  const NOTES=[
+    {v:'',l:'—'},{v:'C',l:'C'},{v:'C#',l:'C#'},{v:'D',l:'D'},{v:'D#',l:'D#'},
+    {v:'E',l:'E'},{v:'F',l:'F'},{v:'F#',l:'F#'},{v:'G',l:'G'},{v:'G#',l:'G#'},
+    {v:'A',l:'A'},{v:'A#',l:'A#'},{v:'B',l:'B'},{v:'C_TOP',l:'C'}
+  ];
+  function syncNotePicker(step){
+    const input=$$('.note-input')[step],select=$(`[data-note-picker="${step}"]`);
+    if(!input||!select)return;
+    const oct=$$('.octave-cell')[step]?.textContent.trim();
+    const wanted=input.value==='C'&&oct==='U'?'C_TOP':input.value||'';
+    if(select.value!==wanted)select.value=wanted;
+  }
   function installNoteSelectors(){
     $$('.note-picker').forEach(x=>x.remove());
     $$('.note-input').forEach((input,step)=>{
       input.type='hidden';input.tabIndex=-1;input.classList.add('note-source-hidden');input.setAttribute('aria-hidden','true');
-      const select=document.createElement('select');select.className='cell-control note-picker';select.dataset.notePicker=String(step);select.setAttribute('aria-label',`${lang()==='tr'?'Nota':'Note'} ${step+1}`);
-      NOTES.forEach(n=>{const o=document.createElement('option');o.value=n.v;o.textContent=n.l;select.appendChild(o)});input.after(select);syncNotePicker(step);
-      select.addEventListener('change',()=>{const oct=$$('.octave-cell')[step];if(select.value==='C_TOP'){input.dataset.topC='1';input.value='C';if(oct)oct.textContent='U'}else{if(input.dataset.topC==='1'&&oct?.textContent.trim()==='U')oct.textContent='';input.dataset.topC='0';input.value=select.value}input.dispatchEvent(new Event('input',{bubbles:true}))});
+      const select=document.createElement('select');
+      select.className='cell-control note-picker';
+      select.dataset.notePicker=String(step);
+      select.setAttribute('aria-label',`${lang()==='tr'?'Nota':'Note'} ${step+1}`);
+      NOTES.forEach(n=>{const o=document.createElement('option');o.value=n.v;o.textContent=n.l;select.appendChild(o)});
+      input.after(select);
+      syncNotePicker(step);
+      select.addEventListener('change',()=>{
+        const oct=$$('.octave-cell')[step];
+        if(select.value==='C_TOP'){
+          input.dataset.topC='1';input.value='C';if(oct)oct.textContent='U';
+        }else{
+          if(input.dataset.topC==='1'&&oct?.textContent.trim()==='U')oct.textContent='';
+          input.dataset.topC='0';input.value=select.value;
+        }
+        input.dispatchEvent(new Event('input',{bubbles:true}));
+      });
     });
-    $('#patternGrid')?.addEventListener('click',e=>{if(e.target.closest('.octave-cell'))setTimeout(()=>$$('.note-input').forEach((_,i)=>syncNotePicker(i)),0)});
+    $('#patternGrid')?.addEventListener('click',e=>{
+      if(e.target.closest('.octave-cell'))setTimeout(()=>$$('.note-input').forEach((_,i)=>syncNotePicker(i)),0);
+    });
   }
 
   const PITCH=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
@@ -93,83 +152,325 @@
     {name:'Acid Techno',bpm:[132,142],intervals:[0,1,3,5,6,7,10],active:[10,13],drum:'techno'},
     {name:'Rave Acid',bpm:[138,148],intervals:[0,3,5,6,7,10],active:[10,13],drum:'rave'}
   ];
-  const MASKS=['1011010010110101','1101011010010110','1010110110100101','1110100110101100','1001101110010110','1010011011010011','1100101011011010','1011011010100101','1101101010011010','1011010110101001','1001110110011010','1110011010101100'];
-  const pc=n=>PITCH[(n%12+12)%12];
-  function mutateMask(mask,target){const a=[...mask].map(Number);let guard=0;while(a.reduce((x,y)=>x+y,0)!==target&&guard++<100){const count=a.reduce((x,y)=>x+y,0);if(count>target){const c=a.map((v,i)=>v&&![0,4,8,12].includes(i)?i:-1).filter(i=>i>=0);if(c.length)a[pick(c)]=0}else{const c=a.map((v,i)=>!v?i:-1).filter(i=>i>=0);if(c.length)a[pick(c)]=1}}for(let q=0;q<4;q++){const s=q*4;if(!a.slice(s,s+4).some(Boolean))a[s+pick([0,2,3])]=1}return a}
-  function setBassStep(i,note,oct,expr,gate){const ni=$$('.note-input')[i],o=$$('.octave-cell')[i],a=$$('.accentSlide-cell')[i],g=$$('.gate-cell')[i];if(!ni||!o||!a||!g)return;ni.value=note;o.textContent=oct;a.textContent=expr;g.textContent=gate}
+  const MASKS=[
+    '1011010010110101','1101011010010110','1010110110100101','1110100110101100',
+    '1001101110010110','1010011011010011','1100101011011010','1011011010100101',
+    '1101101010011010','1011010110101001','1001110110011010','1110011010101100'
+  ];
+  function pc(n){return PITCH[(n%12+12)%12]}
+  function mutateMask(mask,target){
+    const a=[...mask].map(Number);
+    let guard=0;
+    while(a.reduce((x,y)=>x+y,0)!==target&&guard++<100){
+      const count=a.reduce((x,y)=>x+y,0);
+      if(count>target){
+        const candidates=a.map((v,i)=>v&&![0,4,8,12].includes(i)?i:-1).filter(i=>i>=0);
+        if(candidates.length)a[pick(candidates)]=0;
+      }else{
+        const candidates=a.map((v,i)=>!v?i:-1).filter(i=>i>=0);
+        if(candidates.length)a[pick(candidates)]=1;
+      }
+    }
+    for(let q=0;q<4;q++){const s=q*4;if(!a.slice(s,s+4).some(Boolean))a[s+pick([0,2,3])]=1}
+    return a;
+  }
+  function setBassStep(i,note,oct,expr,gate){
+    const ni=$$('.note-input')[i],o=$$('.octave-cell')[i],a=$$('.accentSlide-cell')[i],g=$$('.gate-cell')[i];
+    if(!ni||!o||!a||!g)return;
+    ni.value=note;o.textContent=oct;a.textContent=expr;g.textContent=gate;
+  }
   function buildBass(profile){
-    const root=rnd(0,11),scale=profile.intervals.map(x=>pc(root+x)),target=rnd(profile.active[0],profile.active[1]),mask=mutateMask(pick(MASKS),target),motif=[pick(scale),pick(scale),pick(scale),pick(scale)];if(chance(.7))motif[2]=motif[0];
-    const notes=Array(16).fill(pc(root)),oct=Array(16).fill(''),expr=Array(16).fill(''),gate=mask.map(v=>v?'●':'-');let last=pc(root);
-    for(let i=0;i<16;i++){if(!mask[i]){notes[i]=last;continue}let note=motif[i%4];if(chance(i>=8?.38:.22))note=pick(scale);if(chance(.19))note=last;notes[i]=note;last=note;if(chance(i>=12?.15:.07))oct[i]='U';else if(chance(.10))oct[i]='D'}
-    const active=mask.map((v,i)=>v?i:-1).filter(i=>i>=0);active.map(i=>({i,s:(i%4===2?2.2:0)+(i%4===3?1.5:0)+(i===0?.9:0)+Math.random()*2})).sort((a,b)=>b.s-a.s).slice(0,rnd(3,5)).forEach(x=>expr[x.i]='A');
-    active.filter(i=>mask[(i+1)%16]&&notes[i]!==notes[(i+1)%16]).sort(()=>Math.random()-.5).slice(0,rnd(1,3)).forEach(i=>{expr[i]=expr[i]==='A'?'AS':'S';gate[i]='○'});active.filter(i=>mask[(i+1)%16]&&!expr[i].includes('S')).sort(()=>Math.random()-.5).slice(0,rnd(0,2)).forEach(i=>gate[i]='○');
-    for(let i=0;i<16;i++)setBassStep(i,notes[i],oct[i],expr[i],gate[i]);$$('.note-input').forEach((_,i)=>syncNotePicker(i));chance(.5)?$('#waveSaw')?.click():$('#waveSquare')?.click();saveBassSession();
+    const root=rnd(0,11);
+    const scale=profile.intervals.map(x=>pc(root+x));
+    const target=rnd(profile.active[0],profile.active[1]);
+    const mask=mutateMask(pick(MASKS),target);
+    const motif=[pick(scale),pick(scale),pick(scale),pick(scale)];
+    if(chance(.7))motif[2]=motif[0];
+    const notes=Array(16).fill(pc(root)),oct=Array(16).fill(''),expr=Array(16).fill(''),gate=mask.map(v=>v?'●':'-');
+    let last=pc(root);
+    for(let i=0;i<16;i++){
+      if(!mask[i]){notes[i]=last;continue}
+      let note=motif[i%4];
+      if(chance(i>=8?.38:.22))note=pick(scale);
+      if(chance(.19))note=last;
+      notes[i]=note;last=note;
+      const upChance=i>=12?.15:.07;
+      if(chance(upChance))oct[i]='U'; else if(chance(.10))oct[i]='D';
+    }
+    const active=mask.map((v,i)=>v?i:-1).filter(i=>i>=0);
+    active.map(i=>({i,s:(i%4===2?2.2:0)+(i%4===3?1.5:0)+(i===0?.9:0)+Math.random()*2}))
+      .sort((a,b)=>b.s-a.s).slice(0,rnd(3,5)).forEach(x=>expr[x.i]='A');
+    const slides=active.filter(i=>mask[(i+1)%16]&&notes[i]!==notes[(i+1)%16]).sort(()=>Math.random()-.5).slice(0,rnd(1,3));
+    slides.forEach(i=>{expr[i]=expr[i]==='A'?'AS':'S';gate[i]='○'});
+    active.filter(i=>mask[(i+1)%16]&&!expr[i].includes('S')).sort(()=>Math.random()-.5).slice(0,rnd(0,2)).forEach(i=>gate[i]='○');
+    for(let i=0;i<16;i++)setBassStep(i,notes[i],oct[i],expr[i],gate[i]);
+    $$('.note-input').forEach((_,i)=>syncNotePicker(i));
+    if(chance(.5))$('#waveSaw')?.click();else $('#waveSquare')?.click();
+    saveBassSession();
   }
 
   const PARTS=[
-    {id:'bd',code:'BD',label:'bd',variants:[['808','808 BD'],['909','909 BD']]},{id:'sd',code:'SD',label:'sd',variants:[['808','808 SD'],['909','909 SD']]},{id:'cp',code:'CP',label:'cp',variants:[['808','808 Clap'],['909','909 Clap']]},{id:'tm',code:'TM',label:'tm',variants:[['808','808 Low Tom'],['909','909 Low Tom']]},{id:'ch',code:'CH',label:'ch',variants:[['808','808 CH'],['909','909 CH']]},{id:'oh',code:'OH',label:'oh',variants:[['808','808 OH'],['909','909 OH']]}
+    {id:'bd',code:'BD',label:'bd',variants:[['808','808 BD'],['909','909 BD']]},
+    {id:'sd',code:'SD',label:'sd',variants:[['808','808 SD'],['909','909 SD']]},
+    {id:'cp',code:'CP',label:'cp',variants:[['808','808 Clap'],['909','909 Clap']]},
+    {id:'tm',code:'TM',label:'tm',variants:[['808','808 Low Tom'],['909','909 Low Tom']]},
+    {id:'ch',code:'CH',label:'ch',variants:[['808','808 CH'],['909','909 CH']]},
+    {id:'oh',code:'OH',label:'oh',variants:[['808','808 OH'],['909','909 OH']]}
   ];
-  const drum={pattern:Object.fromEntries(PARTS.map(p=>[p.id,Array(16).fill(false)])),variants:Object.fromEntries(PARTS.map(p=>[p.id,'808'])),levels:Object.fromEntries(PARTS.map(p=>[p.id,80])),density:55,master:80,sync:true,playing:false,armed:false,ctx:null,masterNode:null,noise:null,timer:null,step:0,next:0,armTimer:null};
-  function saveDrums(){localStorage.setItem('303box-rhythm-v6',JSON.stringify({pattern:drum.pattern,variants:drum.variants,levels:drum.levels,density:drum.density,master:drum.master,sync:drum.sync}))}
-  function loadDrums(){try{const d=JSON.parse(localStorage.getItem('303box-rhythm-v6')||'null');if(!d)return false;PARTS.forEach(p=>{if(Array.isArray(d.pattern?.[p.id])&&d.pattern[p.id].length===16)drum.pattern[p.id]=d.pattern[p.id].map(Boolean);if(['808','909'].includes(d.variants?.[p.id]))drum.variants[p.id]=d.variants[p.id];if(Number.isFinite(+d.levels?.[p.id]))drum.levels[p.id]=clamp(+d.levels[p.id],0,100)});if(Number.isFinite(+d.density))drum.density=clamp(+d.density,15,100);if(Number.isFinite(+d.master))drum.master=clamp(+d.master,0,100);if(typeof d.sync==='boolean')drum.sync=d.sync;return true}catch(_){return false}}
+  const drum={
+    pattern:Object.fromEntries(PARTS.map(p=>[p.id,Array(16).fill(false)])),
+    variants:Object.fromEntries(PARTS.map(p=>[p.id,'808'])),
+    levels:Object.fromEntries(PARTS.map(p=>[p.id,80])),
+    density:55,master:80,sync:true,playing:false,armed:false,
+    ctx:null,masterNode:null,noise:null,timer:null,step:0,next:0,armTimer:null
+  };
+
+  function saveDrums(){
+    localStorage.setItem('303box-rhythm-v6',JSON.stringify({
+      pattern:drum.pattern,variants:drum.variants,levels:drum.levels,density:drum.density,master:drum.master,sync:drum.sync
+    }));
+  }
+  function loadDrums(){
+    try{
+      const d=JSON.parse(localStorage.getItem('303box-rhythm-v6')||'null');if(!d)return false;
+      PARTS.forEach(p=>{
+        if(Array.isArray(d.pattern?.[p.id])&&d.pattern[p.id].length===16)drum.pattern[p.id]=d.pattern[p.id].map(Boolean);
+        if(['808','909'].includes(d.variants?.[p.id]))drum.variants[p.id]=d.variants[p.id];
+        if(Number.isFinite(+d.levels?.[p.id]))drum.levels[p.id]=clamp(+d.levels[p.id],0,100);
+      });
+      if(Number.isFinite(+d.density))drum.density=clamp(+d.density,15,100);
+      if(Number.isFinite(+d.master))drum.master=clamp(+d.master,0,100);
+      if(typeof d.sync==='boolean')drum.sync=d.sync;
+      return true;
+    }catch(_){return false}
+  }
+
   function drumHtml(){
     const heads=Array.from({length:16},(_,i)=>`<span class="drum-step-head ${[0,4,8,12].includes(i)?'downbeat':''}">${i+1}</span>`).join('');
-    const rows=PARTS.map(p=>`<div class="drum-row"><div class="drum-voice"><button type="button" data-preview="${p.id}"><b>${p.code}</b><span>${t(p.label)}</span></button><label><span>${t('voice')}</span><select data-variant="${p.id}">${p.variants.map(v=>`<option value="${v[0]}">${v[1]}</option>`).join('')}</select></label><label class="voice-level"><span>${t('level')}</span><input type="range" min="0" max="100" value="80" data-level="${p.id}"></label></div><div class="drum-steps">${Array.from({length:16},(_,i)=>`<button type="button" class="drum-step ${[0,4,8,12].includes(i)?'downbeat':''}" data-drum="${p.id}" data-step="${i}" aria-pressed="false"></button>`).join('')}</div></div>`).join('');
-    return `<section class="drum-machine shell" id="drums"><div class="drum-intro"><div><p class="eyebrow">${t('drumsK')}</p><h2>${t('drumsT')}</h2></div><p>${t('drumsP')}</p></div><div class="drum-export-card" id="drumExportCard"><div class="drum-panel"><div class="drum-toolbar" data-html2canvas-ignore="true"><div class="drum-actions"><button class="drum-play" id="drumPlay" type="button"><i></i><span>${t('play')}</span></button><button class="drum-action acid" id="drumRandom" type="button">${t('random')}</button><button class="drum-action" id="drumDownload" type="button">${t('download')}</button><button class="drum-action danger" id="drumClear" type="button">${t('clear')}</button></div><div class="drum-tools"><label class="drum-switch"><input id="drumSync" type="checkbox" checked><span><b>${t('sync')}</b><small>${t('syncP')}</small></span></label><label class="density"><span>${t('density')}</span><b id="densityVal">55%</b><input id="drumDensity" type="range" min="15" max="100" value="55"></label><div class="mini-mixer"><strong>${t('mixer')}</strong><label><span>303</span><input id="mixBass" type="range" min="0" max="100" value="80"><b id="mixBassVal">80%</b></label><label><span>RHYTHM</span><input id="mixDrum" type="range" min="0" max="100" value="80"><b id="mixDrumVal">80%</b></label></div></div></div><div class="drum-grid-scroll"><div class="drum-grid"><div></div><div class="drum-heads">${heads}</div>${rows}</div></div></div><div class="drum-dna"><div class="dna-title"><span>${t('dna')}</span><small>${t('dnaP')}</small></div><article><b>${t('d808')}</b><p>${t('d808p')}</p></article><article><b>${t('d909')}</b><p>${t('d909p')}</p></article></div></div></section>`;
+    const rows=PARTS.map(p=>`<div class="drum-row">
+      <div class="drum-voice">
+        <button type="button" data-preview="${p.id}"><b>${p.code}</b><span>${t(p.label)}</span></button>
+        <label><span>${t('voice')}</span><select data-variant="${p.id}">${p.variants.map(v=>`<option value="${v[0]}">${v[1]}</option>`).join('')}</select></label>
+        <label class="voice-level"><span>${t('level')}</span><input type="range" min="0" max="100" value="80" data-level="${p.id}"></label>
+      </div>
+      <div class="drum-steps">${Array.from({length:16},(_,i)=>`<button type="button" class="drum-step ${[0,4,8,12].includes(i)?'downbeat':''}" data-drum="${p.id}" data-step="${i}" aria-pressed="false"></button>`).join('')}</div>
+    </div>`).join('');
+    return `<section class="drum-machine shell" id="drums">
+      <div class="drum-intro"><div><p class="eyebrow">${t('drumsK')}</p><h2>${t('drumsT')}</h2></div><p>${t('drumsP')}</p></div>
+      <div class="drum-export-card" id="drumExportCard">
+        <div class="drum-panel">
+          <div class="drum-toolbar" data-html2canvas-ignore="true">
+            <div class="drum-actions">
+              <button class="drum-play" id="drumPlay" type="button"><i></i><span>${t('play')}</span></button>
+              <button class="drum-action acid" id="drumRandom" type="button">${t('random')}</button>
+              <button class="drum-action" id="drumDownload" type="button">${t('download')}</button>
+              <button class="drum-action danger" id="drumClear" type="button">${t('clear')}</button>
+            </div>
+            <div class="drum-tools">
+              <label class="drum-switch"><input id="drumSync" type="checkbox" checked><span><b>${t('sync')}</b><small>${t('syncP')}</small></span></label>
+              <label class="density"><span>${t('density')}</span><b id="densityVal">55%</b><input id="drumDensity" type="range" min="15" max="100" value="55"></label>
+              <div class="mini-mixer"><strong>${t('mixer')}</strong>
+                <label><span>303</span><input id="mixBass" type="range" min="0" max="100" value="80"><b id="mixBassVal">80%</b></label>
+                <label><span>RHYTHM</span><input id="mixDrum" type="range" min="0" max="100" value="80"><b id="mixDrumVal">80%</b></label>
+              </div>
+            </div>
+          </div>
+          <div class="drum-grid-scroll"><div class="drum-grid"><div></div><div class="drum-heads">${heads}</div>${rows}</div></div>
+        </div>
+        <div class="drum-dna">
+          <div class="dna-title"><span>${t('dna')}</span><small>${t('dnaP')}</small></div>
+          <article><b>${t('d808')}</b><p>${t('d808p')}</p></article>
+          <article><b>${t('d909')}</b><p>${t('d909p')}</p></article>
+        </div>
+      </div>
+    </section>`;
   }
-  function mountDrums(){$('#drums')?.remove();$('#sequencer')?.insertAdjacentHTML('afterend',drumHtml());renderDrums();bindDrums()}
-  function renderDrums(){PARTS.forEach(p=>{drum.pattern[p.id].forEach((on,i)=>{const b=$(`[data-drum="${p.id}"][data-step="${i}"]`);if(b){b.classList.toggle('on',on);b.setAttribute('aria-pressed',String(on))}});const v=$(`[data-variant="${p.id}"]`),l=$(`[data-level="${p.id}"]`);if(v)v.value=drum.variants[p.id];if(l)l.value=drum.levels[p.id]});if($('#drumDensity'))$('#drumDensity').value=drum.density;if($('#densityVal'))$('#densityVal').textContent=`${drum.density}%`;if($('#drumSync'))$('#drumSync').checked=drum.sync;if($('#mixBass'))$('#mixBass').value=bassLevel;if($('#mixBassVal'))$('#mixBassVal').textContent=`${bassLevel}%`;if($('#mixDrum'))$('#mixDrum').value=drum.master;if($('#mixDrumVal'))$('#mixDrumVal').textContent=`${drum.master}%`;setDrumMaster();applyBassGain()}
-  function toggleDrum(id,i){drum.pattern[id][i]=!drum.pattern[id][i];if(drum.pattern[id][i]&&id==='ch')drum.pattern.oh[i]=false;if(drum.pattern[id][i]&&id==='oh')drum.pattern.ch[i]=false;renderDrums();saveDrums()}
-  const emptyPattern=()=>Object.fromEntries(PARTS.map(p=>[p.id,Array(16).fill(false)]));const addSteps=(arr,steps,p=1)=>steps.forEach(i=>{if(chance(p))arr[i]=true});
+
+  function mountDrums(){
+    $('#drums')?.remove();
+    $('#sequencer')?.insertAdjacentHTML('afterend',drumHtml());
+    renderDrums();
+    bindDrums();
+  }
+
+  function renderDrums(){
+    PARTS.forEach(p=>{
+      drum.pattern[p.id].forEach((on,i)=>{
+        const b=$(`[data-drum="${p.id}"][data-step="${i}"]`);
+        if(b){b.classList.toggle('on',on);b.setAttribute('aria-pressed',String(on))}
+      });
+      const v=$(`[data-variant="${p.id}"]`),l=$(`[data-level="${p.id}"]`);
+      if(v)v.value=drum.variants[p.id];if(l)l.value=drum.levels[p.id];
+    });
+    if($('#drumDensity'))$('#drumDensity').value=drum.density;
+    if($('#densityVal'))$('#densityVal').textContent=`${drum.density}%`;
+    if($('#drumSync'))$('#drumSync').checked=drum.sync;
+    if($('#mixBass'))$('#mixBass').value=bassLevel;
+    if($('#mixBassVal'))$('#mixBassVal').textContent=`${bassLevel}%`;
+    if($('#mixDrum'))$('#mixDrum').value=drum.master;
+    if($('#mixDrumVal'))$('#mixDrumVal').textContent=`${drum.master}%`;
+    setDrumMaster();
+    applyBassGain();
+  }
+
+  function toggleDrum(id,i){
+    drum.pattern[id][i]=!drum.pattern[id][i];
+    if(drum.pattern[id][i]&&id==='ch')drum.pattern.oh[i]=false;
+    if(drum.pattern[id][i]&&id==='oh')drum.pattern.ch[i]=false;
+    renderDrums();saveDrums();
+  }
+
+  function emptyPattern(){return Object.fromEntries(PARTS.map(p=>[p.id,Array(16).fill(false)]))}
+  function addSteps(arr,steps,p=1){steps.forEach(i=>{if(chance(p))arr[i]=true})}
   function buildDrums(profile){
     const o=emptyPattern(),d=drum.density/100;
-    if(profile.drum==='jack'){addSteps(o.bd,[0,4,8,12],.98);addSteps(o.bd,[3,7,10,14],.08+.2*d);addSteps(o.sd,[4,12],.62);addSteps(o.cp,[4,12],.68);addSteps(o.ch,[0,2,4,6,8,10,12,14],.62+.28*d);addSteps(o.oh,[2,6,10,14],.28+.3*d)}
-    else if(profile.drum==='warehouse'){addSteps(o.bd,[0,4,8,12],1);addSteps(o.bd,[7,11,14],.07+.16*d);addSteps(o.sd,[4,12],.52);addSteps(o.cp,[4,12],.78);addSteps(o.ch,[0,1,3,4,5,7,8,9,11,12,13,15],.18+.34*d);addSteps(o.oh,[2,6,10,14],.58+.24*d)}
-    else if(profile.drum==='hypnotic'){addSteps(o.bd,[0,4,8,12],.9);addSteps(o.bd,[6,10,14],.12+.2*d);addSteps(o.sd,[4,12],.58);addSteps(o.cp,[12],.52);addSteps(o.ch,[0,2,4,6,8,10,12,14],.7);addSteps(o.oh,[6,14],.38+.28*d);addSteps(o.tm,[11,15],.08+.2*d)}
-    else if(profile.drum==='techno'){addSteps(o.bd,[0,4,8,12],1);addSteps(o.sd,[4,12],.72);addSteps(o.cp,[4,12],.55);addSteps(o.ch,[0,2,4,6,8,10,12,14],.78);addSteps(o.oh,[2,6,10,14],.5+.3*d);addSteps(o.tm,[13,15],.12+.2*d)}
-    else{addSteps(o.bd,[0,4,8,12],1);addSteps(o.bd,[3,10,14],.09+.18*d);addSteps(o.sd,[4,12],.72);addSteps(o.cp,[4,12],.66);addSteps(o.ch,[0,2,4,6,8,10,12,14],.82);addSteps(o.oh,[2,6,10,14],.56+.28*d);addSteps(o.tm,[11,13,15],.1+.24*d)}
-    for(let i=0;i<16;i++)if(o.oh[i])o.ch[i]=false;if(chance(.42))pick([[13,15],[12,14,15],[11,14],[14,15]]).forEach(i=>{if(chance(.25+.35*d))o.tm[i]=true});drum.pattern=o;renderDrums();saveDrums();
+    if(profile.drum==='jack'){
+      addSteps(o.bd,[0,4,8,12],.98);addSteps(o.bd,[3,7,10,14],.08+.2*d);addSteps(o.sd,[4,12],.62);addSteps(o.cp,[4,12],.68);addSteps(o.ch,[0,2,4,6,8,10,12,14],.62+.28*d);addSteps(o.oh,[2,6,10,14],.28+.3*d);
+    }else if(profile.drum==='warehouse'){
+      addSteps(o.bd,[0,4,8,12],1);addSteps(o.bd,[7,11,14],.07+.16*d);addSteps(o.sd,[4,12],.52);addSteps(o.cp,[4,12],.78);addSteps(o.ch,[0,1,3,4,5,7,8,9,11,12,13,15],.18+.34*d);addSteps(o.oh,[2,6,10,14],.58+.24*d);
+    }else if(profile.drum==='hypnotic'){
+      addSteps(o.bd,[0,4,8,12],.9);addSteps(o.bd,[6,10,14],.12+.2*d);addSteps(o.sd,[4,12],.58);addSteps(o.cp,[12],.52);addSteps(o.ch,[0,2,4,6,8,10,12,14],.7);addSteps(o.oh,[6,14],.38+.28*d);addSteps(o.tm,[11,15],.08+.2*d);
+    }else if(profile.drum==='techno'){
+      addSteps(o.bd,[0,4,8,12],1);addSteps(o.sd,[4,12],.72);addSteps(o.cp,[4,12],.55);addSteps(o.ch,[0,2,4,6,8,10,12,14],.78);addSteps(o.oh,[2,6,10,14],.5+.3*d);addSteps(o.tm,[13,15],.12+.2*d);
+    }else{
+      addSteps(o.bd,[0,4,8,12],1);addSteps(o.bd,[3,10,14],.09+.18*d);addSteps(o.sd,[4,12],.72);addSteps(o.cp,[4,12],.66);addSteps(o.ch,[0,2,4,6,8,10,12,14],.82);addSteps(o.oh,[2,6,10,14],.56+.28*d);addSteps(o.tm,[11,13,15],.1+.24*d);
+    }
+    for(let i=0;i<16;i++){if(o.oh[i])o.ch[i]=false}
+    if(chance(.42)){
+      const fills=pick([[13,15],[12,14,15],[11,14],[14,15]]);
+      fills.forEach(i=>{if(chance(.25+.35*d))o.tm[i]=true});
+    }
+    drum.pattern=o;renderDrums();saveDrums();
   }
   function clearDrums(){PARTS.forEach(p=>drum.pattern[p.id].fill(false));renderDrums();saveDrums()}
 
-  async function ensureDrumAudio(){if(drum.ctx&&drum.ctx.state!=='closed'){await drum.ctx.resume();return drum.ctx}const C=window.AudioContext||window.webkitAudioContext;if(!C)return null;const c=new C();excludedContexts.add(c);await c.resume();const master=c.createGain(),comp=c.createDynamicsCompressor();master.gain.value=drum.master/100;comp.threshold.value=-9;comp.knee.value=12;comp.ratio.value=4;comp.attack.value=.003;comp.release.value=.17;nativeConnect.call(master,comp);nativeConnect.call(comp,c.destination);const buffer=c.createBuffer(1,c.sampleRate,c.sampleRate),a=buffer.getChannelData(0);for(let i=0;i<a.length;i++)a[i]=Math.random()*2-1;drum.ctx=c;drum.masterNode=master;drum.noise=buffer;return c}
+  async function ensureDrumAudio(){
+    if(drum.ctx&&drum.ctx.state!=='closed'){await drum.ctx.resume();return drum.ctx}
+    const C=window.AudioContext||window.webkitAudioContext;if(!C)return null;
+    const c=new C();excludedContexts.add(c);await c.resume();
+    const master=c.createGain(),comp=c.createDynamicsCompressor();
+    master.gain.value=drum.master/100;comp.threshold.value=-9;comp.knee.value=12;comp.ratio.value=4;comp.attack.value=.003;comp.release.value=.17;
+    nativeConnect.call(master,comp);nativeConnect.call(comp,c.destination);
+    const buffer=c.createBuffer(1,c.sampleRate,c.sampleRate);const a=buffer.getChannelData(0);for(let i=0;i<a.length;i++)a[i]=Math.random()*2-1;
+    drum.ctx=c;drum.masterNode=master;drum.noise=buffer;return c;
+  }
   function setDrumMaster(){if(drum.ctx&&drum.masterNode)drum.masterNode.gain.setTargetAtTime(drum.master/100,drum.ctx.currentTime,.015)}
   function out(level){const g=drum.ctx.createGain();g.gain.value=level;nativeConnect.call(g,drum.masterNode);return g}
   function noise(){const s=drum.ctx.createBufferSource();s.buffer=drum.noise;return s}
   function env(g,w,p,d){g.gain.setValueAtTime(.0001,w);g.gain.exponentialRampToValueAtTime(Math.max(.001,p),w+.003);g.gain.exponentialRampToValueAtTime(.0001,w+d)}
-  function kick808(w,l){const c=drum.ctx,dst=out(l*.92),o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.setValueAtTime(150,w);o.frequency.exponentialRampToValueAtTime(46,w+.12);env(g,w,1,.52);nativeConnect.call(o,g);nativeConnect.call(g,dst);o.start(w);o.stop(w+.56)}
-  function kick909(w,l){const c=drum.ctx,dst=out(l*.93),o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.setValueAtTime(185,w);o.frequency.exponentialRampToValueAtTime(52,w+.09);env(g,w,1,.34);nativeConnect.call(o,g);nativeConnect.call(g,dst);o.start(w);o.stop(w+.4);const n=noise(),hp=c.createBiquadFilter(),ng=c.createGain();hp.type='highpass';hp.frequency.value=2900;ng.gain.setValueAtTime(.16,w);ng.gain.exponentialRampToValueAtTime(.0001,w+.02);nativeConnect.call(n,hp);nativeConnect.call(hp,ng);nativeConnect.call(ng,dst);n.start(w);n.stop(w+.024)}
-  function snare(w,l,type){const c=drum.ctx,dst=out(l*(type==='808'?.78:.84)),n=noise(),hp=c.createBiquadFilter(),ng=c.createGain();hp.type='highpass';hp.frequency.value=type==='808'?1500:2100;env(ng,w,type==='808'?.55:.68,type==='808'?.22:.16);nativeConnect.call(n,hp);nativeConnect.call(hp,ng);nativeConnect.call(ng,dst);n.start(w);n.stop(w+.25);[type==='808'?175:190,type==='808'?330:365].forEach((f,i)=>{const o=c.createOscillator(),g=c.createGain();o.type='triangle';o.frequency.value=f;env(g,w,i?.16:.23,.11);nativeConnect.call(o,g);nativeConnect.call(g,dst);o.start(w);o.stop(w+.14)})}
-  function clap(w,l,type){const c=drum.ctx,dst=out(l*(type==='808'?.72:.82)),n=noise(),bp=c.createBiquadFilter(),g=c.createGain();bp.type='bandpass';bp.frequency.value=type==='808'?1250:1650;bp.Q.value=.65;g.gain.setValueAtTime(.0001,w);[[0,.9],[.018,.001],[.032,.7],[.05,.001],[.065,.55],[.09,.001],[.1,.38]].forEach(([d,v])=>g.gain.setValueAtTime(v,w+d));g.gain.exponentialRampToValueAtTime(.0001,w+(type==='808'?.32:.24));nativeConnect.call(n,bp);nativeConnect.call(bp,g);nativeConnect.call(g,dst);n.start(w);n.stop(w+.35)}
-  function tom(w,l,type){const c=drum.ctx,dst=out(l*.78),o=c.createOscillator(),g=c.createGain();o.type=type==='808'?'sine':'triangle';o.frequency.setValueAtTime(type==='808'?135:170,w);o.frequency.exponentialRampToValueAtTime(type==='808'?78:102,w+.17);env(g,w,.8,type==='808'?.4:.27);nativeConnect.call(o,g);nativeConnect.call(g,dst);o.start(w);o.stop(w+.45)}
-  function hat(w,l,type,open){const c=drum.ctx,dst=out(l*(open?.45:.34)),mix=c.createGain(),hp=c.createBiquadFilter(),bp=c.createBiquadFilter(),g=c.createGain();hp.type='highpass';hp.frequency.value=type==='808'?5200:6500;bp.type='bandpass';bp.frequency.value=type==='808'?8600:10100;bp.Q.value=.7;const dur=open?(type==='808'?.42:.32):(type==='808'?.075:.055);env(g,w,.7,dur);nativeConnect.call(mix,hp);nativeConnect.call(hp,bp);nativeConnect.call(bp,g);nativeConnect.call(g,dst);(type==='808'?[230,347,419,527,677,823]:[310,451,603,787,991,1237]).forEach(f=>{const o=c.createOscillator();o.type='square';o.frequency.value=f;nativeConnect.call(o,mix);o.start(w);o.stop(w+dur+.03)})}
-  function playDrum(id,w){const l=drum.levels[id]/100;if(l<=.001)return;const type=drum.variants[id];if(id==='bd')type==='808'?kick808(w,l):kick909(w,l);else if(id==='sd')snare(w,l,type);else if(id==='cp')clap(w,l,type);else if(id==='tm')tom(w,l,type);else if(id==='ch')hat(w,l,type,false);else if(id==='oh')hat(w,l,type,true)}
-  function drumScheduler(){if(!drum.playing||!drum.ctx)return;while(drum.next<drum.ctx.currentTime+.12){const s=drum.step;PARTS.forEach(p=>{if(drum.pattern[p.id][s])playDrum(p.id,drum.next)});const delay=Math.max(0,(drum.next-drum.ctx.currentTime)*1000);setTimeout(()=>{if(!drum.playing)return;$$('.drum-step[data-current]').forEach(x=>x.removeAttribute('data-current'));$$(`[data-step="${s}"]`).forEach(x=>x.setAttribute('data-current','true'))},delay);drum.next+=(60/bpm())/4;drum.step=(drum.step+1)%16}drum.timer=setTimeout(drumScheduler,25)}
-  async function startDrums(){if(drum.playing)return;const c=await ensureDrumAudio();if(!c)return;drum.armed=false;drum.playing=true;drum.step=0;drum.next=c.currentTime+.05;updateDrumPlay();drumScheduler()}
-  function armDrums(){drum.armed=true;updateDrumPlay();clearInterval(drum.armTimer);drum.armTimer=setInterval(()=>{if(!drum.armed){clearInterval(drum.armTimer);return}if(bassStep()===0){clearInterval(drum.armTimer);drum.armTimer=null;startDrums()}},12)}
-  function stopDrums(){clearTimeout(drum.timer);clearInterval(drum.armTimer);drum.timer=null;drum.armTimer=null;drum.playing=false;drum.armed=false;$$('.drum-step[data-current]').forEach(x=>x.removeAttribute('data-current'));updateDrumPlay()}
+
+  function kick808(w,l){
+    const c=drum.ctx,dst=out(l*.92),o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.setValueAtTime(150,w);o.frequency.exponentialRampToValueAtTime(46,w+.12);env(g,w,1,.52);nativeConnect.call(o,g);nativeConnect.call(g,dst);o.start(w);o.stop(w+.56);
+  }
+  function kick909(w,l){
+    const c=drum.ctx,dst=out(l*.93),o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.setValueAtTime(185,w);o.frequency.exponentialRampToValueAtTime(52,w+.09);env(g,w,1,.34);nativeConnect.call(o,g);nativeConnect.call(g,dst);o.start(w);o.stop(w+.4);
+    const n=noise(),hp=c.createBiquadFilter(),ng=c.createGain();hp.type='highpass';hp.frequency.value=2900;ng.gain.setValueAtTime(.16,w);ng.gain.exponentialRampToValueAtTime(.0001,w+.02);nativeConnect.call(n,hp);nativeConnect.call(hp,ng);nativeConnect.call(ng,dst);n.start(w);n.stop(w+.024);
+  }
+  function snare(w,l,type){
+    const c=drum.ctx,dst=out(l*(type==='808'?.78:.84)),n=noise(),hp=c.createBiquadFilter(),ng=c.createGain();hp.type='highpass';hp.frequency.value=type==='808'?1500:2100;env(ng,w,type==='808'?.55:.68,type==='808'?.22:.16);nativeConnect.call(n,hp);nativeConnect.call(hp,ng);nativeConnect.call(ng,dst);n.start(w);n.stop(w+.25);
+    [type==='808'?175:190,type==='808'?330:365].forEach((f,i)=>{const o=c.createOscillator(),g=c.createGain();o.type='triangle';o.frequency.value=f;env(g,w,i ? .16 : .23,.11);nativeConnect.call(o,g);nativeConnect.call(g,dst);o.start(w);o.stop(w+.14)});
+  }
+  function clap(w,l,type){
+    const c=drum.ctx,dst=out(l*(type==='808'?.72:.82)),n=noise(),bp=c.createBiquadFilter(),g=c.createGain();bp.type='bandpass';bp.frequency.value=type==='808'?1250:1650;bp.Q.value=.65;g.gain.setValueAtTime(.0001,w);[[0,.9],[.018,.001],[.032,.7],[.05,.001],[.065,.55],[.09,.001],[.1,.38]].forEach(([d,v])=>g.gain.setValueAtTime(v,w+d));g.gain.exponentialRampToValueAtTime(.0001,w+(type==='808'?.32:.24));nativeConnect.call(n,bp);nativeConnect.call(bp,g);nativeConnect.call(g,dst);n.start(w);n.stop(w+.35);
+  }
+  function tom(w,l,type){
+    const c=drum.ctx,dst=out(l*.78),o=c.createOscillator(),g=c.createGain();o.type=type==='808'?'sine':'triangle';o.frequency.setValueAtTime(type==='808'?135:170,w);o.frequency.exponentialRampToValueAtTime(type==='808'?78:102,w+.17);env(g,w,.8,type==='808'?.4:.27);nativeConnect.call(o,g);nativeConnect.call(g,dst);o.start(w);o.stop(w+.45);
+  }
+  function hat(w,l,type,open){
+    const c=drum.ctx,dst=out(l*(open?.45:.34)),mix=c.createGain(),hp=c.createBiquadFilter(),bp=c.createBiquadFilter(),g=c.createGain();hp.type='highpass';hp.frequency.value=type==='808'?5200:6500;bp.type='bandpass';bp.frequency.value=type==='808'?8600:10100;bp.Q.value=.7;const dur=open?(type==='808'?.42:.32):(type==='808'?.075:.055);env(g,w,.7,dur);nativeConnect.call(mix,hp);nativeConnect.call(hp,bp);nativeConnect.call(bp,g);nativeConnect.call(g,dst);(type==='808'?[230,347,419,527,677,823]:[310,451,603,787,991,1237]).forEach(f=>{const o=c.createOscillator();o.type='square';o.frequency.value=f;nativeConnect.call(o,mix);o.start(w);o.stop(w+dur+.03)});
+  }
+  function playDrum(id,w){
+    const l=drum.levels[id]/100;if(l<=.001)return;const type=drum.variants[id];
+    if(id==='bd')type==='808'?kick808(w,l):kick909(w,l);
+    else if(id==='sd')snare(w,l,type);
+    else if(id==='cp')clap(w,l,type);
+    else if(id==='tm')tom(w,l,type);
+    else if(id==='ch')hat(w,l,type,false);
+    else if(id==='oh')hat(w,l,type,true);
+  }
+  function drumScheduler(){
+    if(!drum.playing||!drum.ctx)return;
+    while(drum.next<drum.ctx.currentTime+.12){
+      const s=drum.step;PARTS.forEach(p=>{if(drum.pattern[p.id][s])playDrum(p.id,drum.next)});
+      const delay=Math.max(0,(drum.next-drum.ctx.currentTime)*1000);
+      setTimeout(()=>{if(!drum.playing)return;$$('.drum-step[data-current]').forEach(x=>x.removeAttribute('data-current'));$$(`[data-step="${s}"]`).forEach(x=>x.setAttribute('data-current','true'))},delay);
+      drum.next+=(60/bpm())/4;drum.step=(drum.step+1)%16;
+    }
+    drum.timer=setTimeout(drumScheduler,25);
+  }
+  async function startDrums(){
+    if(drum.playing)return;const c=await ensureDrumAudio();if(!c)return;
+    drum.armed=false;drum.playing=true;drum.step=0;drum.next=c.currentTime+.05;updateDrumPlay();drumScheduler();
+  }
+  function armDrums(){
+    drum.armed=true;updateDrumPlay();clearInterval(drum.armTimer);
+    drum.armTimer=setInterval(()=>{if(!drum.armed){clearInterval(drum.armTimer);return}if(bassStep()===0){clearInterval(drum.armTimer);drum.armTimer=null;startDrums()}},12);
+  }
+  function stopDrums(){
+    clearTimeout(drum.timer);clearInterval(drum.armTimer);drum.timer=null;drum.armTimer=null;drum.playing=false;drum.armed=false;$$('.drum-step[data-current]').forEach(x=>x.removeAttribute('data-current'));updateDrumPlay();
+  }
   function toggleDrums(){if(drum.playing||drum.armed)return stopDrums();if(drum.sync&&bassPlaying())return armDrums();startDrums()}
   function updateDrumPlay(){const b=$('#drumPlay');if(!b)return;b.classList.toggle('playing',drum.playing);b.classList.toggle('armed',drum.armed);b.querySelector('span').textContent=drum.armed?t('armed'):(drum.playing?t('stop'):t('play'))}
-  async function downloadDrums(){if(typeof html2canvas!=='function')return;const card=$('#drumExportCard');if(!card)return;const clone=card.cloneNode(true);clone.querySelectorAll('[data-html2canvas-ignore="true"]').forEach(x=>x.remove());clone.style.cssText='position:fixed;left:-12000px;top:0;width:1080px;background:#0b0b0d;z-index:-1';document.body.appendChild(clone);const sc=clone.querySelector('.drum-grid-scroll'),gr=clone.querySelector('.drum-grid');if(sc)sc.style.overflow='visible';if(gr){gr.style.minWidth='0';gr.style.width='100%'}try{const canvas=await html2canvas(clone,{scale:2,backgroundColor:'#0b0b0d',logging:false}),a=document.createElement('a');a.download=`303box_rhythm_${Date.now().toString().slice(-6)}.jpg`;a.href=canvas.toDataURL('image/jpeg',.95);a.click()}finally{clone.remove()}}
+
+  async function downloadDrums(){
+    if(typeof html2canvas!=='function')return;const card=$('#drumExportCard');if(!card)return;
+    const clone=card.cloneNode(true);clone.querySelectorAll('[data-html2canvas-ignore="true"]').forEach(x=>x.remove());clone.style.cssText='position:fixed;left:-12000px;top:0;width:1080px;background:#0b0b0d;z-index:-1';document.body.appendChild(clone);
+    const sc=clone.querySelector('.drum-grid-scroll'),gr=clone.querySelector('.drum-grid');if(sc)sc.style.overflow='visible';if(gr){gr.style.minWidth='0';gr.style.width='100%'};
+    try{const canvas=await html2canvas(clone,{scale:2,backgroundColor:'#0b0b0d',logging:false});const a=document.createElement('a');a.download=`303box_rhythm_${Date.now().toString().slice(-6)}.jpg`;a.href=canvas.toDataURL('image/jpeg',.95);a.click()}finally{clone.remove()}
+  }
   function bindDrums(){
-    $('#drums')?.addEventListener('click',e=>{const s=e.target.closest('.drum-step');if(s)toggleDrum(s.dataset.drum,+s.dataset.step);const p=e.target.closest('[data-preview]');if(p)ensureDrumAudio().then(()=>playDrum(p.dataset.preview,drum.ctx.currentTime+.015))});
-    $('#drumPlay')?.addEventListener('click',toggleDrums);$('#drumClear')?.addEventListener('click',clearDrums);$('#drumDownload')?.addEventListener('click',downloadDrums);$('#drumRandom')?.addEventListener('click',()=>{const p=pick(PROFILES);buildDrums(p);setBpm(rnd(...p.bpm))});
-    $$('#drums [data-variant]').forEach(x=>x.addEventListener('change',()=>{drum.variants[x.dataset.variant]=x.value;saveDrums()}));$$('#drums [data-level]').forEach(x=>x.addEventListener('input',()=>{drum.levels[x.dataset.level]=+x.value;saveDrums()}));
-    $('#drumDensity')?.addEventListener('input',e=>{drum.density=+e.target.value;$('#densityVal').textContent=`${drum.density}%`;saveDrums()});$('#drumSync')?.addEventListener('change',e=>{drum.sync=e.target.checked;saveDrums()});
-    $('#mixBass')?.addEventListener('input',e=>{bassLevel=+e.target.value;localStorage.setItem('303box-bass-level',String(bassLevel));$('#mixBassVal').textContent=`${bassLevel}%`;applyBassGain()});$('#mixDrum')?.addEventListener('input',e=>{drum.master=+e.target.value;$('#mixDrumVal').textContent=`${drum.master}%`;setDrumMaster();saveDrums()});
+    $('#drums')?.addEventListener('click',e=>{
+      const s=e.target.closest('.drum-step');if(s)toggleDrum(s.dataset.drum,+s.dataset.step);
+      const p=e.target.closest('[data-preview]');if(p)ensureDrumAudio().then(()=>playDrum(p.dataset.preview,drum.ctx.currentTime+.015));
+    });
+    $('#drumPlay')?.addEventListener('click',toggleDrums);
+    $('#drumClear')?.addEventListener('click',clearDrums);
+    $('#drumDownload')?.addEventListener('click',downloadDrums);
+    $('#drumRandom')?.addEventListener('click',()=>{const p=pick(PROFILES);buildDrums(p);setBpm(rnd(...p.bpm))});
+    $$('#drums [data-variant]').forEach(x=>x.addEventListener('change',()=>{drum.variants[x.dataset.variant]=x.value;saveDrums()}));
+    $$('#drums [data-level]').forEach(x=>x.addEventListener('input',()=>{drum.levels[x.dataset.level]=+x.value;saveDrums()}));
+    $('#drumDensity')?.addEventListener('input',e=>{drum.density=+e.target.value;$('#densityVal').textContent=`${drum.density}%`;saveDrums()});
+    $('#drumSync')?.addEventListener('change',e=>{drum.sync=e.target.checked;saveDrums()});
+    $('#mixBass')?.addEventListener('input',e=>{bassLevel=+e.target.value;localStorage.setItem('303box-bass-level',String(bassLevel));$('#mixBassVal').textContent=`${bassLevel}%`;applyBassGain()});
+    $('#mixDrum')?.addEventListener('input',e=>{drum.master=+e.target.value;$('#mixDrumVal').textContent=`${drum.master}%`;setDrumMaster();saveDrums()});
   }
 
-  function miniIoHtml(){return `<section class="sheet-io" data-html2canvas-ignore="true"><div class="mini-analyzer"><div class="mini-analyzer-head"><span>${t('scope')}</span><strong id="fxNote">--</strong><b id="fxHz">-- Hz</b></div><canvas id="fxScope"></canvas><div class="mini-tabs"><button type="button" class="analyzer-tab active" data-mode="scope">${t('scope')}</button><button type="button" class="analyzer-tab" data-mode="fft">${t('fft')}</button></div></div><div class="midi-compact"><div class="midi-compact-head"><strong>${t('midi')}</strong><span class="midi-badge" id="midiBadge">MIDI</span></div><div class="midi-compact-grid"><button id="midiConnect" class="midi-connect" type="button">${t('enableMidi')}</button><label><span>${t('midiOutput')}</span><select id="midiOut" disabled><option value="">—</option></select></label><label><span>${t('channel')}</span><select id="midiCh">${Array.from({length:16},(_,i)=>`<option>${i+1}</option>`).join('')}</select></label><label><span>${t('playback')}</span><select id="midiMode"><option value="browser">${t('browser')}</option><option value="both">${t('both')}</option><option value="midi">${t('midiOnly')}</option></select></label><label class="midi-clock"><input id="midiClock" type="checkbox"><span>${t('clock')}</span></label></div><small id="midiStatus"></small></div></section>`}
+  function miniIoHtml(){return `<section class="sheet-io" data-html2canvas-ignore="true">
+    <div class="mini-analyzer"><div class="mini-analyzer-head"><span>${t('scope')}</span><strong id="fxNote">--</strong><b id="fxHz">-- Hz</b></div><canvas id="fxScope"></canvas><div class="mini-tabs"><button type="button" class="analyzer-tab active" data-mode="scope">${t('scope')}</button><button type="button" class="analyzer-tab" data-mode="fft">${t('fft')}</button></div></div>
+    <div class="midi-compact"><div class="midi-compact-head"><strong>${t('midi')}</strong><span class="midi-badge" id="midiBadge">MIDI</span></div><div class="midi-compact-grid">
+      <button id="midiConnect" class="midi-connect" type="button">${t('enableMidi')}</button>
+      <label><span>${t('midiOutput')}</span><select id="midiOut" disabled><option value="">—</option></select></label>
+      <label><span>${t('channel')}</span><select id="midiCh">${Array.from({length:16},(_,i)=>`<option>${i+1}</option>`).join('')}</select></label>
+      <label><span>${t('playback')}</span><select id="midiMode"><option value="browser">${t('browser')}</option><option value="both">${t('both')}</option><option value="midi">${t('midiOnly')}</option></select></label>
+      <label class="midi-clock"><input id="midiClock" type="checkbox"><span>${t('clock')}</span></label>
+    </div><small id="midiStatus"></small></div>
+  </section>`}
   function mountMiniIo(){const hw=$('.hardware-strip');if(hw){$('.sheet-io')?.remove();hw.insertAdjacentHTML('afterend',miniIoHtml())}}
+
   let analyzerMode='scope';
   function nearest(hz){const m=Math.round(69+12*Math.log2(hz/440));return PITCH[(m%12+12)%12]+(Math.floor(m/12)-1)}
-  function drawAnalyser(){requestAnimationFrame(drawAnalyser);const c=$('#fxScope');if(!c)return;const r=c.getBoundingClientRect(),d=Math.min(devicePixelRatio||1,2),w=Math.max(1,Math.round(r.width*d)),h=Math.max(1,Math.round(r.height*d));if(c.width!==w||c.height!==h){c.width=w;c.height=h}const g=c.getContext('2d');g.clearRect(0,0,w,h);if(!activeBus||activeBus.ctx.state==='closed'){g.strokeStyle='rgba(221,255,55,.22)';g.beginPath();g.moveTo(0,h/2);g.lineTo(w,h/2);g.stroke();return}const an=activeBus.analyser;if(analyzerMode==='fft'){const a=new Uint8Array(an.frequencyBinCount);an.getByteFrequencyData(a);const n=Math.min(a.length,220),bw=w/n;g.fillStyle='#ddff37';for(let i=0;i<n;i++){const v=a[i]/255,bh=Math.pow(v,1.5)*h*.9;g.globalAlpha=.15+v*.85;g.fillRect(i*bw,h-bh,Math.max(1,bw*.7),bh)}g.globalAlpha=1;updatePeak(a)}else{const a=new Uint8Array(an.fftSize);an.getByteTimeDomainData(a);g.strokeStyle='#ddff37';g.lineWidth=Math.max(1.2,w/650);g.beginPath();a.forEach((v,i)=>{const x=i/(a.length-1)*w,y=v/255*h;i?g.lineTo(x,y):g.moveTo(x,y)});g.stroke();const f=new Uint8Array(an.frequencyBinCount);an.getByteFrequencyData(f);updatePeak(f)}}
+  function drawAnalyser(){
+    requestAnimationFrame(drawAnalyser);const c=$('#fxScope');if(!c)return;const r=c.getBoundingClientRect(),d=Math.min(devicePixelRatio||1,2),w=Math.max(1,Math.round(r.width*d)),h=Math.max(1,Math.round(r.height*d));if(c.width!==w||c.height!==h){c.width=w;c.height=h}
+    const g=c.getContext('2d');g.clearRect(0,0,w,h);
+    if(!activeBus||activeBus.ctx.state==='closed'){g.strokeStyle='rgba(221,255,55,.22)';g.beginPath();g.moveTo(0,h/2);g.lineTo(w,h/2);g.stroke();return}
+    const an=activeBus.analyser;
+    if(analyzerMode==='fft'){
+      const a=new Uint8Array(an.frequencyBinCount);an.getByteFrequencyData(a);const n=Math.min(a.length,220),bw=w/n;g.fillStyle='#ddff37';for(let i=0;i<n;i++){const v=a[i]/255,bh=Math.pow(v,1.5)*h*.9;g.globalAlpha=.15+v*.85;g.fillRect(i*bw,h-bh,Math.max(1,bw*.7),bh)}g.globalAlpha=1;updatePeak(a);
+    }else{
+      const a=new Uint8Array(an.fftSize);an.getByteTimeDomainData(a);g.strokeStyle='#ddff37';g.lineWidth=Math.max(1.2,w/650);g.beginPath();a.forEach((v,i)=>{const x=i/(a.length-1)*w,y=v/255*h;i?g.lineTo(x,y):g.moveTo(x,y)});g.stroke();const f=new Uint8Array(an.frequencyBinCount);an.getByteFrequencyData(f);updatePeak(f);
+    }
+  }
   function updatePeak(a){if(!activeBus)return;const per=activeBus.ctx.sampleRate/activeBus.analyser.fftSize;let best=0,ix=0,max=Math.min(a.length-1,Math.floor(5000/per));for(let i=1;i<=max;i++)if(a[i]>best){best=a[i];ix=i}const hz=best<18?0:ix*per;$('#fxHz').textContent=hz?`${Math.round(hz)} Hz`:'-- Hz';$('#fxNote').textContent=hz?nearest(hz):'--'}
 
   let midiAccess=null,midiOutId='',midiChannel=clamp(+localStorage.getItem('303-midi-channel')||1,1,16),midiClock=localStorage.getItem('303-midi-clock')==='1',midiTimer=null,midiNext=0,midiStep=0;
-  const selectedMidi=()=>midiAccess?.outputs.get(midiOutId)||null;
+  function selectedMidi(){return midiAccess?.outputs.get(midiOutId)||null}
   function midiStatus(text,ready=false){const b=$('#midiBadge'),s=$('#midiStatus');if(b){b.textContent=ready?'ON':'MIDI';b.classList.toggle('ready',ready)}if(s)s.textContent=text||''}
-  function refreshMidi(){const select=$('#midiOut'),outs=midiAccess?[...midiAccess.outputs.values()].filter(o=>o.state==='connected'):[];if(!select)return;select.disabled=false;select.innerHTML='<option value="">—</option>'+outs.map(o=>`<option value="${o.id}">${[o.manufacturer,o.name].filter(Boolean).join(' — ')}</option>`).join('');if(outs.some(o=>o.id===midiOutId))select.value=midiOutId;else if(outs.length===1){midiOutId=outs[0].id;select.value=midiOutId}else midiOutId='';midiReady=!!selectedMidi();applyBassGain();midiStatus(midiReady?t('connected'):(outs.length?t('chooseOut'):t('noOut')),midiReady)}
+  function refreshMidi(){
+    const select=$('#midiOut'),outs=midiAccess?[...midiAccess.outputs.values()].filter(o=>o.state==='connected'):[];if(!select)return;
+    select.disabled=false;select.innerHTML='<option value="">—</option>'+outs.map(o=>`<option value="${o.id}">${[o.manufacturer,o.name].filter(Boolean).join(' — ')}</option>`).join('');
+    if(outs.some(o=>o.id===midiOutId))select.value=midiOutId;else if(outs.length===1){midiOutId=outs[0].id;select.value=midiOutId}else midiOutId='';
+    midiReady=!!selectedMidi();applyBassGain();midiStatus(midiReady?t('connected'):(outs.length?t('chooseOut'):t('noOut')),midiReady);
+  }
   async function connectMidi(){if(!navigator.requestMIDIAccess)return midiStatus(t('unsupported'));try{midiAccess=await navigator.requestMIDIAccess();midiAccess.onstatechange=refreshMidi;refreshMidi()}catch(_){midiStatus(t('denied'))}}
   function noteNum(note,oct){const map={C:60,'C#':61,D:62,'D#':63,E:64,F:65,'F#':66,G:67,'G#':68,A:69,'A#':70,B:71};let n=map[note];if(n==null)return null;if(oct==='D')n-=12;if(oct==='U')n+=12;return clamp(n,0,127)}
   function midiPatternStep(i){return{note:$$('.note-input')[i]?.value.trim().toUpperCase()||'',oct:$$('.octave-cell')[i]?.textContent.trim()||'',as:$$('.accentSlide-cell')[i]?.textContent.trim()||'',gate:$$('.gate-cell')[i]?.textContent.trim()||''}}
@@ -178,21 +479,60 @@
   function startMidi(){if(midiMode==='browser'||!midiReady)return;stopMidi(false);const o=selectedMidi();if(midiClock)o?.send([0xFA]);midiStep=0;midiNext=performance.now()+55;midiTimer=setTimeout(midiTick,0)}
   function stopMidi(send=true){clearTimeout(midiTimer);midiTimer=null;const o=selectedMidi();if(o){try{o.clear();o.send([0xB0+(midiChannel-1),123,0]);if(send&&midiClock)o.send([0xFC])}catch(_){}}}
   function bindIo(){
-    $$('.analyzer-tab').forEach(b=>b.addEventListener('click',()=>{analyzerMode=b.dataset.mode;$$('.analyzer-tab').forEach(x=>x.classList.toggle('active',x===b))}));$('#midiConnect')?.addEventListener('click',connectMidi);$('#midiCh').value=String(midiChannel);$('#midiMode').value=midiMode;$('#midiClock').checked=midiClock;
-    $('#midiOut')?.addEventListener('change',e=>{midiOutId=e.target.value;midiReady=!!selectedMidi();applyBassGain();midiStatus(midiReady?t('connected'):t('chooseOut'),midiReady)});$('#midiCh')?.addEventListener('change',e=>{midiChannel=clamp(+e.target.value||1,1,16);localStorage.setItem('303-midi-channel',String(midiChannel))});$('#midiMode')?.addEventListener('change',e=>{midiMode=e.target.value;localStorage.setItem('303-midi-mode',midiMode);applyBassGain();if(bassPlaying()){midiMode==='browser'?stopMidi():startMidi()}});$('#midiClock')?.addEventListener('change',e=>{midiClock=e.target.checked;localStorage.setItem('303-midi-clock',midiClock?'1':'0')});
-    const p=$('#playButton');if(p)new MutationObserver(()=>bassPlaying()?startMidi():stopMidi()).observe(p,{attributes:true,attributeFilter:['aria-pressed']});if(!navigator.requestMIDIAccess)midiStatus(t('unsupported'));drawAnalyser();
+    $$('.analyzer-tab').forEach(b=>b.addEventListener('click',()=>{analyzerMode=b.dataset.mode;$$('.analyzer-tab').forEach(x=>x.classList.toggle('active',x===b))}));
+    $('#midiConnect')?.addEventListener('click',connectMidi);$('#midiCh').value=String(midiChannel);$('#midiMode').value=midiMode;$('#midiClock').checked=midiClock;
+    $('#midiOut')?.addEventListener('change',e=>{midiOutId=e.target.value;midiReady=!!selectedMidi();applyBassGain();midiStatus(midiReady?t('connected'):t('chooseOut'),midiReady)});
+    $('#midiCh')?.addEventListener('change',e=>{midiChannel=clamp(+e.target.value||1,1,16);localStorage.setItem('303-midi-channel',String(midiChannel))});
+    $('#midiMode')?.addEventListener('change',e=>{midiMode=e.target.value;localStorage.setItem('303-midi-mode',midiMode);applyBassGain();if(bassPlaying()){midiMode==='browser'?stopMidi():startMidi()}});
+    $('#midiClock')?.addEventListener('change',e=>{midiClock=e.target.checked;localStorage.setItem('303-midi-clock',midiClock?'1':'0')});
+    const p=$('#playButton');if(p)new MutationObserver(()=>bassPlaying()?startMidi():stopMidi()).observe(p,{attributes:true,attributeFilter:['aria-pressed']});
+    if(!navigator.requestMIDIAccess)midiStatus(t('unsupported'));
+    drawAnalyser();
   }
 
-  const HISTORY={en:[['1981','TB-303 arrives','Roland releases the TB-303 Bass Line, designed by Tadao Kikumoto as an automatic bass accompaniment instrument.'],['1983','Production ends','The machine leaves production and becomes cheap on the second-hand market.'],['1985','Phuture finds the squelch','DJ Pierre, Spanky and Herb J push cutoff and resonance while a pattern runs; Ron Hardy champions the sound at Music Box.'],['1987','“Acid Tracks”','Phuture’s “Acid Tracks” receives its official release and becomes the defining reference for the new sound.'],['1988','Acid crosses the Atlantic','UK club and rave culture accelerates the movement; A Guy Called Gerald releases “Voodoo Ray.”'],['1992','Acid gets harder','Hardfloor’s “Acperience 1” pushes interlocking 303 lines into techno and trance territory.'],['1995','Another rave peak','Josh Wink’s “Higher State of Consciousness” brings the 303 sound to another generation.'],['Today','Still alive','Original machines, modern hardware and software keep the 303 sequencing language active.']],tr:[['1981','TB-303 ortaya çıkıyor','Roland, Tadao Kikumoto tasarımı TB-303 Bass Line’ı otomatik bas eşlik cihazı olarak çıkarır.'],['1983','Üretim sona eriyor','Cihaz üretimden kalkar ve ikinci el piyasasında ucuzlamaya başlar.'],['1985','Phuture o sesi buluyor','DJ Pierre, Spanky ve Herb J pattern dönerken cutoff ve rezonansı zorlar; Ron Hardy bu sesi Music Box’ta sahiplenir.'],['1987','“Acid Tracks”','Phuture’un “Acid Tracks” kaydı resmen yayımlanır ve yeni sesin temel referansına dönüşür.'],['1988','Acid Atlantik’i geçiyor','İngiltere kulüp ve rave kültürü hareketi hızlandırır; A Guy Called Gerald “Voodoo Ray”i yayımlar.'],['1992','Acid sertleşiyor','Hardfloor’un “Acperience 1”i birbirine geçen 303 hatlarını techno ve trance alanına taşır.'],['1995','Yeni bir rave zirvesi','Josh Wink’in “Higher State of Consciousness”ı 303 sesini yeni bir kuşağa taşır.'],['Bugün','Hâlâ yaşıyor','Orijinal cihazlar, modern donanımlar ve yazılımlar 303 sequencer dilini canlı tutuyor.']]};
-  function guideHtml(){return `<section class="field-guide" id="guide"><div class="shell"><div class="guide-top"><div><p class="eyebrow">${t('guideK')}</p><h2>${t('guideT')}</h2></div><p class="guide-lead">${t('guideP')}</p></div><div class="guide-board"><article class="guide-col"><span class="guide-num">01</span><h3>GATE / ENVELOPE</h3><div class="guide-item"><span class="gchip">●</span><div><strong>Note On</strong><p>Starts the note and retriggers the envelope.</p></div></div><div class="guide-item"><span class="gchip">○</span><div><strong>Tie</strong><p>Holds the gate into the following step.</p></div></div><div class="guide-item"><span class="gchip">–</span><div><strong>Rest</strong><p>Leaves rhythmic space.</p></div></div></article><article class="guide-col"><span class="guide-num">02</span><h3>PITCH / DYNAMICS</h3><div class="guide-item"><span class="gchip">D/U</span><div><strong>Octave</strong><p>Moves the oscillator one octave down or up.</p></div></div><div class="guide-item"><span class="gchip acid">A</span><div><strong>Accent</strong><p>Pushes volume and filter movement.</p></div></div><div class="guide-item"><span class="gchip acid">S</span><div><strong>Slide</strong><p>Glides toward the next pitch.</p></div></div></article><article class="guide-col"><span class="guide-num">03</span><h3>303 CONTROLS</h3><div class="guide-item"><span class="gchip">CUT</span><div><strong>Cutoff</strong><p>Sets the base filter opening.</p></div></div><div class="guide-item"><span class="gchip">RES</span><div><strong>Resonance</strong><p>Emphasizes the acid edge.</p></div></div><div class="guide-item"><span class="gchip">ENV</span><div><strong>Env Mod / Decay</strong><p>Shapes how strongly and how long the filter moves.</p></div></div></article></div></div></section>`}
+  const HISTORY={
+    en:[['1981','TB-303 arrives','Roland releases the TB-303 Bass Line, designed by Tadao Kikumoto as an automatic bass accompaniment instrument.'],['1983','Production ends','The machine leaves production and becomes cheap on the second-hand market.'],['1985','Phuture finds the squelch','DJ Pierre, Spanky and Herb J push cutoff and resonance while a pattern runs; Ron Hardy champions the sound at Music Box.'],['1987','“Acid Tracks”','Phuture’s “Acid Tracks” receives its official release and becomes the defining reference for the new sound.'],['1988','Acid crosses the Atlantic','UK club and rave culture accelerates the movement; A Guy Called Gerald releases “Voodoo Ray.”'],['1992','Acid gets harder','Hardfloor’s “Acperience 1” pushes interlocking 303 lines into techno and trance territory.'],['1995','Another rave peak','Josh Wink’s “Higher State of Consciousness” brings the 303 sound to another generation.'],['Today','Still alive','Original machines, modern hardware and software keep the 303 sequencing language active.']],
+    tr:[['1981','TB-303 ortaya çıkıyor','Roland, Tadao Kikumoto tasarımı TB-303 Bass Line’ı otomatik bas eşlik cihazı olarak çıkarır.'],['1983','Üretim sona eriyor','Cihaz üretimden kalkar ve ikinci el piyasasında ucuzlamaya başlar.'],['1985','Phuture o sesi buluyor','DJ Pierre, Spanky ve Herb J pattern dönerken cutoff ve rezonansı zorlar; Ron Hardy bu sesi Music Box’ta sahiplenir.'],['1987','“Acid Tracks”','Phuture’un “Acid Tracks” kaydı resmen yayımlanır ve yeni sesin temel referansına dönüşür.'],['1988','Acid Atlantik’i geçiyor','İngiltere kulüp ve rave kültürü hareketi hızlandırır; A Guy Called Gerald “Voodoo Ray”i yayımlar.'],['1992','Acid sertleşiyor','Hardfloor’un “Acperience 1”i birbirine geçen 303 hatlarını techno ve trance alanına taşır.'],['1995','Yeni bir rave zirvesi','Josh Wink’in “Higher State of Consciousness”ı 303 sesini yeni bir kuşağa taşır.'],['Bugün','Hâlâ yaşıyor','Orijinal cihazlar, modern donanımlar ve yazılımlar 303 sequencer dilini canlı tutuyor.']]
+  };
+  function guideHtml(){return `<section class="field-guide" id="guide"><div class="shell"><div class="guide-top"><div><p class="eyebrow">${t('guideK')}</p><h2>${t('guideT')}</h2></div><p class="guide-lead">${t('guideP')}</p></div><div class="guide-board">
+    <article class="guide-col"><span class="guide-num">01</span><h3>GATE / ENVELOPE</h3><div class="guide-item"><span class="gchip">●</span><div><strong>Note On</strong><p>Starts the note and retriggers the envelope.</p></div></div><div class="guide-item"><span class="gchip">○</span><div><strong>Tie</strong><p>Holds the gate into the following step.</p></div></div><div class="guide-item"><span class="gchip">–</span><div><strong>Rest</strong><p>Leaves rhythmic space.</p></div></div></article>
+    <article class="guide-col"><span class="guide-num">02</span><h3>PITCH / DYNAMICS</h3><div class="guide-item"><span class="gchip">D/U</span><div><strong>Octave</strong><p>Moves the oscillator one octave down or up.</p></div></div><div class="guide-item"><span class="gchip acid">A</span><div><strong>Accent</strong><p>Pushes volume and filter movement.</p></div></div><div class="guide-item"><span class="gchip acid">S</span><div><strong>Slide</strong><p>Glides toward the next pitch.</p></div></div></article>
+    <article class="guide-col"><span class="guide-num">03</span><h3>303 CONTROLS</h3><div class="guide-item"><span class="gchip">CUT</span><div><strong>Cutoff</strong><p>Sets the base filter opening.</p></div></div><div class="guide-item"><span class="gchip">RES</span><div><strong>Resonance</strong><p>Emphasizes the acid edge.</p></div></div><div class="guide-item"><span class="gchip">ENV</span><div><strong>Env Mod / Decay</strong><p>Shapes how strongly and how long the filter moves.</p></div></div></article>
+  </div></div></section>`}
   function historyHtml(){return `<section class="history303" id="history"><div class="shell"><div class="history-top"><div><p class="eyebrow">${t('historyK')}</p><h2>${t('historyT')}</h2></div><p>${t('historyP')}</p></div><div class="timeline">${HISTORY[lang()].map((x,i)=>`<article class="era ${i>=2&&i<=6?'key':''}"><time>${x[0]}</time><i></i><div><h3>${x[1]}</h3><p>${x[2]}</p></div></article>`).join('')}</div></div></section>`}
-  function mountContent(){const w=$('#workflow'),r=$('#reference');if(w){const x=document.createElement('div');x.innerHTML=guideHtml();w.replaceWith(x.firstElementChild)}if(r){const x=document.createElement('div');x.innerHTML=historyHtml();r.replaceWith(x.firstElementChild)}const faq=$('#faq .faq-grid');if(faq)faq.innerHTML=`<details open><summary>303box nedir? / What is 303box?</summary><p>303box is a browser-based 303 acid pattern and synchronized rhythm tool. No account or installation is required.</p></details><details><summary>MIDI çalışıyor mu? / Does MIDI work?</summary><p>Yes, when the browser supports Web MIDI and a real MIDI output is connected.</p></details><details><summary>Veriler nerede tutuluyor? / Where is data stored?</summary><p>Pattern and interface preferences are stored locally in your browser. See the Privacy page for analytics, advertising and consent details.</p></details>`;const nav=$('.nav');if(nav)nav.innerHTML=`<a href="#sequencer">303</a><a href="#drums">${lang()==='tr'?'Ritim':'Rhythm'}</a><a href="#guide">${lang()==='tr'?'Rehber':'Guide'}</a><a href="#history">${lang()==='tr'?'Tarihçe':'History'}</a><a href="#faq">FAQ</a>`}
-  function mountFooter(){const f=$('.footer-inner');if(f)f.innerHTML=`<div class="z3z-credit"><span>${t('footer')}</span><a href="https://instagram.com/zafer.pro" target="_blank" rel="me noopener">Z3Z / @zafer.pro</a></div><div class="footer-links"><a href="./privacy.html">${t('privacy')}</a><a href="https://instagram.com/zafer.pro" target="_blank" rel="me noopener">${t('instagram')}</a><a href="https://youtube.com/@zaferlatif" target="_blank" rel="noopener">${t('youtube')}</a></div>`}
-  function moveToolbar(){const tb=$('.workspace-toolbar'),sheet=$('#patternSheet');if(!tb||!sheet)return;tb.classList.add('sheet-toolbar');const group=tb.querySelector('.toolbar-group'),clear=tb.querySelector('#clearButton');if(group&&clear)group.appendChild(clear);sheet.appendChild(tb)}
-  function heroWave(){const p=$('.hero-visual .scope-wave');if(!p)return;const pts=[];for(let x=0;x<=600;x+=4){const y=105+Math.sin(x/22)*34+Math.sin(x/8)*9;pts.push(`${x},${y.toFixed(1)}`)}p.setAttribute('d','M'+pts.join(' L'));p.style.stroke='#ddff37';p.style.opacity='1'}
-  function genericMeta(){document.title=lang()==='tr'?'303box — 303 Acid Pattern ve Ritim Sequencer':'303box — 303 Acid Pattern & Rhythm Sequencer';const m=$('meta[name="description"]');if(m)m.content=lang()==='tr'?'303 acid pattern ve senkron ritim oluştur, dinle, MIDI ile gönder ve dışa aktar.':'Build, hear, randomize and export 303 acid patterns with synchronized rhythm and browser MIDI.'}
-  function replaceGenerate(){const old=$('#generateButton');if(!old)return;const b=old.cloneNode(true);old.replaceWith(b);b.addEventListener('click',generateEverything);document.addEventListener('keydown',e=>{if(e.key?.toLowerCase()==='r'&&!['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName)){e.preventDefault();e.stopImmediatePropagation();generateEverything()}},true)}
-  function generateEverything(){const p=pick(PROFILES);setBpm(rnd(...p.bpm));buildBass(p);buildDrums(p)}
-  function init(){genericMeta();heroWave();installNoteSelectors();moveToolbar();mountMiniIo();mountDrums();mountContent();mountFooter();bindIo();replaceGenerate();const had=loadDrums();if(had)renderDrums();else{const p=pick(PROFILES);buildDrums(p);setBpm(rnd(...p.bpm))}new MutationObserver(()=>location.reload()).observe(document.documentElement,{attributes:true,attributeFilter:['lang']})}
+  function mountContent(){
+    const w=$('#workflow');if(w){const x=document.createElement('div');x.innerHTML=guideHtml();w.replaceWith(x.firstElementChild)}
+    const r=$('#reference');if(r){const x=document.createElement('div');x.innerHTML=historyHtml();r.replaceWith(x.firstElementChild)}
+    const faq=$('#faq .faq-grid');if(faq)faq.innerHTML=`<details open><summary>303box nedir? / What is 303box?</summary><p>303box is a browser-based 303 acid pattern and synchronized rhythm tool. No account or installation is required.</p></details><details><summary>MIDI çalışıyor mu? / Does MIDI work?</summary><p>Yes, when the browser supports Web MIDI and a real MIDI output is connected.</p></details><details><summary>Veriler nerede tutuluyor? / Where is data stored?</summary><p>Pattern and interface preferences are stored locally in your browser. See the Privacy page for analytics, advertising and consent details.</p></details>`;
+    const nav=$('.nav');if(nav)nav.innerHTML=`<a href="#sequencer">303</a><a href="#drums">${lang()==='tr'?'Ritim':'Rhythm'}</a><a href="#guide">${lang()==='tr'?'Rehber':'Guide'}</a><a href="#history">${lang()==='tr'?'Tarihçe':'History'}</a><a href="#faq">FAQ</a>`;
+  }
+  function mountFooter(){
+    const f=$('.footer-inner');if(!f)return;f.innerHTML=`<div class="z3z-credit"><span>${t('footer')}</span><a href="https://instagram.com/zafer.pro" target="_blank" rel="me noopener">Z3Z / @zafer.pro</a></div><div class="footer-links"><a href="./privacy.html">${t('privacy')}</a><a href="https://instagram.com/zafer.pro" target="_blank" rel="me noopener">${t('instagram')}</a><a href="https://youtube.com/@zaferlatif" target="_blank" rel="noopener">${t('youtube')}</a></div>`;
+  }
+  function moveToolbar(){
+    const tb=$('.workspace-toolbar'),sheet=$('#patternSheet');if(!tb||!sheet)return;tb.classList.add('sheet-toolbar');const group=tb.querySelector('.toolbar-group');const clear=tb.querySelector('#clearButton');if(group&&clear)group.appendChild(clear);sheet.appendChild(tb);
+  }
+  function heroWave(){
+    const p=$('.hero-visual .scope-wave');if(!p)return;const pts=[];for(let x=0;x<=600;x+=4){const y=105+Math.sin(x/22)*34+Math.sin(x/8)*9;pts.push(`${x},${y.toFixed(1)}`)}p.setAttribute('d','M'+pts.join(' L'));p.style.stroke='#ddff37';p.style.opacity='1';
+  }
+  function genericMeta(){
+    document.title=lang()==='tr'?'303box — 303 Acid Pattern ve Ritim Sequencer':'303box — 303 Acid Pattern & Rhythm Sequencer';
+    const m=$('meta[name="description"]');if(m)m.content=lang()==='tr'?'303 acid pattern ve senkron ritim oluştur, dinle, MIDI ile gönder ve dışa aktar.':'Build, hear, randomize and export 303 acid patterns with synchronized rhythm and browser MIDI.';
+  }
+
+  function replaceGenerate(){
+    const old=$('#generateButton');if(!old)return;const b=old.cloneNode(true);old.replaceWith(b);
+    b.addEventListener('click',()=>generateEverything());
+    document.addEventListener('keydown',e=>{if(e.key?.toLowerCase()==='r'&&!['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName)){e.preventDefault();e.stopImmediatePropagation();generateEverything()}},true);
+  }
+  function generateEverything(){
+    const p=pick(PROFILES);setBpm(rnd(...p.bpm));buildBass(p);buildDrums(p);
+  }
+
+  function init(){
+    genericMeta();heroWave();installNoteSelectors();moveToolbar();mountMiniIo();mountDrums();mountContent();mountFooter();bindIo();replaceGenerate();
+    const had=loadDrums();if(had)renderDrums();else{const p=pick(PROFILES);buildDrums(p);setBpm(rnd(...p.bpm))}
+    new MutationObserver(()=>location.reload()).observe(document.documentElement,{attributes:true,attributeFilter:['lang']});
+  }
   window.addEventListener('DOMContentLoaded',()=>setTimeout(init,0));
 })();
