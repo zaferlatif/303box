@@ -1,6 +1,6 @@
 (() => {
   'use strict';
-  const version = '20260818-1256';
+  const version = '20260818-1302';
 
   const addCss = (key, href) => {
     if (document.querySelector(`link[data-303box-${key}]`)) return;
@@ -23,7 +23,7 @@
     document.head.appendChild(script);
   });
 
-  load('./sequencer-engine.20260818-1240.js')
+  load('./sequencer-engine.20260818-1300.js')
     .then(() => load('./ui-audio.20260818-1240.js'))
     .then(() => load('./ui-polish.20260818-1255.js'))
     .catch(error => console.error('303box audio loader', error));
