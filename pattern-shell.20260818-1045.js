@@ -6,7 +6,6 @@
     const shellWrap = workspace?.querySelector('.sheet-scroll');
     const sheet = document.querySelector('#patternSheet');
     const toolbar = document.querySelector('.sheet-toolbar') || document.querySelector('.workspace-toolbar');
-    const io = document.querySelector('.sheet-io');
     if (!workspace || !shellWrap || !sheet || !toolbar) return false;
 
     // Undo previous workbench wrappers completely.
@@ -21,10 +20,10 @@
       oldPanel.remove();
     }
 
-    // The outer sheet wrapper is fixed to viewport width; it must never be a horizontal scroller.
+    // The outer 303 card is responsive. Only the 16-step matrix may scroll horizontally.
     shellWrap.className = 'sheet-scroll pattern-card-wrap';
 
-    // Controls live outside the sheet and stay fixed, just like the rhythm controls.
+    // Controls live outside the sheet and remain responsive, like the rhythm controls.
     let controls = workspace.querySelector('.pattern-control-panel');
     if (!controls) {
       controls = document.createElement('section');
@@ -34,9 +33,24 @@
     }
 
     toolbar.classList.add('pattern-actions');
+
+    // Force all four actions into ONE grid. Older mobile CSS used to make Generate span
+    // two columns and Clear could remain outside the group; both states are normalized here.
+    let group = toolbar.querySelector('.toolbar-group');
+    if (!group) {
+      group = document.createElement('div');
+      group.className = 'toolbar-group';
+      toolbar.appendChild(group);
+    }
+    group.classList.add('pattern-action-grid');
+    ['generateButton', 'playButton', 'downloadButton', 'clearButton'].forEach(id => {
+      const button = document.getElementById(id);
+      if (button) group.appendChild(button);
+    });
+
     controls.appendChild(toolbar);
 
-    // studio.js creates scope/MIDI after the hardware strip inside #patternSheet; move it out.
+    // studio.js creates scope/MIDI inside #patternSheet; move it outside the scrolling matrix.
     const liveIo = document.querySelector('.sheet-io');
     if (liveIo) controls.appendChild(liveIo);
 
