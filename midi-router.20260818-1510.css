@@ -1,0 +1,15 @@
+#midiRouter{min-width:0}
+#midiRouter .midi-router-grid{display:grid;grid-template-columns:auto minmax(220px,1.8fr) minmax(84px,.55fr) minmax(84px,.55fr) auto auto auto;gap:8px;align-items:end}
+#midiRouter label{min-width:0}
+#midiRouter label>span{display:block;margin:0 0 6px;font:800 .58rem/1 JetBrains Mono,monospace;letter-spacing:.08em;color:#7f7f89;text-transform:uppercase}
+#midiRouter select,#midiRouter button{height:38px;border:1px solid #34343a;border-radius:8px;background:#17171b;color:#ededf0;font:700 .68rem/1 Inter,sans-serif;box-sizing:border-box}
+#midiRouter select{width:100%;padding:0 10px;min-width:0}
+#midiRouter .midi-connect{padding:0 14px;white-space:nowrap}
+#midiRouter .midi-panic{padding:0 12px;border-color:#542723;color:#ff726a;background:#1b1112}
+#midiRouter .midi-check{height:38px;display:flex!important;align-items:center;gap:7px;padding:0 10px;border:1px solid #34343a;border-radius:8px;background:#17171b;box-sizing:border-box}
+#midiRouter .midi-check span{margin:0!important;color:#a7a7af!important;font-size:.56rem!important;white-space:nowrap}
+#midiRouter .midi-check input{accent-color:#ddff37;width:16px;height:16px;margin:0}
+#midiRouter .midi-router-note{margin-top:8px;color:#777780;font:600 .58rem/1.45 Inter,sans-serif}
+#midiRouter .midi-badge.ready{border-color:#687a11;color:#ddff37;background:#121607}
+@media(max-width:980px){#midiRouter .midi-router-grid{grid-template-columns:repeat(4,minmax(0,1fr))}#midiRouter .midi-output-label{grid-column:span 2}}
+@media(max-width:680px){#midiRouter .midi-router-grid{grid-template-columns:repeat(2,minmax(0,1fr))}#midiRouter .midi-output-label{grid-column:1/-1}#midiRouter .midi-connect{grid-column:1/-1}#midiRouter select,#midiRouter button,#midiRouter .midi-check{height:40px}}
