@@ -1,57 +1,66 @@
 <p align="center">
-  <a href="https://303box.com"><img src="./readme-hero.svg" alt="303box — browser acid workstation" width="100%"></a>
+  <a href="https://303box.com"><img src="./readme-hero.svg" alt="303box — browser acid pattern sketchpad" width="100%"></a>
 </p>
 
 <p align="center">
   <a href="https://303box.com"><img alt="OPEN 303BOX" src="https://img.shields.io/badge/OPEN_303BOX-LIVE-ddff37?style=for-the-badge&labelColor=080809"></a>
-  <img alt="Web Audio" src="https://img.shields.io/badge/WEB_AUDIO-ENGINE-f4f4ef?style=for-the-badge&labelColor=080809">
+  <img alt="Pattern sketchpad" src="https://img.shields.io/badge/PATTERN-SKETCHPAD-f4f4ef?style=for-the-badge&labelColor=080809">
   <img alt="Web MIDI" src="https://img.shields.io/badge/WEB_MIDI-HARDWARE-ddff37?style=for-the-badge&labelColor=080809">
-  <img alt="No install" src="https://img.shields.io/badge/NO_INSTALL-BROWSER-f4f4ef?style=for-the-badge&labelColor=080809">
+  <img alt="No AI composition" src="https://img.shields.io/badge/AI_COMPOSITION-NO-f4f4ef?style=for-the-badge&labelColor=080809">
   <img alt="License MIT" src="https://img.shields.io/badge/LICENSE-MIT-ddff37?style=for-the-badge&labelColor=080809">
 </p>
 
 <h1 align="center">303box</h1>
-<p align="center"><strong>Acid in the browser. Hardware on the other end.</strong></p>
-<p align="center">A focused 16-step 303 workstation with rhythm, live scope, random generation and hardware MIDI routing.</p>
-
-<p align="center">
-  <a href="https://303box.com"><strong>303box.com</strong></a>
-  ·
-  <a href="#midi--hardware">MIDI / Hardware</a>
-  ·
-  <a href="#t-8-rec">T-8 REC</a>
-  ·
-  <a href="#run-locally">Run locally</a>
-</p>
+<p align="center"><strong>Sketch the pattern here. Perform it on your hardware.</strong></p>
+<p align="center">A focused 16-step browser workspace for writing, auditioning and transferring acid bass + rhythm ideas.</p>
 
 ---
 
-## The instrument
+## What 303box is
 
-303box is deliberately closer to a small piece of music hardware than a conventional web app.
+**303box is not an AI musician and it is not a replacement for live performance.**
 
-| 303 | RHYTHM | SIGNAL | HARDWARE |
+It is closer to a notebook with sound:
+
+- write a 16-step idea on a large, readable screen;
+- audition it before committing it to hardware;
+- use rule-based Random as a starting sketch, then edit it by hand;
+- export the pattern as a visual reference;
+- route notes/clock to supported MIDI hardware;
+- on supported workflows, record the live MIDI pass into the device and perform the final WRITE on the hardware.
+
+The musical decisions remain with the musician. Notes can be changed, random results can be rejected, knobs still need to be performed, and the final recording/performance is not automated by 303box.
+
+> Random generation is **rule-based pattern randomization**, not an AI composition model.
+
+## Why it exists
+
+Programming a hardware sequencer one tiny step at a time can be slow when you are still exploring an idea. 303box makes that drafting stage easier without pretending to replace the instrument.
+
+| WRITE | AUDITION | TRANSFER | PERFORM |
 |---|---|---|---|
-| 16-step acid sequencer | Six-part drum machine | 303-only Scope + FFT | Web MIDI routing |
-| Gate / tie / rest | Independent levels | Live pitch display | Device profiles |
-| Accent / slide | Shared BPM + swing | Oscillator visualization | Clock + transport |
-| Saw / square | 808 / 909 character | Filter-aware display | T-8 REC workflow |
+| Readable 16-step grid | Browser Web Audio preview | MIDI notes + clock | Hardware knobs remain yours |
+| Note / rest / tie | Bass + rhythm together | Device profiles | Final sound decisions remain yours |
+| Accent / slide / octave | Scope + FFT | T-8 REC helper | WRITE/save remains on hardware |
+| Rule-based Random | Shared BPM / Swing | Pattern image export | Live performance remains live |
 
-The 303 and rhythm generators are independent. Generate a new bass line without destroying the drums, or rebuild the rhythm without touching the acid pattern.
+Playback position uses the same small red transport LED across the 303 and rhythm sequencers; pattern content keeps its authored colors.
 
-Playback position uses one visual language across both sequencers: a small red transport LED moves through the current step while the pattern cells keep their authored colors and downbeat shading.
+## 303 editor
 
-## Acid engine
+The bass sketchpad supports:
 
-The browser engine supports the controls that matter while a 303 loop is moving:
+`NOTE` · `REST` · `TIE` · `U/D` · `ACCENT` · `SLIDE` · `SAW/SQR` · `BPM`
+
+The browser preview also exposes the familiar performance controls:
 
 `TUNE` · `CUTOFF` · `RESONANCE` · `ENV MOD` · `DECAY` · `ACCENT` · `DELAY` · `DISTORTION` · `REVERB`
 
-Patterns can contain notes, rests, ties, octave moves, accents and slides. Random generation uses musical profiles instead of treating every cell as unrelated dice.
+These controls make the sketch easier to evaluate. They do not claim to reproduce or replace the final performance on a physical instrument.
 
 ## Rhythm
 
-The rhythm section shares the same clock and transport as the bass engine.
+The six-part rhythm sketchpad shares the same clock:
 
 | Voice | Character |
 |---|---|
@@ -62,19 +71,15 @@ The rhythm section shares the same clock and transport as the bass engine.
 | CH | 606-inspired closed hat |
 | OH | 606-inspired open hat |
 
-Every part has its own level. Closed and open hats can coexist in the pattern; choke behaviour belongs to playback rather than editing.
+Every part has an independent level. Random rhythm generation is independent from bass generation.
 
-## MIDI / Hardware
+## MIDI / hardware
 
-303box can play the browser engine, MIDI hardware, or both.
+Playback modes:
 
-**Playback modes**
-
-- `BROWSER` — browser audio only
-- `BROWSER + MIDI` — browser and hardware together
-- `MIDI ONLY` — connected hardware only
-
-`BROWSER + MIDI` is the default for a newly armed MIDI workflow. Once you choose a playback mode yourself, that choice is remembered.
+- `BROWSER` — browser preview only
+- `BROWSER + MIDI` — browser + connected hardware
+- `MIDI ONLY` — hardware output only
 
 ### Device profiles
 
@@ -87,65 +92,59 @@ Every part has its own level. Closed and open hats can coexist in the pattern; c
 | Korg volca nubass | Yes | — | Bass 1 | — |
 | Generic MIDI | Yes | Optional | User selected | — |
 
-These are **303box routing profiles**, not manufacturer certifications. AUTO detection uses the MIDI port name and can always be overridden manually.
+These are **303box routing profiles**, not manufacturer certifications.
 
-### MIDI clock / tempo
+### Clock and tempo
 
-When `SEND CLOCK` is enabled, 303box keeps a continuous 24 PPQN MIDI clock running even while the web transport is stopped. This lets external hardware stay locked to the current 303box BPM instead of immediately falling back to its own internal tempo after Stop.
+When `SEND CLOCK` is enabled, 303box sends continuous 24 PPQN MIDI clock so compatible hardware can follow the current browser BPM even while the web transport is stopped.
 
-This is external synchronization, not a rewrite of the hardware's stored tempo value. On a Roland T-8, the internal tempo remains a device setting; when external clock disappears the hardware can return to its saved/internal tempo.
-
-The T-8 MIDI implementation exposes MIDI Clock / Start / Stop, but does not expose Control Change or System Exclusive receive for changing synth parameters such as the stored bass waveform. The browser SAW/SQR choice therefore remains a browser-engine setting unless the hardware itself offers a documented MIDI mapping for it.
+This is external synchronization, not a rewrite of the hardware's stored tempo value. For example, a T-8 can return to its internal tempo when external clock disappears.
 
 ### T-8 rhythm velocity
 
-Roland T-8 rhythm notes respond to MIDI velocity. 303box therefore does not drive T-8 drums at near-maximum velocity by default anymore. The T-8 profile uses a moderate velocity curve so live MIDI playback sits closer to the level of the device's own sequencer instead of overpowering it. The six web rhythm level sliders still shape the outgoing velocity.
+T-8 rhythm notes respond to MIDI velocity. The T-8 profile now uses a moderate outgoing velocity curve so live browser-driven drums sit closer to the device sequencer instead of overpowering it.
 
-### Background playback
+## Roland T-8 REC helper
 
-Switching browser tabs is **not** treated as Stop.
+Real hardware testing confirmed that a 303box bass pattern can be captured after REC is armed on the T-8.
 
-303box keeps its transport/MIDI scheduler alive when another tab becomes active. A real page lifecycle exit — closing the page, navigating away, `pagehide` or browser freeze — performs MIDI cleanup and sends Stop / All Notes Off so hardware is not left running after the page is gone.
-
-## T-8 REC
-
-A physical Roland T-8 test confirmed that a 303box bass performance can be captured by the T-8 after REC is armed on the hardware. Rhythm capture is more sensitive to transport/record timing and is still being tuned with real hardware tests.
-
-The compact MIDI panel exposes:
+The MIDI panel exposes:
 
 - `BASS → REC`
 - `RHYTHM → REC`
 
-Bass REC remains a single 16-step pass because it already tested reliably.
+Bass REC uses a single 16-step pass because it has tested reliably.
 
-Rhythm REC now avoids sending MIDI Stop after the user has armed REC on the T-8. 303box first sends clock-only lock-in while the T-8 transport remains stopped, then sends MIDI Start and the actual drum pattern. The identical 16-step rhythm is sent twice so a missed hit on the first loop can be reinforced on the same sequencer step during the second loop.
+Rhythm REC is still being tuned with real hardware. The current flow avoids sending MIDI Stop after hardware REC has been armed, sends clock-only lock-in first, then MIDI Start and two identical rhythm loops so a missed hit can be reinforced on the same step.
 
-Workflow:
+Recommended test flow:
 
 1. Connect the T-8 and enable MIDI.
-2. Use AUTO or choose `Roland T-8`.
+2. Use AUTO or select `Roland T-8`.
 3. Stop the web transport.
-4. Arm REC on the T-8.
-5. Press `BASS → REC` or `RHYTHM → REC`.
-6. 303box sends the controlled clocked transfer.
-7. Check the pattern on the T-8.
-8. Save it with WRITE on the hardware.
+4. Select a disposable/empty 16-step pattern on the T-8.
+5. Arm REC on the T-8.
+6. Press `BASS → REC` or `RHYTHM → REC`.
+7. Inspect the captured steps.
+8. Use WRITE on the physical device only after confirming the result.
 
-Starting a T-8 REC transfer also enables `SEND CLOCK`, so after the transfer the device can remain externally synchronized to the 303box session tempo while the MIDI connection stays active.
-
-This does **not** write undocumented non-volatile memory directly. 303box performs the live MIDI pass; the final hardware WRITE remains yours.
-
-## Scope / FFT
-
-The analyzer listens to the 303 signal, not the full master mix. Drum hits therefore do not hijack the displayed pitch/frequency.
-
-The workstation UI is static from the first render: Acid Console, Scope and MIDI already exist in their final positions instead of being created elsewhere and moved after load.
+303box does **not** send undocumented non-volatile memory writes.
 
 ## MIDI safety
 
-`PANIC` is the hard emergency control. It clears queued MIDI where available, sends All Sound Off / All Notes Off across channels, sends MIDI Stop and stops the 303box transport.
+`PANIC` is the emergency stop. It clears queued MIDI where possible, sends All Sound Off / All Notes Off, sends MIDI Stop and stops the 303box transport.
 
-Normal tab switching no longer triggers PANIC. Actual page exit still does.
+Changing browser tabs does not trigger PANIC. Real page exit still performs MIDI cleanup so the device is not intentionally left running after the page is gone.
+
+## Scope / FFT
+
+The analyzer follows the 303 signal rather than the full drum mix. It is a visual aid for the browser sketch, not a measurement claim about connected analog hardware.
+
+## Development note
+
+The **software development process** has included AI-assisted coding with ChatGPT alongside direct design decisions and physical hardware testing.
+
+That is separate from the musical behavior of the application: **303box does not use an AI composition model to make the user's music.** Pattern Random uses explicit musical/randomization rules, and the user remains responsible for the musical choices and performance.
 
 ## Run locally
 
@@ -155,48 +154,39 @@ There is no framework and no build step.
 python3 -m http.server 8080
 ```
 
-Then open:
+Then open `http://localhost:8080`.
 
-```text
-http://localhost:8080
-```
-
-For hardware MIDI testing, the live HTTPS deployment is usually the easiest path because Web MIDI requires a secure browser context.
+For Web MIDI hardware testing, the live HTTPS deployment is usually the easiest path because Web MIDI requires a secure browser context.
 
 ## Current production map
 
 ```text
 303box/
-├── index.html                            # static workstation shell
+├── index.html                            # static workstation shell + product positioning
 ├── app.js                                # core sequencer foundation
 ├── acid-console.20260818-1340.js         # unified Web Audio engine
-├── midi-router.20260818-1730.js          # MIDI clock / T-8 velocity / REC timing
-├── console-stable.20260818-1700.css      # Acid Console + Scope + MIDI layout
-├── playhead-unified.20260818-1720.css    # shared red transport LED for 303 + rhythm
-├── bass-scope.20260818-1680.js           # 303-only Scope / FFT renderer
-├── generator-router.20260818-1650.js     # independent bass / rhythm generators
-├── workstation-ui.20260818-1680.js       # stable workstation controls
-├── sequencer-engine.20260818-1700.js     # production compatibility loader
-├── cache-reset.20260818-1700.js          # cache reset for compatibility layer
-├── privacy.html
-├── sitemap.xml
-├── robots.txt
-├── llms.txt
-├── site.webmanifest
+├── midi-router.20260818-1730.js          # MIDI routing + T-8 REC flow
+├── bass-scope.20260818-1680.js           # 303-only Scope / FFT
+├── generator-router.20260818-1650.js     # independent rule-based generators
+├── playhead-unified.20260818-1720.css    # shared red transport LED
+├── positioning.20260818-1740.css         # sketchpad / musician-owned positioning UI
+├── seo.20260818-1740.js                  # matching EN/TR product + SEO copy
+├── sequencer-engine.20260818-1740.js     # production compatibility loader
+├── cache-reset.20260818-1740.js          # current cache epoch
 └── README.md
 ```
 
 ## Philosophy
 
-No account. No installer. No project wizard. No fake DAW chrome.
+**Make the drafting easier. Keep the music human.**
 
-Open it, generate a line, move the filter, build a rhythm and send it to hardware.
+No account. No installer. No fake promise that a browser replaces the musician.
+
+Write the idea, hear it, change it, take it to the machine — then perform it.
 
 ## Project
 
 **303box is a Z3Z project.**
-
-Built iteratively with direct hardware testing, musical/UI decisions and AI-assisted coding with ChatGPT.
 
 <p align="center">
   <a href="https://303box.com">Website</a> ·
