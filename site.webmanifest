@@ -6,5 +6,13 @@
   "display": "standalone",
   "background_color": "#070708",
   "theme_color": "#070708",
-  "description": "Browser-based 16-step acid bassline pattern generator."
+  "description": "Browser-based 16-step acid bassline pattern generator with drum machine and MIDI output.",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
 }
