@@ -1,0 +1,87 @@
+/* 303box workstation layout authority — loaded last */
+
+/* Random Patch belongs to TEMPO, not to the synth-knob grid. */
+#patternSheet .tempo-module{position:relative!important}
+#patternSheet .tempo-module .tempo-random-patch,
+#patternSheet .tempo-module #randomPatchButton{
+  position:static!important;
+  inset:auto!important;
+  z-index:auto!important;
+  width:min(150px,92%)!important;
+  min-height:25px!important;
+  height:25px!important;
+  margin:5px auto 0!important;
+  padding:0 9px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  border:1px solid #68791d!important;
+  border-radius:6px!important;
+  background:#171c09!important;
+  color:#ddff37!important;
+  font:850 .46rem/1 JetBrains Mono,monospace!important;
+  letter-spacing:.04em!important;
+  white-space:nowrap!important;
+}
+
+/* The knob grid contains knobs only. Six core controls on row one, three FX on row two. */
+#patternSheet #knobGrid{
+  position:relative!important;
+  padding-top:16px!important;
+  padding-bottom:18px!important;
+  grid-template-columns:repeat(6,minmax(0,1fr))!important;
+  grid-auto-rows:minmax(104px,auto)!important;
+  row-gap:24px!important;
+  align-items:start!important;
+  align-content:center!important;
+}
+#patternSheet #knobGrid>.knob{min-width:0!important;margin:0!important}
+#patternSheet #knobGrid>.knob[data-knob-order="1"]{order:1!important}
+#patternSheet #knobGrid>.knob[data-knob-order="2"]{order:2!important}
+#patternSheet #knobGrid>.knob[data-knob-order="3"]{order:3!important}
+#patternSheet #knobGrid>.knob[data-knob-order="4"]{order:4!important}
+#patternSheet #knobGrid>.knob[data-knob-order="5"]{order:5!important}
+#patternSheet #knobGrid>.knob[data-knob-order="6"]{order:6!important}
+#patternSheet #knobGrid>.knob[data-knob-order="7"]{order:7!important}
+#patternSheet #knobGrid>.knob[data-knob-order="8"]{order:8!important}
+#patternSheet #knobGrid>.knob[data-knob-order="9"]{order:9!important}
+
+/* FX row gets breathing room and consistent title/value geometry. */
+#patternSheet #knobGrid>.knob[data-knob-order="7"],
+#patternSheet #knobGrid>.knob[data-knob-order="8"],
+#patternSheet #knobGrid>.knob[data-knob-order="9"]{padding-top:4px!important}
+#patternSheet #knobGrid .knob-title{min-height:14px!important}
+#patternSheet #knobGrid .knob-value{min-height:12px!important}
+
+/* Explicit visual order: 303 and Rhythm are identical. */
+.pattern-control-panel #generateButton{order:1!important}
+.pattern-control-panel #playButton{order:2!important}
+.pattern-control-panel #downloadButton{order:3!important}
+.pattern-control-panel #clearButton{order:4!important}
+#drums #drumRandom{order:1!important}
+#drums #drumPlay{order:2!important}
+#drums #drumDownload{order:3!important}
+#drums #drumClear{order:4!important}
+
+@media(max-width:760px){
+  #patternSheet #knobGrid{
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    grid-auto-rows:minmax(102px,auto)!important;
+    row-gap:18px!important;
+    padding:15px 8px 17px!important;
+  }
+  #patternSheet .tempo-module .tempo-random-patch,
+  #patternSheet .tempo-module #randomPatchButton{
+    width:min(160px,94%)!important;
+    min-height:24px!important;
+    height:24px!important;
+    margin-top:3px!important;
+    font-size:.44rem!important;
+  }
+}
+
+@media(max-width:430px){
+  #patternSheet #knobGrid{row-gap:15px!important}
+  #patternSheet .tempo-module .tempo-random-patch,
+  #patternSheet .tempo-module #randomPatchButton{width:94%!important}
+}
