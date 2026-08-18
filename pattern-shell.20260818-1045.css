@@ -121,3 +121,29 @@
   #patternSheet .sequence-table{width:100%!important;min-width:100%!important}
   #patternSheet .sequence-table-wrap{overflow-x:visible!important}
 }
+
+/* 303 hardware refinement */
+#patternSheet .notes-panel{display:none!important}
+#patternSheet .synth-controls{grid-template-columns:repeat(6,minmax(0,1fr))!important}
+#patternSheet .tune-knob .knob-value{font-family:JetBrains Mono,monospace!important;letter-spacing:.02em!important}
+#patternSheet .tune-knob .knob-title{color:#ddff37!important}
+
+@media(max-width:760px){
+  #patternSheet .waveform-module{display:grid!important;grid-template-rows:auto auto!important;align-content:center!important;justify-items:center!important;gap:10px!important}
+  #patternSheet .waveform-module>.control-label{grid-row:1!important}
+  #patternSheet .wave-selector{grid-row:2!important;width:100%!important;display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:6px!important;padding:0 4px!important}
+  #patternSheet .wave-button{width:100%!important;min-width:0!important;height:46px!important;padding:0 7px!important}
+  #patternSheet .wave-button svg{width:23px!important}
+
+  #patternSheet .tempo-module{display:grid!important;grid-template-columns:minmax(0,1fr) 62px!important;grid-template-rows:auto auto!important;align-content:center!important;align-items:center!important;column-gap:7px!important;row-gap:10px!important;padding:12px 8px!important}
+  #patternSheet .tempo-module>.control-label{grid-column:1/-1!important;grid-row:1!important;text-align:center!important}
+  #patternSheet .tempo-module>.seven-display{grid-column:1!important;grid-row:2!important;width:100%!important;max-width:112px!important;justify-self:end!important}
+  #patternSheet .tempo-module>#tempoKnob{grid-column:2!important;grid-row:2!important;width:62px!important;display:grid!important;place-items:center!important}
+  #patternSheet .tempo-module>#tempoKnob .knob{gap:3px!important}
+  #patternSheet .tempo-module>#tempoKnob .knob-control{width:54px!important;height:54px!important}
+
+  #patternSheet .synth-controls{grid-template-columns:repeat(3,minmax(0,1fr))!important;row-gap:13px!important;padding:14px 8px 16px!important}
+  #patternSheet .synth-controls .knob + .knob::before{display:none!important}
+  #patternSheet .synth-controls .knob-control{width:58px!important;height:58px!important}
+  #patternSheet .synth-controls .knob-title{font-size:.46rem!important;min-height:1.1rem!important;display:flex!important;align-items:flex-end!important;justify-content:center!important}
+}
