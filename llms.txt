@@ -1,11 +1,11 @@
 # 303box
 
-> 303box is a free browser-based 16-step acid bassline pattern generator inspired by TB-303 and TD-3 sequencing workflows.
+> 303box is a free browser-based 16-step acid bassline and rhythm pattern tool inspired by TB-303 / TD-3 workflows, with browser audio analysis, MIDI output and a T-8-inspired drum machine.
 
 Canonical URL: https://303box.com/
 
 ## Core capabilities
-- Program 16 sequencing steps.
+- Program 16 acid sequencing steps.
 - Set note pitch, octave down/up, accent, slide, trigger, tie and rest states.
 - Choose sawtooth or square waveform.
 - Adjust tempo from 50 to 250 BPM with a hardware-style knob and seven-segment display.
@@ -16,8 +16,12 @@ Canonical URL: https://303box.com/
 - Connect supported MIDI hardware through the Web MIDI API.
 - Send note messages, accent velocity and optional MIDI Start/Stop/24-PPQN clock.
 - Choose Browser, Browser + MIDI, or MIDI-only playback.
-- Export the complete pattern sheet as a JPG.
-- Store the current working session locally in the browser.
+- Program a separate 16-step drum machine with bass drum, snare, hand clap, tom, closed hi-hat and open hi-hat parts.
+- Start the drum machine independently or sync its start to the next step 1 of the 303 sequencer.
+- Randomize drum patterns with adjustable density.
+- Adjust per-part drum level, master level, and the supported clap/tom voice variants.
+- Export the visible 303 pattern editor as a JPG.
+- Store the current working sessions locally in the browser.
 
 ## Languages
 - English
@@ -25,6 +29,7 @@ Canonical URL: https://303box.com/
 
 ## Important sections
 - Sequencer: https://303box.com/#sequencer
+- Drum machine: https://303box.com/#drums
 - Live signal and MIDI: https://303box.com/#live
 - Sequencer guide: https://303box.com/#guide
 - TB-303 history: https://303box.com/#history
