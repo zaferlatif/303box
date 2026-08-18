@@ -6,6 +6,31 @@
   const RHYTHM_STORE = '303box-rhythm-v6';
   const RHYTHM_VOICE_STORE = '303box-rhythm-exact-voices-v1';
   const DEFAULT_DRUM_LEVEL = 80;
+  const TUNE_STORE = '303box-tune-semitones-v1';
+  const REFERENCE_MIGRATION = '303box-reference-default-v1';
+
+  const bootSessionRaw = localStorage.getItem('303box-session') || localStorage.getItem('303-session');
+  let shouldSeedReference = false;
+  if (!localStorage.getItem(REFERENCE_MIGRATION)) {
+    if (!bootSessionRaw) {
+      shouldSeedReference = true;
+    } else {
+      try {
+        const boot = JSON.parse(bootSessionRaw);
+        const title = String(boot?.title || '').trim();
+        const author = String(boot?.author || '').trim();
+        const stockTitles = ['', 'Acid Pattern', 'Acid Tracks'];
+        const stockAuthors = ['', 'Z3Z', 'DJ Pierre'];
+        shouldSeedReference = stockTitles.includes(title) && stockAuthors.includes(author);
+      } catch (_) {
+        shouldSeedReference = true;
+      }
+    }
+  }
+
+  let tuneSemitones = Number(localStorage.getItem(TUNE_STORE));
+  if (!Number.isFinite(tuneSemitones)) tuneSemitones = shouldSeedReference ? 1 : 0;
+  tuneSemitones = Math.max(-12, Math.min(12, Math.round(tuneSemitones)));
 
   const COPY = {
     en: {
@@ -13,14 +38,14 @@
       shortcuts: 'Shortcuts', title: 'Keyboard shortcuts',
       intro: 'Fast controls for the sequencer. Browser shortcuts such as Ctrl/Cmd + R are never overridden.',
       space: 'Play / stop 303', shiftSpace: 'Play / stop rhythm', g: 'Generate 303 + rhythm + BPM', question: 'Show shortcuts', esc: 'Close this panel',
-      close: 'Got it'
+      close: 'Got it', tune: 'TUNE'
     },
     tr: {
       generate: 'ÜRET', play: 'ÇAL', stop: 'DUR', wait: 'BEKLE', download: 'İNDİR', clear: 'TEMİZLE',
       shortcuts: 'Kısayollar', title: 'Klavye kısayolları',
       intro: 'Sequencer için hızlı kontroller. Ctrl/Cmd + R gibi tarayıcı kısayollarına dokunulmaz.',
       space: '303 çal / durdur', shiftSpace: 'Ritmi çal / durdur', g: '303 + ritim + BPM üret', question: 'Kısayolları göster', esc: 'Bu paneli kapat',
-      close: 'Tamam'
+      close: 'Tamam', tune: 'TUNE'
     }
   };
   const t = key => COPY[lang()][key] || COPY.en[key] || key;
@@ -33,6 +58,40 @@
     ch: { code: 'CH-606', name: { en: 'Closed Hi-Hat', tr: 'Kapalı Hi-Hat' }, value: '606ch' },
     oh: { code: 'OH-606', name: { en: 'Open Hi-Hat', tr: 'Açık Hi-Hat' }, value: '606oh' }
   };
+
+  /* Tune only the 303 AudioContext. Rhythm contexts are deliberately excluded. */
+  (() => {
+    const NativeAudioContext = window.AudioContext || window.webkitAudioContext;
+    if (!NativeAudioContext || NativeAudioContext.__303boxTuneWrapped) return;
+
+    let pendingRole = null;
+    document.addEventListener('click', e => {
+      if (e.target.closest?.('#playButton')) pendingRole = 'bass';
+      else if (e.target.closest?.('#drumPlay')) pendingRole = 'drums';
+      if (pendingRole) setTimeout(() => { pendingRole = null; }, 180);
+    }, true);
+
+    const WrappedAudioContext = new Proxy(NativeAudioContext, {
+      construct(target, args) {
+        const ctx = Reflect.construct(target, args, target);
+        const isBass = pendingRole === 'bass';
+        pendingRole = null;
+        if (isBass) {
+          const nativeCreateOscillator = ctx.createOscillator.bind(ctx);
+          ctx.createOscillator = function() {
+            const osc = nativeCreateOscillator();
+            try { osc.detune.setValueAtTime(tuneSemitones * 100, ctx.currentTime); } catch (_) {}
+            return osc;
+          };
+        }
+        return ctx;
+      }
+    });
+    WrappedAudioContext.__303boxTuneWrapped = true;
+    try { WrappedAudioContext.prototype = NativeAudioContext.prototype; } catch (_) {}
+    window.AudioContext = WrappedAudioContext;
+    if (window.webkitAudioContext === NativeAudioContext) window.webkitAudioContext = WrappedAudioContext;
+  })();
 
   function sanitizeStoredRhythm() {
     try {
@@ -137,6 +196,7 @@
     installActionObservers();
     installFooterShortcutLink();
     normalizeDrumVoices();
+    mountTuneKnob();
     return true;
   }
 
@@ -161,6 +221,7 @@
     if (drum && drumLabel) {
       setText(drumLabel, drum.classList.contains('armed') ? t('wait') : (drum.classList.contains('playing') ? t('stop') : t('play')));
     }
+    setText(document.querySelector('#tuneKnobWrap .knob-title'), t('tune'));
   }
 
   let observersInstalled = false;
@@ -172,6 +233,77 @@
     observersInstalled = true;
     if (bass) new MutationObserver(syncActionLabels).observe(bass, {attributes:true, attributeFilter:['aria-pressed']});
     if (drum) new MutationObserver(syncActionLabels).observe(drum, {attributes:true, attributeFilter:['class']});
+  }
+
+  function tuneDialSvg() {
+    const ticks = Array.from({length: 11}, (_, i) => {
+      const angle = -135 + i * 27;
+      return `<line class="dial-tick${i === 0 || i === 5 || i === 10 ? ' major' : ''}" x1="50" y1="5" x2="50" y2="11" transform="rotate(${angle} 50 50)"/>`;
+    }).join('');
+    return `<svg viewBox="0 0 100 100" aria-hidden="true"><defs><linearGradient id="knobFace-tune" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#333338"/><stop offset="1" stop-color="#111113"/></linearGradient></defs>${ticks}<circle class="dial-bezel" cx="50" cy="50" r="34"/><circle fill="url(#knobFace-tune)" stroke="#151517" stroke-width="2" cx="50" cy="50" r="29"/><circle class="dial-center" cx="50" cy="50" r="5"/><g class="pointer-group"><line class="dial-pointer" x1="50" y1="50" x2="50" y2="23"/></g></svg>`;
+  }
+
+  function renderTuneKnob() {
+    const control = document.querySelector('#tuneKnobControl');
+    const value = document.querySelector('#tuneKnobValue');
+    if (!control) return;
+    const angle = -135 + ((tuneSemitones + 12) / 24) * 270;
+    control.querySelector('.pointer-group')?.setAttribute('transform', `rotate(${angle} 50 50)`);
+    control.setAttribute('aria-valuenow', String(tuneSemitones));
+    if (value) value.textContent = `${tuneSemitones > 0 ? '+' : ''}${tuneSemitones} ST`;
+  }
+
+  function setTune(value) {
+    tuneSemitones = Math.max(-12, Math.min(12, Math.round(value)));
+    localStorage.setItem(TUNE_STORE, String(tuneSemitones));
+    renderTuneKnob();
+  }
+
+  function mountTuneKnob() {
+    const grid = document.querySelector('#knobGrid');
+    if (!grid) return false;
+    if (document.querySelector('#tuneKnobWrap')) {
+      renderTuneKnob();
+      return true;
+    }
+
+    const wrap = document.createElement('div');
+    wrap.className = 'knob tune-knob';
+    wrap.id = 'tuneKnobWrap';
+    wrap.innerHTML = `<span class="knob-title">${t('tune')}</span><button type="button" class="knob-control" id="tuneKnobControl" role="slider" aria-label="Tune" aria-valuemin="-12" aria-valuemax="12">${tuneDialSvg()}</button><span class="knob-value" id="tuneKnobValue"></span>`;
+    grid.prepend(wrap);
+
+    const control = wrap.querySelector('#tuneKnobControl');
+    let active = false;
+    let startY = 0;
+    let startValue = tuneSemitones;
+    control.addEventListener('pointerdown', e => {
+      active = true; startY = e.clientY; startValue = tuneSemitones;
+      try { control.setPointerCapture(e.pointerId); } catch (_) {}
+      e.preventDefault();
+    });
+    control.addEventListener('pointermove', e => {
+      if (!active) return;
+      setTune(startValue + (startY - e.clientY) * .08);
+    });
+    const finish = e => {
+      if (!active) return;
+      active = false;
+      try { control.releasePointerCapture(e.pointerId); } catch (_) {}
+    };
+    control.addEventListener('pointerup', finish);
+    control.addEventListener('pointercancel', finish);
+    control.addEventListener('wheel', e => { e.preventDefault(); setTune(tuneSemitones + (e.deltaY < 0 ? 1 : -1)); }, {passive:false});
+    control.addEventListener('keydown', e => {
+      if (!['ArrowUp','ArrowRight','ArrowDown','ArrowLeft','Home','End'].includes(e.key)) return;
+      e.preventDefault();
+      if (e.key === 'Home') setTune(-12);
+      else if (e.key === 'End') setTune(12);
+      else setTune(tuneSemitones + (['ArrowUp','ArrowRight'].includes(e.key) ? 1 : -1));
+    });
+    control.addEventListener('dblclick', () => setTune(0));
+    renderTuneKnob();
+    return true;
   }
 
   function editableTarget(el) {
@@ -238,6 +370,51 @@
     links.prepend(a);
   }
 
+  function setTempo(value) {
+    const input = document.querySelector('#tempoInput');
+    const form = document.querySelector('#tempoForm');
+    const submit = document.querySelector('#tempoApply');
+    if (!input || !form || !submit) return;
+    input.value = String(value);
+    form.dispatchEvent(new SubmitEvent('submit', { bubbles:true, cancelable:true, submitter:submit }));
+  }
+
+  function seedReferencePattern() {
+    if (!shouldSeedReference) {
+      localStorage.setItem(REFERENCE_MIGRATION, '1');
+      return;
+    }
+    const notes = ['G','G','G','G','A#','A#','A#','A#','A#','A#','A#','A#','A#','A#','A#','A#'];
+    const octaves = ['','','D','','','D','D','','D','','','','','','',''];
+    const accents = ['A','','','','','','','','','','','','','','',''];
+    const gates = ['●','○','○','●','-','●','●','-','●','-','●','○','●','●','-','●'];
+    const noteInputs = [...document.querySelectorAll('.note-input')];
+    const octaveCells = [...document.querySelectorAll('.octave-cell')];
+    const accentCells = [...document.querySelectorAll('.accentSlide-cell')];
+    const gateCells = [...document.querySelectorAll('.gate-cell')];
+    if (noteInputs.length !== 16 || octaveCells.length !== 16 || accentCells.length !== 16 || gateCells.length !== 16) return;
+
+    notes.forEach((note, i) => {
+      noteInputs[i].value = note;
+      octaveCells[i].textContent = octaves[i];
+      accentCells[i].textContent = accents[i];
+      gateCells[i].textContent = gates[i];
+      const picker = document.querySelector(`[data-note-picker="${i}"]`);
+      if (picker) picker.value = note;
+    });
+
+    const author = document.querySelector('#authorInput');
+    const title = document.querySelector('#titleInput');
+    if (author) author.value = 'New Order / The Pump Panel';
+    if (title) title.value = 'Confusion / Blade Theme';
+    document.querySelector('#waveSquare')?.click();
+    setTempo(133);
+    setTune(1);
+    author?.dispatchEvent(new Event('input', { bubbles:true }));
+    localStorage.setItem(REFERENCE_MIGRATION, '1');
+    shouldSeedReference = false;
+  }
+
   // Capture before legacy document handlers. Browser shortcuts keep their native defaults.
   window.addEventListener('keydown', e => {
     const key = (e.key || '').toLowerCase();
@@ -301,11 +478,14 @@
       syncActionLabels();
       installFooterShortcutLink();
       normalizeDrumVoices();
+      mountTuneKnob();
     }, ms));
 
     setTimeout(() => {
+      seedReferencePattern();
       resetDrumChannelLevels();
       normalizeDrumVoices();
+      mountTuneKnob();
       if (!localStorage.getItem(STORAGE_KEY)) openShortcuts({automatic:true});
     }, 900);
   }
