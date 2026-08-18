@@ -1,6 +1,6 @@
 (() => {
   'use strict';
-  const version = '20260818-1402';
+  const version = '20260818-1412';
 
   const addCss = (key, href) => {
     if (document.querySelector(`link[data-303box-${key}]`)) return;
@@ -25,11 +25,12 @@
     document.head.appendChild(script);
   });
 
-  load('./transport-fuse.20260818-1400.js')
+  load('./transport-fuse.20260818-1410.js')
     .then(() => load('./acid-console.20260818-1340.js'))
     .then(() => load('./acid-console-guard.20260818-1343.js'))
     .then(() => load('./ui-audio.20260818-1240.js'))
     .then(() => load('./ui-polish.20260818-1255.js'))
+    .then(() => load('./bass-scope.20260818-1410.js'))
     .then(() => load('./seo.20260818-1315.js'))
     .catch(error => console.error('303box production loader', error));
 })();
