@@ -1,24 +1,21 @@
 # 303box
 
-> 303box is a free browser-based 16-step acid bassline and rhythm tool inspired by TB-303 / TD-3 workflows, with Web Audio preview, compact signal analysis, MIDI output and a classic Roland-style drum machine.
+> 303box is a free browser-based 16-step 303 acid bassline and synchronized rhythm sequencer.
 
 Canonical URL: https://303box.com/
 
 ## Core capabilities
-- Program 16 acid sequencing steps.
-- Choose notes from a chromatic note selector and set octave down/up, accent, slide, trigger, tie and rest states.
-- Choose sawtooth or square waveform.
-- Adjust tempo from 50 to 250 BPM with a hardware-style knob and seven-segment display.
-- Adjust cutoff, resonance, envelope modulation, decay and accent.
-- Preview patterns with the Web Audio API.
-- Inspect the 303 signal with a compact oscilloscope / FFT display inside the sequencer workspace.
+- Program 16-step 303 patterns with note, octave, accent, slide, trigger, tie and rest states.
+- Choose sawtooth or square waveform and shape cutoff, resonance, envelope modulation, decay and accent.
+- Preview the 303 line with the Web Audio API.
+- Inspect the 303 signal with a compact oscilloscope and FFT display.
 - Connect supported MIDI hardware through the Web MIDI API and send note messages plus optional MIDI clock.
-- Program a separate 16-step drum machine with bass drum, snare, clap, tom, closed hi-hat and open hi-hat parts.
-- Select 808-, 909- and 606-style synthesized drum character where available.
-- Start drums independently or synchronize their start to the next step 1 of the 303 sequencer.
-- Randomize drum patterns with adjustable density.
-- Mix 303 and drum output independently; both default to 80 percent.
-- Export the visible 303 pattern editor as a JPG.
+- Program a synchronized six-part rhythm machine: bass drum, snare drum, hand clap, tom, closed hi-hat and open hi-hat.
+- The default rhythm palette follows a compact classic setup: 909 bass drum, 606 snare and hi-hats, 808 clap and low tom, with alternate clap/tom voices.
+- Start the rhythm independently or synchronize its start to step 1 of the 303 sequencer.
+- Randomize both acid and rhythm patterns.
+- Mix 303 and rhythm levels independently; both default to 80%.
+- Export the visible 303 pattern and rhythm pattern as JPG images.
 - Store working sessions locally in the browser.
 
 ## Languages
@@ -27,10 +24,10 @@ Canonical URL: https://303box.com/
 
 ## Important sections
 - Sequencer: https://303box.com/#sequencer
-- Drum machine: https://303box.com/#drums
+- Rhythm machine: https://303box.com/#drums
 - Sequencer guide: https://303box.com/#guide
-- TB-303 history: https://303box.com/#history
+- 303 history: https://303box.com/#history
 - FAQ: https://303box.com/#faq
 
 ## Historical coverage
-The site includes a sourced TB-303 timeline covering Roland/Tadao Kikumoto, Phuture (DJ Pierre, Spanky, Herb J), Ron Hardy, A Guy Called Gerald, Hardfloor and Josh Wink. The drum reference briefly explains the TR-808, TR-909 and TR-606, including the TR-606's original role as a companion to the TB-303.
+The site includes a sourced 303 timeline covering Tadao Kikumoto, Phuture, DJ Pierre, Ron Hardy, A Guy Called Gerald, Hardfloor, Josh Wink and the continuing 303 hardware/software ecosystem.
