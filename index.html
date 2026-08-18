@@ -1,1 +1,275 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>303 Pattern Playground — Free Acid Bassline Pattern Generator</title><meta name="description" content="Create, preview and export TB-303 and TD-3 inspired acid bassline patterns in your browser. Free 16-step sequencer with accent, slide, octave, waveform and filter controls."><meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1"><meta name="theme-color" content="#070708"><meta name="color-scheme" content="dark"><link rel="canonical" href="https://303box.com/"><link rel="manifest" href="/site.webmanifest"><meta property="og:type" content="website"><meta property="og:site_name" content="303 Pattern Playground"><meta property="og:title" content="303 Pattern Playground — Acid Bassline Pattern Generator"><meta property="og:description" content="Build, hear and export 16-step acid bassline patterns directly in your browser."><meta property="og:url" content="https://303box.com/"><meta property="og:image" content="https://303box.com/og-image.svg"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="303 Pattern Playground"><meta name="twitter:description" content="Free browser-based 16-step acid bassline pattern generator."><meta name="twitter:image" content="https://303box.com/og-image.svg"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="/styles.css"><script defer src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script><script defer src="/app.js"></script><script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://303box.com/#website","url":"https://303box.com/","name":"303 Pattern Playground","alternateName":"303box","description":"Free browser-based acid bassline pattern generator and 16-step sequencer.","inLanguage":["en","tr"]},{"@type":"WebApplication","@id":"https://303box.com/#app","url":"https://303box.com/","name":"303 Pattern Playground","applicationCategory":"MultimediaApplication","applicationSubCategory":"Music sequencer","operatingSystem":"Any modern browser","browserRequirements":"JavaScript and Web Audio API support","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":["16-step sequencer","Accent and slide programming","Octave controls","Saw and square waveforms","Filter controls","Browser audio preview","JPG pattern export"]},{"@type":"FAQPage","@id":"https://303box.com/#faq","mainEntity":[{"@type":"Question","name":"What is 303 Pattern Playground?","acceptedAnswer":{"@type":"Answer","text":"A free browser-based 16-step acid bassline pattern generator inspired by classic 303-style workflows."}},{"@type":"Question","name":"Do I need to install anything?","acceptedAnswer":{"@type":"Answer","text":"No. It runs directly in a modern browser using the Web Audio API."}},{"@type":"Question","name":"Can I export my pattern?","acceptedAnswer":{"@type":"Answer","text":"Yes. You can export the complete sequencer sheet as a JPG image."}}]}]}</script></head><body><header class="site-header"><div class="shell header-inner"><a class="brand" href="#top"><span class="brand-mark"><svg viewBox="0 0 24 24"><path d="M12 2.8a9.2 9.2 0 1 0 0 18.4 9.2 9.2 0 0 0 0-18.4ZM9 10h.01M15 10h.01M8.7 14.2c1.6 1.8 5 1.8 6.6 0"/></svg></span><span>303 Pattern Playground<small>Acid sequence generator</small></span></a><nav class="main-nav"><a href="#generator">Generator</a><a href="#features">Features</a><a href="#guide">Guide</a><a href="#faq">FAQ</a></nav><div class="header-actions"><button id="languageButton" class="ghost">EN / TR</button><a class="primary" href="#generator">Open Sequencer</a></div></div></header><main id="top"><section class="shell hero"><div><p class="eyebrow">TB-303 / TD-3 INSPIRED WORKFLOW</p><h1 data-i18n="heroTitle">Build acid basslines that move.</h1><p class="hero-copy" data-i18n="heroCopy">Create, audition and export 16-step 303-style bassline patterns directly in your browser.</p><div class="hero-actions"><a class="primary" href="#generator" data-i18n="heroCta">Open Sequencer</a><a class="secondary" href="#guide">Learn the workflow</a></div></div><aside class="hero-card"><div class="hero-card-top"><span>303 / PLAYGROUND</span><span class="live">LIVE</span></div><div class="hero-display"><span>PATTERN ENGINE</span><strong>16 STEP</strong><span>ACCENT · SLIDE · OCTAVE · GATE</span></div><div class="dots"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></aside></section><section id="features" class="section shell"><div class="section-head"><p class="eyebrow">WHY IT WORKS</p><h2 data-i18n="features">Built for fast acid ideas</h2><p>A focused interface keeps notes, rests, ties, octave shifts, accent, slide and filter movement in one place.</p></div><div class="feature-grid"><article class="feature"><strong>Program the groove</strong><p>Work on a familiar 16-step grid with the sequencing decisions that define 303-style lines.</p></article><article class="feature"><strong>Shape the character</strong><p>Move cutoff, resonance, envelope modulation, decay and accent while the pattern plays.</p></article><article class="feature"><strong>Take it to hardware</strong><p>Export a clean pattern sheet and use it as a programming reference in your studio.</p></article></div></section><section id="generator" class="workspace shell"><div class="workspace-head"><div><p class="eyebrow">PATTERN ENGINE</p><h2>303 Sequencer</h2></div><div class="workspace-actions"><button id="generateButton" class="primary" data-i18n="generate">Generate Pattern</button><button id="playButton" class="secondary"><span id="playLabel">PLAY</span></button><button id="downloadButton" class="secondary" data-i18n="download">Download Sheet</button><button id="clearButton" class="ghost" data-i18n="clear">Clear</button></div></div><div class="pattern-wrap"><div id="patternSheet" class="pattern-sheet"><div class="sheet-title"><strong>303 PATTERN</strong><span>ANALOG BASS LINE SEQUENCER</span></div><div class="meta"><div class="field"><label data-i18n="author">Author</label><input id="authorInput" value="DJ Pierre"></div><div class="field"><label data-i18n="title">Title</label><input id="titleInput" value="Acid Tracks"></div></div><table class="grid"><thead><tr id="stepHead"><th data-i18n="step">Step</th></tr></thead><tbody id="patternGrid"></tbody></table><div class="hardware"><div class="control-box"><div class="control-label" data-i18n="waveform">Waveform</div><div class="wave-row"><button class="wave-btn" data-wave="saw">SAW</button><button class="wave-btn active" data-wave="square">SQR</button></div></div><div class="control-box"><div class="control-label" data-i18n="tempo">Tempo</div><div id="bpmDisplay" class="bpm-display">140</div><input id="bpmRange" class="bpm-range" type="range" min="50" max="250" value="140"></div><div class="knobs"><div class="knob-wrap"><label>Cut Off</label><div class="knob" data-knob="cutoff"><output>40</output></div></div><div class="knob-wrap"><label>Resonance</label><div class="knob" data-knob="resonance"><output>78</output></div></div><div class="knob-wrap"><label>Env Mod</label><div class="knob" data-knob="envMod"><output>62</output></div></div><div class="knob-wrap"><label>Decay</label><div class="knob" data-knob="decay"><output>38</output></div></div><div class="knob-wrap"><label>Accent</label><div class="knob" data-knob="accent"><output>72</output></div></div></div></div><div class="notes"><label data-i18n="notes">EFX / Notes</label><textarea id="notesArea" placeholder="Write your patch notes here..."></textarea></div></div></div></section><section id="guide" class="section shell"><div class="section-head"><p class="eyebrow">303 BASICS</p><h2 data-i18n="guide">A focused 303 workflow</h2><p>A convincing acid line is usually controlled repetition, rhythmic gaps and a few deliberate moments of movement.</p></div><div class="knowledge"><article class="card"><h3>1. Build the rhythm first</h3><p>Start with a small note set and use rests to create space. Make the rhythm work before filter movement.</p><h3>2. Add accent and slide</h3><p>Accent selected hits for impact and use slide sparingly to connect pitch targets.</p></article><article class="card"><h3>3. Perform the filter</h3><p>Keep resonance present, then move cutoff and envelope modulation until the loop feels animated.</p><p>Classic acid sequencing is less about complex harmony and more about how gate length, rests, octave changes, accent and slide push one step into the next.</p></article></div></section><section id="faq" class="section shell"><div class="section-head"><p class="eyebrow">FAQ</p><h2 data-i18n="faq">Frequently asked questions</h2></div><div class="faq"><details><summary>What is 303 Pattern Playground?</summary><p>A free browser-based 16-step acid bassline pattern generator inspired by classic TB-303 and TD-3 sequencing workflows.</p></details><details><summary>Do I need to install anything?</summary><p>No. It runs directly in a modern browser and uses the Web Audio API for sound preview.</p></details><details><summary>Can I use the pattern with hardware?</summary><p>Yes. Export the sheet as a JPG and use it as a programming reference for your hardware session.</p></details></div></section></main><footer class="footer"><div class="shell">303box.com · 303 Pattern Playground · Built for acid producers.</div></footer><div id="toast" class="toast"></div></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>303box — Free TB-303 & TD-3 Acid Pattern Generator</title>
+  <meta name="description" content="Create, hear and export 16-step TB-303 and TD-3 inspired acid bassline patterns in your browser. Free, fast and built for hardware workflows.">
+  <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+  <meta name="theme-color" content="#070708">
+  <meta name="color-scheme" content="dark">
+  <link rel="canonical" href="https://303box.com/">
+  <link rel="manifest" href="./site.webmanifest">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="303box">
+  <meta property="og:title" content="303box — Acid Pattern Generator">
+  <meta property="og:description" content="Build, audition and export 16-step acid bassline patterns directly in your browser.">
+  <meta property="og:url" content="https://303box.com/">
+  <meta property="og:image" content="https://303box.com/og-image.svg">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:locale:alternate" content="tr_TR">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="303box — Acid Pattern Generator">
+  <meta name="twitter:description" content="A browser-based 16-step acid bassline sequencer for TB-303 and TD-3 workflows.">
+  <meta name="twitter:image" content="https://303box.com/og-image.svg">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css">
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script defer src="./app.js"></script>
+
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@graph":[
+      {
+        "@type":"WebSite",
+        "@id":"https://303box.com/#website",
+        "url":"https://303box.com/",
+        "name":"303box",
+        "alternateName":"303 Pattern Playground",
+        "description":"Browser-based acid bassline pattern generator for TB-303 and TD-3 workflows.",
+        "inLanguage":["en","tr"]
+      },
+      {
+        "@type":"WebApplication",
+        "@id":"https://303box.com/#app",
+        "url":"https://303box.com/",
+        "name":"303box Acid Pattern Generator",
+        "applicationCategory":"MultimediaApplication",
+        "applicationSubCategory":"Music sequencer",
+        "operatingSystem":"Any modern browser",
+        "browserRequirements":"JavaScript and Web Audio API",
+        "isAccessibleForFree":true,
+        "featureList":["16-step sequencing","Accent and slide","Octave up and down","Saw and square waveforms","Filter controls","Web Audio preview","JPG pattern sheet export"]
+      },
+      {
+        "@type":"FAQPage",
+        "@id":"https://303box.com/#faq",
+        "mainEntity":[
+          {"@type":"Question","name":"What is 303box?","acceptedAnswer":{"@type":"Answer","text":"303box is a free browser-based 16-step acid bassline pattern generator inspired by TB-303 and TD-3 sequencing workflows."}},
+          {"@type":"Question","name":"Does 303box require an installation?","acceptedAnswer":{"@type":"Answer","text":"No. It runs directly in a modern browser and uses the Web Audio API for preview playback."}},
+          {"@type":"Question","name":"Can I use 303box with hardware?","acceptedAnswer":{"@type":"Answer","text":"Yes. Export the pattern sheet as a JPG and use it as a programming reference for compatible hardware sequencers."}}
+        ]
+      }
+    ]
+  }
+  </script>
+</head>
+<body>
+  <a class="skip-link" href="#sequencer" data-i18n="skip">Skip to sequencer</a>
+
+  <header class="site-header">
+    <div class="shell header-inner">
+      <a class="brand" href="#top" aria-label="303box home">
+        <span class="brand-glyph" aria-hidden="true">303</span>
+        <span class="brand-copy"><strong>303box</strong><small data-i18n="brandTag">Acid pattern laboratory</small></span>
+      </a>
+      <nav class="nav" aria-label="Primary navigation">
+        <a href="#sequencer" data-i18n="navSequencer">Sequencer</a>
+        <a href="#workflow" data-i18n="navWorkflow">Workflow</a>
+        <a href="#reference" data-i18n="navReference">Reference</a>
+        <a href="#faq" data-i18n="navFaq">FAQ</a>
+      </nav>
+      <div class="header-actions">
+        <button class="language-switch" id="languageButton" type="button" aria-label="Change language">
+          <span id="languageCurrent">EN</span><span class="language-separator">/</span><span id="languageNext">TR</span>
+        </button>
+        <a class="mini-cta" href="#sequencer" data-i18n="openSequencer">Open sequencer</a>
+      </div>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="hero shell" aria-labelledby="heroTitle">
+      <div class="hero-copy">
+        <div class="hero-kicker"><span></span><b data-i18n="heroKicker">Free browser acid sequencer</b></div>
+        <h1 id="heroTitle" data-i18n="heroTitle">Turn sixteen steps into a living acid line.</h1>
+        <p class="hero-lead" data-i18n="heroLead">Program notes, rests, ties, accents and slides. Shape the classic filter movement, hear the result instantly and export a clean pattern sheet for your hardware session.</p>
+        <div class="hero-actions">
+          <a class="primary-cta" href="#sequencer" data-i18n="heroPrimary">Build a pattern</a>
+          <a class="secondary-cta" href="#workflow" data-i18n="heroSecondary">How it works</a>
+        </div>
+        <div class="hero-facts" aria-label="Product facts">
+          <div><strong>16</strong><span data-i18n="factSteps">steps</span></div>
+          <div><strong>50–250</strong><span>BPM</span></div>
+          <div><strong>0</strong><span data-i18n="factSignup">sign-up</span></div>
+        </div>
+      </div>
+
+      <div class="hero-visual" aria-hidden="true">
+        <div class="visual-head"><span data-i18n="signalLabel">303box / SIGNAL</span><span class="signal-live" data-i18n="liveLabel">LIVE</span></div>
+        <div class="scope">
+          <svg viewBox="0 0 600 210" preserveAspectRatio="none">
+            <defs><linearGradient id="fade" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#dfff36" stop-opacity="0"/><stop offset=".15" stop-color="#dfff36"/><stop offset=".85" stop-color="#dfff36"/><stop offset="1" stop-color="#dfff36" stop-opacity="0"/></linearGradient></defs>
+            <path class="scope-grid" d="M0 42H600M0 84H600M0 126H600M0 168H600M100 0V210M200 0V210M300 0V210M400 0V210M500 0V210"/>
+            <path class="scope-wave" d="M0 126 C25 126 31 52 58 52 S92 161 124 161 S160 90 192 90 S226 130 252 130 S284 36 318 36 S350 171 386 171 S420 102 450 102 S482 142 515 142 S553 70 600 70"/>
+          </svg>
+        </div>
+        <div class="hero-steps">
+          <span class="on"></span><span></span><span></span><span class="on"></span>
+          <span></span><span class="on"></span><span></span><span></span>
+          <span class="on"></span><span></span><span class="on"></span><span></span>
+          <span></span><span class="on"></span><span></span><span class="on"></span>
+        </div>
+        <div class="visual-foot"><span data-i18n="visualAccent">ACCENT</span><span data-i18n="visualSlide">SLIDE</span><span data-i18n="visualFilter">FILTER</span><span data-i18n="visualExport">EXPORT</span></div>
+      </div>
+    </section>
+
+    <section class="product-band" aria-label="Product summary">
+      <div class="shell product-band-inner">
+        <article><span>01</span><div><strong data-i18n="bandOneTitle">Sequence without friction</strong><p data-i18n="bandOneText">Everything important stays in one focused 16-step view.</p></div></article>
+        <article><span>02</span><div><strong data-i18n="bandTwoTitle">Perform the tone</strong><p data-i18n="bandTwoText">The control strip mirrors the decisions you make on real acid hardware.</p></div></article>
+        <article><span>03</span><div><strong data-i18n="bandThreeTitle">Leave with a usable sheet</strong><p data-i18n="bandThreeText">Export your pattern, knob positions and notes as one clean image.</p></div></article>
+      </div>
+    </section>
+
+    <section class="sequencer-section" id="sequencer" aria-labelledby="sequencerHeading">
+      <div class="shell section-intro compact-intro">
+        <div><p class="eyebrow" data-i18n="sequencerEyebrow">Pattern workspace</p><h2 id="sequencerHeading" data-i18n="sequencerTitle">Build the line. Then perform it.</h2></div>
+        <p data-i18n="sequencerIntro">The generator is intentionally compact: rhythm, pitch, expression and the core 303 controls stay visible together.</p>
+      </div>
+
+      <div class="workspace shell">
+        <div class="workspace-toolbar" data-html2canvas-ignore="true">
+          <div class="toolbar-group">
+            <button class="tool-button tool-button-acid" id="generateButton" type="button">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M4 17h10M17 4l3 3-3 3M17 14l3 3-3 3"/></svg>
+              <span data-i18n="generate">Generate pattern</span>
+            </button>
+            <button class="tool-button tool-button-play" id="playButton" type="button" aria-pressed="false">
+              <span class="status-led" id="playLed" aria-hidden="true"></span>
+              <span id="playLabel">PLAY</span>
+            </button>
+            <button class="tool-button" id="downloadButton" type="button">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 20h14"/></svg>
+              <span data-i18n="download">Download sheet</span>
+            </button>
+          </div>
+          <button class="tool-button tool-button-clear" id="clearButton" type="button" data-i18n="clear">Clear</button>
+        </div>
+
+        <div class="sheet-scroll">
+          <article id="patternSheet" class="pattern-sheet" aria-label="303 pattern sheet">
+            <header class="sheet-header">
+              <div class="sheet-title-wrap">
+                <svg class="triangle-logo" viewBox="0 0 100 100" aria-hidden="true"><path d="M50 10 90 85H10Z"/><path class="fill" d="M40 55c-5-10 5-20 15-10s0 25-10 15Z"/></svg>
+                <div><p class="sheet-kicker" data-i18n="sheetKicker">303BOX / SEQUENCER SHEET</p><h2>303 PATTERN</h2></div>
+              </div>
+              <span class="sheet-model" data-i18n="sheetModel">ANALOG BASS LINE / 16 STEP</span>
+            </header>
+
+            <div class="sheet-meta">
+              <div class="meta-fields">
+                <label><span data-i18n="author">Author</span><input id="authorInput" type="text" value="DJ Pierre" autocomplete="off"></label>
+                <label><span data-i18n="title">Title</span><input id="titleInput" type="text" value="Acid Tracks" autocomplete="off"></label>
+              </div>
+              <div class="memory-panel" aria-label="Pattern bank selection">
+                <div class="memory-row" id="groupSelector"><button class="segment-button selected" type="button" data-value="I">I</button><button class="segment-button" type="button" data-value="II">II</button><button class="segment-button" type="button" data-value="III">III</button><button class="segment-button" type="button" data-value="IV">IV</button></div>
+                <div class="memory-row" id="bankSelector"><button class="segment-button selected" type="button" data-value="A">A</button><button class="segment-button" type="button" data-value="B">B</button></div>
+              </div>
+            </div>
+
+            <div class="sequence-table-wrap">
+              <table class="sequence-table">
+                <thead><tr id="stepHeaderRow"><th class="row-label" scope="col" data-i18n="step">Step</th></tr></thead>
+                <tbody id="patternGrid"></tbody>
+              </table>
+            </div>
+
+            <section class="hardware-strip" aria-label="303 controls">
+              <div class="hardware-module waveform-module">
+                <span class="control-label" data-i18n="waveform">Waveform</span>
+                <div class="wave-selector" role="group" aria-label="Waveform">
+                  <button class="wave-button" id="waveSaw" type="button" data-wave="saw" aria-pressed="false" aria-label="Sawtooth waveform"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17 9 7v10l6-10v10h6"/></svg><small>SAW</small></button>
+                  <button class="wave-button selected" id="waveSquare" type="button" data-wave="square" aria-pressed="true" aria-label="Square waveform"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17V7h8v10h8V7h2"/></svg><small>SQR</small></button>
+                </div>
+              </div>
+
+              <div class="hardware-module tempo-module">
+                <span class="control-label" data-i18n="tempo">Tempo</span>
+                <button class="seven-display" id="bpmDisplay" type="button" aria-label="Edit tempo"><span class="seven-digits" id="sevenDigits"></span><small>BPM</small></button>
+                <div id="tempoKnob"></div>
+              </div>
+
+              <div class="synth-controls" id="knobGrid"></div>
+            </section>
+
+            <section class="notes-panel">
+              <label for="notesArea" class="control-label" data-i18n="notes">EFX / Notes</label>
+              <textarea id="notesArea" rows="4" data-i18n-placeholder="notesPlaceholder" placeholder="Write your patch notes here..."></textarea>
+            </section>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="content-section shell" id="workflow" aria-labelledby="workflowTitle">
+      <div class="section-intro">
+        <div><p class="eyebrow" data-i18n="workflowEyebrow">303 workflow</p><h2 id="workflowTitle" data-i18n="workflowTitle">A strong acid pattern starts with rhythm, not complexity.</h2></div>
+        <p data-i18n="workflowLead">The most convincing lines use a small pitch vocabulary and let timing, accent, slide and filter movement create the character.</p>
+      </div>
+      <div class="workflow-grid">
+        <article><span>01</span><h3 data-i18n="flowOneTitle">Create space</h3><p data-i18n="flowOneText">Use rests before adding more notes. A good 303 line needs negative space to bounce.</p></article>
+        <article><span>02</span><h3 data-i18n="flowTwoTitle">Choose the pressure points</h3><p data-i18n="flowTwoText">Accent only the steps that should punch through. Slide should connect intentional pitch targets.</p></article>
+        <article><span>03</span><h3 data-i18n="flowThreeTitle">Perform the filter</h3><p data-i18n="flowThreeText">Keep resonance alive and move cutoff, envelope modulation and decay while the loop repeats.</p></article>
+      </div>
+    </section>
+
+    <section class="reference-section" id="reference" aria-labelledby="referenceTitle">
+      <div class="shell reference-layout">
+        <div class="reference-copy"><p class="eyebrow" data-i18n="referenceEyebrow">Sequencer reference</p><h2 id="referenceTitle" data-i18n="referenceTitle">Six symbols. A lot of movement.</h2><p data-i18n="referenceLead">The grid stays intentionally simple so the relationship between steps remains readable at a glance.</p></div>
+        <div class="reference-grid">
+          <article><b>●</b><div><strong data-i18n="refTrigger">Trigger</strong><p data-i18n="refTriggerText">Starts a note and its envelope.</p></div></article>
+          <article><b>○</b><div><strong data-i18n="refTie">Tie</strong><p data-i18n="refTieText">Extends the gate into the next step.</p></div></article>
+          <article><b>–</b><div><strong data-i18n="refRest">Rest</strong><p data-i18n="refRestText">Leaves rhythmic space.</p></div></article>
+          <article><b>A</b><div><strong data-i18n="refAccent">Accent</strong><p data-i18n="refAccentText">Adds volume and filter emphasis.</p></div></article>
+          <article><b>S</b><div><strong data-i18n="refSlide">Slide</strong><p data-i18n="refSlideText">Glides toward the next pitch.</p></div></article>
+          <article><b>D/U</b><div><strong data-i18n="refOctave">Octave</strong><p data-i18n="refOctaveText">Moves the oscillator down or up one octave.</p></div></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="content-section shell faq-section" id="faq" aria-labelledby="faqTitle">
+      <div class="section-intro"><div><p class="eyebrow" data-i18n="faqEyebrow">FAQ</p><h2 id="faqTitle" data-i18n="faqTitle">Built to get out of the way.</h2></div><p data-i18n="faqLead">303box is deliberately small: no account, no project setup and no software installation.</p></div>
+      <div class="faq-grid">
+        <details open><summary data-i18n="faqOneQ">What is 303box?</summary><p data-i18n="faqOneA">A free browser-based 16-step acid bassline pattern generator inspired by classic TB-303 and TD-3 workflows.</p></details>
+        <details><summary data-i18n="faqTwoQ">Does it generate audio?</summary><p data-i18n="faqTwoA">Yes. The preview engine uses the Web Audio API so you can audition a pattern before taking it to hardware.</p></details>
+        <details><summary data-i18n="faqThreeQ">Can I export my pattern?</summary><p data-i18n="faqThreeA">Yes. Download the complete pattern sheet as a JPG including notes, knob positions and session notes.</p></details>
+        <details><summary data-i18n="faqFourQ">Where is my pattern stored?</summary><p data-i18n="faqFourA">Your current session is stored locally in your browser so a refresh does not immediately erase your work.</p></details>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="shell footer-inner">
+      <div><strong>303box</strong><p data-i18n="footerText">A focused acid pattern tool for browser and hardware workflows.</p></div>
+      <div class="footer-links"><a href="#sequencer" data-i18n="navSequencer">Sequencer</a><a href="https://instagram.com/zafer.pro" rel="me noopener" target="_blank">Instagram</a><a href="https://youtube.com/@zaferlatif" rel="noopener" target="_blank">YouTube</a></div>
+    </div>
+  </footer>
+
+  <dialog class="tempo-dialog" id="tempoDialog">
+    <form method="dialog" class="dialog-card" id="tempoForm">
+      <p class="eyebrow" data-i18n="tempoDialogEyebrow">Tempo</p>
+      <h2 data-i18n="tempoDialogTitle">Set BPM</h2>
+      <input id="tempoInput" type="number" min="50" max="250" inputmode="numeric" value="140" aria-label="BPM">
+      <div class="dialog-actions"><button value="cancel" class="dialog-secondary" data-i18n="cancel">Cancel</button><button value="default" id="tempoApply" class="dialog-primary" data-i18n="apply">Apply</button></div>
+    </form>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>
