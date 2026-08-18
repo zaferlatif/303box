@@ -1,0 +1,54 @@
+/* 303box 1680 — static Acid Console / Scope / MIDI. No runtime reparenting. */
+html[lang="tr"] .lang-en{display:none!important}
+html:not([lang="tr"]) .lang-tr{display:none!important}
+html[lang="tr"] .lang-tr{display:inline}
+.acid-console.static-console{margin:0 0 14px!important}
+.acid-console.static-console .acid-console-grid{display:grid!important;grid-template-columns:148px repeat(5,minmax(0,1fr))!important;gap:1px!important;background:#29292e!important}
+.acid-console.static-console .acid-console-play-cell,.acid-console.static-console .acid-console-cell{min-width:0!important}
+.acid-console.static-console .acid-console-scope-cell{grid-column:1 / span 2!important;min-width:0!important;padding:11px 13px!important;background:linear-gradient(180deg,#0d0e0c,#090a09)!important;justify-content:stretch!important}
+.acid-console.static-console .midi-router-v8{grid-column:3 / -1!important;min-width:0!important;padding:11px 13px!important;background:#0d0d10!important;overflow:hidden!important}
+.scope-panel{min-width:0!important;width:100%!important}
+.scope-panel .mini-analyzer-head{display:grid!important;grid-template-columns:1fr auto auto!important;align-items:center!important;gap:8px!important;min-height:20px!important;margin-bottom:6px!important}
+.scope-panel .mini-analyzer-head>span{color:#d9ff2f!important;font:800 .62rem/1 JetBrains Mono,monospace!important;letter-spacing:.13em!important}
+.scope-panel .mini-analyzer-head strong,.scope-panel .mini-analyzer-head b{color:#9b9ba4!important;font:800 .54rem/1 JetBrains Mono,monospace!important}
+.scope-panel #bassOnlyScope{display:block!important;width:100%!important;height:76px!important;border:1px solid #2b2f24!important;border-radius:9px!important;background:#050705!important;box-shadow:inset 0 0 22px rgba(0,0,0,.75)!important}
+.scope-panel .mini-tabs{display:flex!important;gap:6px!important;margin-top:6px!important}
+.scope-panel .analyzer-tab{min-height:26px!important;padding:0 10px!important;border:1px solid #303036!important;border-radius:7px!important;background:#141418!important;color:#777780!important;font:800 .5rem/1 JetBrains Mono,monospace!important}
+.scope-panel .analyzer-tab.active{border-color:#65751a!important;background:#151b08!important;color:#d9ff2f!important}
+.midi-router-v8 .midi-compact-head{display:flex!important;align-items:center!important;justify-content:space-between!important;min-height:20px!important;margin-bottom:8px!important}
+.midi-router-v8 .midi-compact-head strong{font:850 .62rem/1 JetBrains Mono,monospace!important;letter-spacing:.13em!important;color:#f1f1f3!important}
+.midi-router-v8 .midi-badge{display:inline-flex!important;align-items:center!important;justify-content:center!important;height:24px!important;padding:0 9px!important;border:1px solid #3a3a42!important;border-radius:7px!important;color:#85858e!important;font:800 .48rem/1 JetBrains Mono,monospace!important;letter-spacing:.08em!important}
+.midi-router-v8 .midi-badge.ready{border-color:#65751a!important;color:#d9ff2f!important;background:#111507!important}
+.midi-router-v8 .midi-router-primary,.midi-router-v8 .midi-router-secondary{display:grid!important;gap:8px!important;align-items:end!important;min-width:0!important}
+.midi-router-v8 .midi-router-primary{grid-template-columns:150px minmax(210px,1.55fr) minmax(170px,.8fr) minmax(180px,.85fr)!important}
+.midi-router-v8 .midi-router-secondary{grid-template-columns:120px 120px minmax(165px,1fr) minmax(190px,1.12fr) 108px!important;margin-top:8px!important}
+.midi-router-v8 .midi-field{display:grid!important;gap:5px!important;min-width:0!important}
+.midi-router-v8 .midi-field>span{color:#777780!important;font:800 .47rem/1 JetBrains Mono,monospace!important;letter-spacing:.09em!important;text-transform:uppercase!important}
+.midi-router-v8 select,.midi-router-v8 .midi-connect,.midi-router-v8 .midi-panic,.midi-router-v8 .midi-rec-button{box-sizing:border-box!important;width:100%!important;max-width:100%!important;height:38px!important;min-height:38px!important;border:1px solid #34343b!important;border-radius:8px!important;background:#17171b!important;color:#e7e7e9!important;font:750 .58rem/1 Inter,sans-serif!important;min-width:0!important}
+.midi-router-v8 select{padding:0 11px!important;text-overflow:ellipsis!important;white-space:nowrap!important;overflow:hidden!important}
+.midi-router-v8 .midi-connect{font-family:JetBrains Mono,monospace!important;font-weight:850!important;letter-spacing:.02em!important}
+.midi-router-v8 .midi-toggle{box-sizing:border-box!important;height:38px!important;display:flex!important;align-items:center!important;gap:9px!important;padding:0 10px!important;border:1px solid #34343b!important;border-radius:8px!important;background:#151518!important;min-width:0!important;cursor:pointer!important;overflow:hidden!important}
+.midi-router-v8 .midi-toggle input{appearance:none!important;-webkit-appearance:none!important;width:18px!important;height:18px!important;flex:0 0 18px!important;margin:0!important;border:1px solid #66666e!important;border-radius:4px!important;background:#26262a!important;display:grid!important;place-items:center!important}
+.midi-router-v8 .midi-toggle input:checked{background:#d9ff2f!important;border-color:#d9ff2f!important}
+.midi-router-v8 .midi-toggle input:checked::after{content:'✓';color:#080808;font:900 12px/1 Inter,sans-serif!important}
+.midi-router-v8 .midi-toggle>span{display:grid!important;gap:2px!important;min-width:0!important}
+.midi-router-v8 .midi-toggle b{color:#e7e7e9!important;font:800 .45rem/1 JetBrains Mono,monospace!important;white-space:nowrap!important}
+.midi-router-v8 .midi-toggle small{color:#6f6f77!important;font:600 .42rem/1.1 Inter,sans-serif!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+.midi-router-v8 .midi-panic{border-color:#6c2d29!important;background:#211011!important;color:#ff6d67!important;font:900 .54rem/1 JetBrains Mono,monospace!important;letter-spacing:.06em!important}
+.midi-router-v8 .midi-field.disabled{opacity:.42!important}
+.midi-router-v8 .midi-rec-assist{display:grid!important;grid-template-columns:104px 132px 150px minmax(180px,1fr)!important;gap:8px!important;align-items:center!important;margin-top:8px!important;padding:8px!important;border:1px solid #29292f!important;border-radius:9px!important;background:#0a0a0c!important}
+.midi-router-v8 .midi-rec-title{color:#d9ff2f!important;font:850 .48rem/1 JetBrains Mono,monospace!important;letter-spacing:.09em!important}
+.midi-router-v8 .midi-rec-button{height:34px!important;min-height:34px!important;border-color:#4d5919!important;background:#121708!important;color:#d9ff2f!important;font:850 .48rem/1 JetBrains Mono,monospace!important}
+.midi-router-v8 .midi-rec-button:disabled{opacity:.35!important;cursor:not-allowed!important}
+.midi-router-v8 .midi-rec-hint{min-width:0!important;color:#72727a!important;font:600 .47rem/1.3 Inter,sans-serif!important}
+.midi-router-v8 .midi-capability{display:flex!important;flex-wrap:wrap!important;gap:6px!important;margin-top:8px!important}
+.midi-router-v8 .midi-capability span{display:inline-flex!important;align-items:center!important;min-height:23px!important;padding:0 8px!important;border:1px solid #303036!important;border-radius:999px!important;background:#111114!important;color:#9999a2!important;font:750 .44rem/1 JetBrains Mono,monospace!important}
+.midi-router-v8 .midi-capability .midi-cap-device{border-color:#596719!important;color:#d9ff2f!important}
+.midi-router-v8 .midi-capability .rec-ok{border-color:#46551b!important;color:#bcd63a!important}
+.midi-router-v8 .midi-capability .rec-off{color:#6f6f78!important}
+.midi-router-v8 .midi-router-status{min-height:18px!important;margin-top:7px!important;padding-top:7px!important;border-top:1px solid #242429!important;color:#777780!important;font:600 .48rem/1.35 Inter,sans-serif!important}
+.sheet-io{display:none!important}
+@media(max-width:760px){.pattern-actions,.drum-machine.integrated-rhythm .drum-actions{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}.pattern-actions>* ,.drum-machine.integrated-rhythm .drum-actions>*{grid-column:auto!important;grid-row:auto!important;width:100%!important;min-width:0!important;min-height:42px!important;margin:0!important}}
+@media(max-width:1180px){.acid-console.static-console .acid-console-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}.acid-console.static-console .acid-console-play-cell{grid-column:1!important}.acid-console.static-console .acid-console-scope-cell{grid-column:1!important}.acid-console.static-console .midi-router-v8{grid-column:2 / -1!important}.midi-router-v8 .midi-router-primary{grid-template-columns:130px minmax(190px,1.5fr) minmax(150px,1fr)!important}.midi-router-v8 .midi-playback{grid-column:2/4!important}.midi-router-v8 .midi-router-secondary{grid-template-columns:repeat(2,minmax(0,1fr))!important}.midi-router-v8 .midi-panic{grid-column:span 2!important}.midi-router-v8 .midi-rec-assist{grid-template-columns:100px 1fr 1fr!important}.midi-router-v8 .midi-rec-hint{grid-column:1/-1!important}}
+@media(max-width:760px){.acid-console.static-console .acid-console-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}.acid-console.static-console .acid-console-play-cell{grid-column:1/-1!important}.acid-console.static-console .acid-console-scope-cell{grid-column:auto!important;padding:10px!important}.acid-console.static-console .midi-router-v8{grid-column:1/-1!important;padding:10px!important}.scope-panel #bassOnlyScope{height:72px!important}.midi-router-v8 .midi-router-primary,.midi-router-v8 .midi-router-secondary{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important}.midi-router-v8 .midi-output,.midi-router-v8 .midi-profile,.midi-router-v8 .midi-playback{grid-column:1/-1!important}.midi-router-v8 .midi-connect{grid-column:1/-1!important}.midi-router-v8 select,.midi-router-v8 .midi-connect,.midi-router-v8 .midi-toggle,.midi-router-v8 .midi-panic{height:40px!important;min-height:40px!important}.midi-router-v8 .midi-panic{grid-column:1/-1!important}.midi-router-v8 .midi-rec-assist{grid-template-columns:1fr 1fr!important}.midi-router-v8 .midi-rec-title,.midi-router-v8 .midi-rec-hint{grid-column:1/-1!important}}
+@media(max-width:430px){.acid-console.static-console .acid-console-cell{padding:10px!important}.midi-router-v8 .midi-router-primary,.midi-router-v8 .midi-router-secondary{grid-template-columns:1fr!important}.midi-router-v8 .midi-output,.midi-router-v8 .midi-profile,.midi-router-v8 .midi-playback,.midi-router-v8 .midi-connect,.midi-router-v8 .midi-panic{grid-column:auto!important}.midi-router-v8 .midi-rec-assist{grid-template-columns:1fr!important}.midi-router-v8 .midi-rec-title,.midi-router-v8 .midi-rec-hint{grid-column:auto!important}.scope-panel #bassOnlyScope{height:66px!important}}
