@@ -2,33 +2,47 @@
   'use strict';
 
   const $ = (s, r = document) => r.querySelector(s);
-  const $$ = (s, r = document) => [...r.querySelectorAll(s)];
   const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
   const rand = (a, b) => Math.round(a + Math.random() * (b - a));
   let ordering = false;
-  let observedPanel = null;
+  let observerInstalled = false;
+  let enforceQueued = false;
 
   function isTR() { return document.documentElement.lang === 'tr'; }
 
-  function enforceControlOrder() {
-    const panel = $('.pattern-control-panel');
-    const io = panel?.querySelector('.sheet-io');
-    const actions = panel?.querySelector('.pattern-actions');
-    if (!panel || !io || !actions || ordering) return false;
+  function queueEnforce() {
+    if (ordering || enforceQueued) return;
+    enforceQueued = true;
+    requestAnimationFrame(() => {
+      enforceQueued = false;
+      enforceControlOrder();
+    });
+  }
 
-    if (panel.firstElementChild !== io || io.nextElementSibling !== actions) {
-      ordering = true;
-      panel.prepend(io);
-      io.insertAdjacentElement('afterend', actions);
+  function enforceControlOrder() {
+    const workspace = $('.workspace.shell');
+    const consoleEl = $('#acidConsole');
+    const panel = $('.pattern-control-panel');
+    const io = $('.sheet-io');
+    const actions = $('.pattern-actions');
+    if (!workspace || !consoleEl || !io || !actions || ordering) return false;
+
+    ordering = true;
+    try {
+      // Scope + MIDI belong to the Acid Console, above the 303 pattern.
+      if (io.parentElement !== consoleEl) consoleEl.appendChild(io);
+      io.classList.add('acid-console-io');
+
+      // Pattern actions remain a compact local toolbar below the pattern card.
+      if (panel && actions.parentElement !== panel) panel.appendChild(actions);
+    } finally {
       ordering = false;
     }
 
-    if (observedPanel !== panel) {
-      observedPanel = panel;
-      const observer = new MutationObserver(() => {
-        if (!ordering) enforceControlOrder();
-      });
-      observer.observe(panel, { childList:true });
+    if (!observerInstalled) {
+      observerInstalled = true;
+      const observer = new MutationObserver(queueEnforce);
+      observer.observe(workspace, { childList:true, subtree:true });
     }
     return true;
   }
@@ -58,15 +72,9 @@
   }
 
   function fireKey(control, key) {
-    control.dispatchEvent(new KeyboardEvent('keydown', {
-      key,
-      bubbles:true,
-      cancelable:true
-    }));
+    control.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles:true, cancelable:true }));
   }
 
-  // Use the knobs' own keyboard handlers so the original state, visual pointer,
-  // persistence and the shared audio engine all receive the exact same value.
   function setKnobThroughUi(id, value) {
     const control = $(`[data-knob-id="${id}"]`);
     if (!control) return;
@@ -83,17 +91,16 @@
   function randomizePatch() {
     const profile = Math.random();
     const values = profile < .34 ? {
-      cutoff: rand(12, 38), resonance: rand(78, 100), envMod: rand(58, 96),
-      decay: rand(24, 58), accent: rand(52, 92), delay: rand(0, 22), distortion: rand(4, 28)
+      cutoff: rand(12,38), resonance: rand(78,100), envMod: rand(58,96),
+      decay: rand(24,58), accent: rand(52,92), delay: rand(0,22), distortion: rand(4,28)
     } : profile < .68 ? {
-      cutoff: rand(28, 58), resonance: rand(68, 94), envMod: rand(42, 82),
-      decay: rand(35, 76), accent: rand(38, 78), delay: rand(8, 34), distortion: rand(8, 38)
+      cutoff: rand(28,58), resonance: rand(68,94), envMod: rand(42,82),
+      decay: rand(35,76), accent: rand(38,78), delay: rand(8,34), distortion: rand(8,38)
     } : {
-      cutoff: rand(42, 76), resonance: rand(72, 100), envMod: rand(66, 100),
-      decay: rand(18, 54), accent: rand(64, 100), delay: rand(0, 28), distortion: rand(18, 52)
+      cutoff: rand(42,76), resonance: rand(72,100), envMod: rand(66,100),
+      decay: rand(18,54), accent: rand(64,100), delay: rand(0,28), distortion: rand(18,52)
     };
 
-    // Keep ambience optional instead of making every generated patch wet.
     if (Math.random() < .34) values.delay = 0;
     if (Math.random() < .22) values.distortion = 0;
 
@@ -101,29 +108,21 @@
     window.dispatchEvent(new CustomEvent('303box:patch-randomized', { detail:values }));
   }
 
-  function updateLanguage() {
-    patchButtonLabel($('#randomPatchButton'));
-  }
+  function updateLanguage() { patchButtonLabel($('#randomPatchButton')); }
 
   function settle() {
-    [0, 70, 180, 420, 850, 1500, 2400].forEach(ms => setTimeout(() => {
+    [0,70,180,420,850,1500,2400].forEach(ms => setTimeout(() => {
       enforceControlOrder();
       mountPatchRandom();
       updateLanguage();
     }, ms));
   }
 
-  const langObserver = new MutationObserver(updateLanguage);
-  langObserver.observe(document.documentElement, { attributes:true, attributeFilter:['lang'] });
+  new MutationObserver(updateLanguage).observe(document.documentElement, { attributes:true, attributeFilter:['lang'] });
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', settle, { once:true });
-  } else settle();
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', settle, { once:true });
+  else settle();
   window.addEventListener('load', settle, { once:true });
 
-  window.__303boxCompactWorkstation = {
-    version:'1430',
-    randomizePatch,
-    enforceControlOrder
-  };
+  window.__303boxCompactWorkstation = { version:'1440', randomizePatch, enforceControlOrder };
 })();
