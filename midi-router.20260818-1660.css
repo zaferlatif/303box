@@ -1,0 +1,30 @@
+/* 303box MIDI router v5 — device profiles + compact capability matrix */
+.midi-router-v5{min-width:0!important;padding:10px 12px!important;overflow:hidden!important}
+.midi-router-v5 .midi-compact-head{display:flex!important;align-items:center!important;justify-content:space-between!important;min-height:22px!important}
+.midi-router-v5 .midi-router-primary,.midi-router-v5 .midi-router-secondary{display:grid!important;gap:8px!important;align-items:end!important;min-width:0!important}
+.midi-router-v5 .midi-router-primary{grid-template-columns:126px minmax(210px,1.7fr) minmax(160px,1fr) minmax(150px,1fr)!important;margin-top:8px!important}
+.midi-router-v5 .midi-router-secondary{grid-template-columns:minmax(96px,.65fr) minmax(110px,.7fr) minmax(150px,1fr) minmax(176px,1.15fr) 86px!important;margin-top:8px!important}
+.midi-router-v5 .midi-field{display:grid!important;gap:5px!important;min-width:0!important}
+.midi-router-v5 .midi-field>span{color:#777780!important;font:800 .48rem/1 JetBrains Mono,monospace!important;letter-spacing:.09em!important;text-transform:uppercase!important}
+.midi-router-v5 select,.midi-router-v5 .midi-connect,.midi-router-v5 .midi-panic{width:100%!important;max-width:100%!important;height:36px!important;min-height:36px!important;border-radius:8px!important;min-width:0!important}
+.midi-router-v5 select{overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important}
+.midi-router-v5 .midi-field.disabled{opacity:.45!important}
+.midi-router-v5 .midi-toggle{height:36px!important;display:flex!important;align-items:center!important;gap:8px!important;padding:0 9px!important;border:1px solid #34343a!important;border-radius:8px!important;background:#17171a!important;cursor:pointer!important;min-width:0!important;overflow:hidden!important}
+.midi-router-v5 .midi-toggle input{appearance:none!important;-webkit-appearance:none!important;width:17px!important;height:17px!important;flex:0 0 17px!important;margin:0!important;border:1px solid #66666e!important;border-radius:4px!important;background:#252529!important;display:grid!important;place-items:center!important}
+.midi-router-v5 .midi-toggle input:checked{background:#ddff37!important;border-color:#ddff37!important}
+.midi-router-v5 .midi-toggle input:checked::after{content:'✓';color:#070708;font:900 12px/1 Inter,sans-serif!important}
+.midi-router-v5 .midi-toggle>span{min-width:0!important;display:grid!important;gap:2px!important}
+.midi-router-v5 .midi-toggle b{color:#ededee!important;font:800 .47rem/1 JetBrains Mono,monospace!important;white-space:nowrap!important}
+.midi-router-v5 .midi-toggle small{color:#707078!important;font:600 .42rem/1.1 Inter,sans-serif!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+.midi-router-v5 .midi-panic{border-color:#692d2a!important;color:#ff6d67!important;background:#1d1011!important;font-weight:800!important}
+.midi-router-v5 .midi-capability{display:flex!important;flex-wrap:wrap!important;gap:6px!important;margin-top:8px!important}
+.midi-router-v5 .midi-capability span{display:inline-flex!important;align-items:center!important;min-height:24px!important;padding:0 8px!important;border:1px solid #303036!important;border-radius:999px!important;background:#111114!important;color:#a7a7af!important;font:700 .46rem/1 JetBrains Mono,monospace!important;letter-spacing:.03em!important}
+.midi-router-v5 .midi-capability span:first-child{border-color:#596719!important;color:#ddff37!important}
+.midi-router-v5 .midi-capability .no-write{border-color:#49312f!important;color:#b99894!important}
+.midi-router-v5 .midi-router-note{margin-top:8px!important;padding-top:7px!important;border-top:1px solid #232327!important;color:#777780!important;font-size:.52rem!important;line-height:1.4!important}
+.midi-router-v5 .midi-badge.ready{border-color:#68791d!important;color:#ddff37!important}
+#acidConsole>.sheet-io.acid-console-io{grid-template-columns:minmax(260px,.58fr) minmax(0,1.42fr)!important}
+@media(max-width:1250px){.midi-router-v5 .midi-router-primary{grid-template-columns:120px minmax(200px,1.5fr) minmax(150px,1fr)!important}.midi-router-v5 .midi-playback{grid-column:2/4!important}.midi-router-v5 .midi-router-secondary{grid-template-columns:repeat(2,minmax(0,1fr))!important}.midi-router-v5 .midi-toggle{min-height:42px!important;height:42px!important}.midi-router-v5 .midi-panic{grid-column:span 2!important}}
+@media(max-width:920px){#acidConsole>.sheet-io.acid-console-io{grid-template-columns:1fr!important}#acidConsole>.sheet-io .mini-analyzer{border-right:0!important;border-bottom:1px solid #29292e!important}.midi-router-v5 .midi-router-primary{grid-template-columns:1fr 1.6fr!important}.midi-router-v5 .midi-profile,.midi-router-v5 .midi-playback{grid-column:1/-1!important}}
+@media(max-width:620px){.midi-router-v5{padding:9px!important}.midi-router-v5 .midi-router-primary,.midi-router-v5 .midi-router-secondary{grid-template-columns:1fr 1fr!important;gap:7px!important}.midi-router-v5 .midi-output,.midi-router-v5 .midi-profile,.midi-router-v5 .midi-playback{grid-column:1/-1!important}.midi-router-v5 .midi-connect,.midi-router-v5 .midi-panic{grid-column:1/-1!important}}
+@media(max-width:420px){.midi-router-v5 .midi-router-primary,.midi-router-v5 .midi-router-secondary{grid-template-columns:1fr!important}.midi-router-v5 .midi-output,.midi-router-v5 .midi-profile,.midi-router-v5 .midi-playback,.midi-router-v5 .midi-connect,.midi-router-v5 .midi-panic{grid-column:auto!important}}
