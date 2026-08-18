@@ -41,6 +41,43 @@
   }
   #drums .drum-dna>*:first-child{border-top:0!important}
 
+  /* Optical centering for the responsive TEMPO module. */
+  #patternSheet .tempo-module{
+    grid-template-columns:112px 62px!important;
+    grid-template-rows:auto auto!important;
+    justify-content:center!important;
+    justify-items:center!important;
+    align-content:center!important;
+    align-items:center!important;
+    column-gap:8px!important;
+    row-gap:10px!important;
+    padding-inline:10px!important;
+  }
+  #patternSheet .tempo-module>.control-label{
+    grid-column:1/-1!important;
+    grid-row:1!important;
+    width:100%!important;
+    text-align:center!important;
+    justify-self:center!important;
+  }
+  #patternSheet .tempo-module>.seven-display{
+    grid-column:1!important;
+    grid-row:2!important;
+    width:104px!important;
+    max-width:104px!important;
+    justify-self:center!important;
+    margin:0!important;
+  }
+  #patternSheet .tempo-module>#tempoKnob{
+    grid-column:2!important;
+    grid-row:2!important;
+    width:62px!important;
+    justify-self:center!important;
+    display:grid!important;
+    place-items:center!important;
+    margin:0!important;
+  }
+
   #patternSheet .synth-controls{
     grid-template-columns:repeat(4,minmax(0,1fr))!important;
     row-gap:13px!important;
@@ -53,9 +90,51 @@
     font-size:.43rem!important;
     min-height:1.1rem!important;
   }
+
+  /* The main footer becomes a centered stack on narrow screens. */
+  .site-footer .footer-inner{
+    min-height:0!important;
+    padding:34px 0!important;
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:center!important;
+    justify-content:center!important;
+    gap:20px!important;
+    text-align:center!important;
+  }
+  .site-footer .z3z-credit{
+    width:100%!important;
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:center!important;
+    justify-content:center!important;
+    text-align:center!important;
+  }
+  .site-footer .footer-links{
+    width:100%!important;
+    display:flex!important;
+    justify-content:center!important;
+    align-items:center!important;
+    flex-wrap:wrap!important;
+    gap:12px 20px!important;
+    text-align:center!important;
+  }
 }
 
 @media(max-width:430px){
+  #patternSheet .tempo-module{
+    grid-template-columns:100px 58px!important;
+    column-gap:6px!important;
+    padding-inline:6px!important;
+  }
+  #patternSheet .tempo-module>.seven-display{
+    width:98px!important;
+    max-width:98px!important;
+  }
+  #patternSheet .tempo-module>#tempoKnob{
+    width:58px!important;
+  }
+
   #patternSheet .synth-controls{
     grid-template-columns:repeat(4,minmax(0,1fr))!important;
     padding-inline:4px!important;
@@ -64,4 +143,5 @@
     width:50px!important;
     height:50px!important;
   }
+  .site-footer .footer-links{gap:10px 16px!important}
 }
