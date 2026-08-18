@@ -1,12 +1,12 @@
 {
-  "name": "303box — 303 Acid Pattern & Rhythm Sequencer",
+  "name": "303box — 303 Pattern Sketchpad for Hardware",
   "short_name": "303box",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "background_color": "#070708",
   "theme_color": "#070708",
-  "description": "Browser-based 16-step 303 acid bassline and synchronized rhythm sequencer with MIDI output.",
+  "description": "Browser-based 16-step pattern sketchpad for writing, previewing and transferring 303 acid bassline and rhythm ideas to hardware.",
   "icons": [
     {
       "src": "/favicon.svg",
