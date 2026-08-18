@@ -16,6 +16,7 @@
     requestAnimationFrame(() => {
       enforceQueued = false;
       enforceControlOrder();
+      unifyRhythmControls();
     });
   }
 
@@ -29,11 +30,8 @@
 
     ordering = true;
     try {
-      // Scope + MIDI belong to the Acid Console, above the 303 pattern.
       if (io.parentElement !== consoleEl) consoleEl.appendChild(io);
       io.classList.add('acid-console-io');
-
-      // Pattern actions remain a compact local toolbar below the pattern card.
       if (panel && actions.parentElement !== panel) panel.appendChild(actions);
     } finally {
       ordering = false;
@@ -44,6 +42,48 @@
       const observer = new MutationObserver(queueEnforce);
       observer.observe(workspace, { childList:true, subtree:true });
     }
+    return true;
+  }
+
+  function syncRhythmLed() {
+    const play = $('#drumPlay');
+    const led = play?.querySelector('.rhythm-status-led');
+    if (!play || !led) return;
+    led.classList.toggle('on', play.classList.contains('playing') || play.classList.contains('armed'));
+  }
+
+  function unifyRhythmControls() {
+    const drums = $('#drums');
+    const toolbar = drums?.querySelector('.drum-toolbar');
+    const actions = drums?.querySelector('.drum-actions');
+    if (!drums || !toolbar || !actions) return false;
+
+    // Shared clock makes these historical controls redundant and confusing.
+    drums.querySelectorAll('.drum-switch, .density').forEach(el => el.remove());
+    const tools = drums.querySelector('.drum-tools');
+    if (tools && !tools.children.length) tools.remove();
+
+    const generate = $('#drumRandom');
+    const play = $('#drumPlay');
+    const download = $('#drumDownload');
+    const clear = $('#drumClear');
+    [generate, play, download, clear].forEach(button => {
+      if (button && button.parentElement !== actions) actions.appendChild(button);
+      button?.classList.add('rhythm-action-unified');
+    });
+
+    generate?.classList.add('tool-button-acid');
+    play?.classList.add('tool-button-play');
+    clear?.classList.add('tool-button-clear');
+
+    if (play && !play.querySelector('.rhythm-status-led')) {
+      const led = document.createElement('span');
+      led.className = 'status-led rhythm-status-led';
+      led.setAttribute('aria-hidden', 'true');
+      play.appendChild(led);
+      new MutationObserver(syncRhythmLed).observe(play, { attributes:true, attributeFilter:['class'] });
+    }
+    syncRhythmLed();
     return true;
   }
 
@@ -108,11 +148,15 @@
     window.dispatchEvent(new CustomEvent('303box:patch-randomized', { detail:values }));
   }
 
-  function updateLanguage() { patchButtonLabel($('#randomPatchButton')); }
+  function updateLanguage() {
+    patchButtonLabel($('#randomPatchButton'));
+    unifyRhythmControls();
+  }
 
   function settle() {
     [0,70,180,420,850,1500,2400].forEach(ms => setTimeout(() => {
       enforceControlOrder();
+      unifyRhythmControls();
       mountPatchRandom();
       updateLanguage();
     }, ms));
@@ -124,5 +168,10 @@
   else settle();
   window.addEventListener('load', settle, { once:true });
 
-  window.__303boxCompactWorkstation = { version:'1440', randomizePatch, enforceControlOrder };
+  window.__303boxCompactWorkstation = {
+    version:'1450',
+    randomizePatch,
+    enforceControlOrder,
+    unifyRhythmControls
+  };
 })();
