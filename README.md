@@ -39,6 +39,8 @@
 
 The 303 and rhythm generators are independent. Generate a new bass line without destroying the drums, or rebuild the rhythm without touching the acid pattern.
 
+Playback position uses one visual language across both sequencers: a small red transport LED moves through the current step while the pattern cells keep their authored colors and downbeat shading.
+
 ## Acid engine
 
 The browser engine supports the controls that matter while a 303 loop is moving:
@@ -165,6 +167,7 @@ For hardware MIDI testing, the live HTTPS deployment is usually the easiest path
 ├── acid-console.20260818-1340.js         # unified Web Audio engine
 ├── midi-router.20260818-1710.js          # MIDI clock / routing / T-8 REC reinforcement
 ├── console-stable.20260818-1700.css      # Acid Console + Scope + MIDI layout
+├── playhead-unified.20260818-1720.css    # shared red transport LED for 303 + rhythm
 ├── bass-scope.20260818-1680.js           # 303-only Scope / FFT renderer
 ├── generator-router.20260818-1650.js     # independent bass / rhythm generators
 ├── workstation-ui.20260818-1680.js       # stable workstation controls
