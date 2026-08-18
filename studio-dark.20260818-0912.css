@@ -1,0 +1,45 @@
+/* Dark 303 editor — screen and export stay visually identical. */
+#patternSheet{background:#101012;color:#f1f1ed;border-color:#303037;box-shadow:0 34px 100px rgba(0,0,0,.46),inset 0 1px rgba(255,255,255,.035)}
+#patternSheet .sheet-header{background:#09090b;border-bottom-color:var(--acid)}
+#patternSheet .sheet-kicker{color:#74747c}
+#patternSheet .sheet-meta{border-bottom-color:#303036;background:#121215}
+#patternSheet .meta-fields label{border-bottom-color:#303036}
+#patternSheet .meta-fields label:last-child{background:#151518}
+#patternSheet .meta-fields span{color:#85858d}
+#patternSheet .meta-fields input{color:#f0f0ec;caret-color:var(--acid)}
+#patternSheet .memory-panel{border-left-color:#303036;background:#151518}
+#patternSheet .memory-row:first-child{border-bottom-color:#303036}
+#patternSheet .segment-button{border-right-color:#303036;color:#8f8f97}
+#patternSheet .segment-button:not(.selected):hover{background:#1d1d22;color:#f0f0ec}
+#patternSheet .segment-button.selected{background:var(--acid);color:#09090a}
+#patternSheet .sequence-table th,#patternSheet .sequence-table td{border-right-color:#2e2e34;border-bottom-color:#2e2e34}
+#patternSheet .sequence-table thead th{background:#17171b;color:#9b9ba3}
+#patternSheet .sequence-table thead th.downbeat{background:#202025;color:var(--acid)}
+#patternSheet .sequence-table .row-label{color:#84848c;background:#111114}
+#patternSheet .sequence-table tbody tr:nth-child(even) .row-label{background:#151518}
+#patternSheet .sequence-table td.step-cell{background:#101012}
+#patternSheet .sequence-table td.step-cell.shaded{background:#17171b}
+#patternSheet .sequence-table .cell-control{color:#ededeb}
+#patternSheet .sequence-table .cell-control:hover,#patternSheet .sequence-table .cell-control:focus{background:rgba(221,255,55,.11);color:#fff}
+#patternSheet .sequence-table button.accentSlide-cell{color:var(--acid)}
+#patternSheet .sequence-table button.gate-cell{color:#f1f1ed}
+#patternSheet .sequence-table [data-playing="true"]{background:var(--acid)!important;color:#070708!important;box-shadow:inset 0 0 0 2px rgba(0,0,0,.16)}
+#patternSheet .hardware-strip{background:#141417;border-bottom-color:#303036}
+#patternSheet .hardware-module{border-right-color:#303036}
+#patternSheet .control-label{color:#85858d}
+#patternSheet .wave-button{border-color:#34343a;background:#1b1b1f;color:#8b8b93;box-shadow:inset 0 -2px #101012}
+#patternSheet .wave-button:hover{background:#232328;color:#d8d8dc}
+#patternSheet .wave-button.selected{background:#080809;border-color:#4b5420;color:var(--acid);box-shadow:inset 0 -3px #000}
+#patternSheet .seven-display{border-color:#34343a;box-shadow:inset 0 0 16px #000,0 1px rgba(255,255,255,.04)}
+#patternSheet .knob + .knob::before{background:#303036}
+#patternSheet .knob-title{color:#8b8b92}
+#patternSheet .knob-value{color:#74747c}
+#patternSheet .dial-tick{stroke:#5d5d65}
+#patternSheet .dial-tick.major{stroke:#8b8b92}
+#patternSheet .dial-bezel{fill:#242429;stroke:#3d3d44}
+#patternSheet .dial-body{fill:#111114;stroke:#050506}
+#patternSheet .dial-center{fill:#0a0a0c}
+#patternSheet .dial-pointer{stroke:var(--acid)}
+#patternSheet .notes-panel{background:#111114}
+#patternSheet .notes-panel textarea{color:#d8d8dc;caret-color:var(--acid)}
+#patternSheet .notes-panel textarea::placeholder{color:#62626a}
