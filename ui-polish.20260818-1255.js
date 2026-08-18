@@ -17,12 +17,29 @@
     form.dispatchEvent(new SubmitEvent('submit', { bubbles:true, cancelable:true, submitter:submit }));
   }
 
-  // Rhythm generation should only change the rhythm. The global 303 BPM is preserved.
+  // Rhythm generation changes only rhythm. Keep the shared 303 tempo exactly as it was.
   document.addEventListener('click', event => {
     if (!event.target.closest?.('#drumRandom')) return;
     const before = currentBpm();
     queueMicrotask(() => setTempo(before));
   }, true);
+
+  function centerTempoCluster() {
+    const module = document.querySelector('#patternSheet .tempo-module');
+    const display = document.querySelector('#bpmDisplay');
+    const knob = document.querySelector('#tempoKnob');
+    if (!module || !display || !knob) return false;
+
+    let cluster = module.querySelector('.tempo-cluster');
+    if (!cluster) {
+      cluster = document.createElement('div');
+      cluster.className = 'tempo-cluster';
+      display.insertAdjacentElement('beforebegin', cluster);
+    }
+    if (display.parentElement !== cluster) cluster.appendChild(display);
+    if (knob.parentElement !== cluster) cluster.appendChild(knob);
+    return true;
+  }
 
   function setMeta(authorText, titleText) {
     const author = document.querySelector('#authorInput');
@@ -51,17 +68,18 @@
     const isStockDefault = (a === 'Z3Z' || a === 'DJ Pierre' || a === '') && (t === 'Acid Pattern' || t === 'Acid Tracks' || t === 'Acid Gnome' || t === '');
 
     if (isBladeDefault || isStockDefault) {
-      // Use the site's own acid-aware generator so the opening pattern is musically coherent.
       document.querySelector('#generateButton')?.click();
       setTimeout(() => setMeta('Z3Z', 'Acig Gnome'), 20);
     }
     localStorage.setItem(MIGRATION, '1');
-    // Prevent the retired Blade reference seed from being considered again.
     localStorage.setItem('303box-reference-default-v1', '1');
   }
 
   function settle() {
-    [1100, 1500, 2200].forEach(ms => setTimeout(migrateDefaultPattern, ms));
+    [250, 650, 1100, 1500, 2200].forEach(ms => setTimeout(() => {
+      centerTempoCluster();
+      migrateDefaultPattern();
+    }, ms));
   }
 
   window.addEventListener('DOMContentLoaded', settle);
