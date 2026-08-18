@@ -11,7 +11,8 @@ Canonical URL: https://303box.com/
 - Inspect the 303 signal with a compact oscilloscope and FFT display.
 - Connect supported MIDI hardware through the Web MIDI API and send note messages plus optional MIDI clock.
 - Program a synchronized six-part rhythm machine: bass drum, snare drum, hand clap, tom, closed hi-hat and open hi-hat.
-- The default rhythm palette follows a compact classic setup: 909 bass drum, 606 snare and hi-hats, 808 clap and low tom, with alternate clap/tom voices.
+- Rhythm voice map: TR-909 bass drum; TR-606 snare drum; TR-606 closed/open hi-hats; hand-clap part selectable between TR-808 Clap, Noise Tom and TR-606 High Tom; tom part selectable between TR-808 Low Tom and TR-606 Low Tom.
+- Only the Hand Clap and Tom rhythm parts expose voice choices; the other rhythm voices are fixed.
 - Start the rhythm independently or synchronize its start to step 1 of the 303 sequencer.
 - Randomize both acid and rhythm patterns.
 - Mix 303 and rhythm levels independently; both default to 80%.
