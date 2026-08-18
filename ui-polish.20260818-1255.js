@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const MIGRATION = '303box-acig-gnome-default-v2';
+  const MIGRATION = '303box-acid-gnome-default-v3';
 
   function currentBpm() {
     const value = Number(document.querySelector('[data-knob-id="bpm"]')?.getAttribute('aria-valuenow'));
@@ -23,6 +23,20 @@
     const before = currentBpm();
     queueMicrotask(() => setTempo(before));
   }, true);
+
+  function installTempoEnter() {
+    const input = document.querySelector('#tempoInput');
+    const apply = document.querySelector('#tempoApply');
+    if (!input || !apply || input.dataset.enterFixed === '1') return false;
+    input.dataset.enterFixed = '1';
+    input.addEventListener('keydown', event => {
+      if (event.key !== 'Enter') return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      apply.click();
+    }, true);
+    return true;
+  }
 
   function centerTempoCluster() {
     const module = document.querySelector('#patternSheet .tempo-module');
@@ -64,20 +78,24 @@
 
     const a = author.value.trim();
     const t = title.value.trim();
+    const isTypoDefault = a === 'Z3Z' && t === 'Acig Gnome';
     const isBladeDefault = a === 'New Order / The Pump Panel' || t === 'Confusion / Blade Theme';
     const isStockDefault = (a === 'Z3Z' || a === 'DJ Pierre' || a === '') && (t === 'Acid Pattern' || t === 'Acid Tracks' || t === 'Acid Gnome' || t === '');
 
-    if (isBladeDefault || isStockDefault) {
+    if (isTypoDefault) {
+      setMeta('Z3Z', 'Acid Gnome');
+    } else if (isBladeDefault || isStockDefault) {
       document.querySelector('#generateButton')?.click();
-      setTimeout(() => setMeta('Z3Z', 'Acig Gnome'), 20);
+      setTimeout(() => setMeta('Z3Z', 'Acid Gnome'), 20);
     }
     localStorage.setItem(MIGRATION, '1');
     localStorage.setItem('303box-reference-default-v1', '1');
   }
 
   function settle() {
-    [250, 650, 1100, 1500, 2200].forEach(ms => setTimeout(() => {
+    [150, 350, 650, 1100, 1500, 2200].forEach(ms => setTimeout(() => {
       centerTempoCluster();
+      installTempoEnter();
       migrateDefaultPattern();
     }, ms));
   }
