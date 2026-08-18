@@ -1,0 +1,31 @@
+/* 303box MIDI router v3 */
+.midi-router-v3{padding:10px 12px!important}
+.midi-router-v3 .midi-router-grid{display:grid!important;grid-template-columns:auto minmax(180px,1.5fr) minmax(145px,1fr) 112px 112px minmax(145px,.9fr) minmax(165px,1fr) auto!important;gap:8px!important;align-items:end!important;margin-top:7px!important}
+.midi-router-v3 .midi-field{display:grid!important;gap:5px!important;min-width:0!important}
+.midi-router-v3 .midi-field>span{color:#777780!important;font:800 .47rem/1 JetBrains Mono,monospace!important;letter-spacing:.08em!important;text-transform:uppercase!important}
+.midi-router-v3 select,.midi-router-v3 .midi-connect,.midi-router-v3 .midi-panic{height:36px!important;min-height:36px!important;border-radius:8px!important}
+.midi-router-v3 .midi-toggle{height:36px!important;display:flex!important;align-items:center!important;gap:8px!important;padding:0 9px!important;border:1px solid #34343a!important;border-radius:8px!important;background:#17171a!important;cursor:pointer!important;min-width:0!important}
+.midi-router-v3 .midi-toggle input{appearance:none!important;-webkit-appearance:none!important;width:17px!important;height:17px!important;flex:0 0 17px!important;margin:0!important;border:1px solid #66666e!important;border-radius:4px!important;background:#252529!important;display:grid!important;place-items:center!important}
+.midi-router-v3 .midi-toggle input:checked{background:#ddff37!important;border-color:#ddff37!important}
+.midi-router-v3 .midi-toggle input:checked::after{content:'✓';color:#0a0a0b;font:900 12px/1 Inter,sans-serif!important}
+.midi-router-v3 .midi-toggle>span{min-width:0!important;display:grid!important;gap:2px!important}
+.midi-router-v3 .midi-toggle b{color:#e9e9eb!important;font:800 .48rem/1 JetBrains Mono,monospace!important;white-space:nowrap!important}
+.midi-router-v3 .midi-toggle small{color:#686871!important;font:600 .39rem/1.1 Inter,sans-serif!important;white-space:nowrap!important}
+.midi-router-v3 .midi-router-note{margin-top:7px!important;color:#777780!important;font-size:.52rem!important;line-height:1.35!important}
+.midi-router-v3 .midi-badge.ready{border-color:#68791d!important;color:#ddff37!important}
+
+@media(max-width:1180px){
+ .midi-router-v3 .midi-router-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+ .midi-router-v3 .midi-output{grid-column:span 2!important}
+}
+@media(max-width:760px){
+ .midi-router-v3{padding:9px!important}
+ .midi-router-v3 .midi-router-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important}
+ .midi-router-v3 .midi-output{grid-column:1/-1!important}
+ .midi-router-v3 .midi-connect,.midi-router-v3 .midi-panic{width:100%!important}
+ .midi-router-v3 .midi-toggle{min-height:42px!important;height:42px!important}
+}
+@media(max-width:430px){
+ .midi-router-v3 .midi-router-grid{grid-template-columns:1fr!important}
+ .midi-router-v3 .midi-output{grid-column:auto!important}
+}
