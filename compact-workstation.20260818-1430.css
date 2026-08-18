@@ -1,0 +1,148 @@
+/* 303box compact workstation — tighter action bars + monitor-first layout */
+
+/* 303 monitor card first, then a single compact row of actions. */
+.pattern-control-panel{margin-top:8px!important;border-radius:14px!important}
+.pattern-control-panel .sheet-io{border-bottom:1px solid #29292e!important}
+.pattern-control-panel .mini-analyzer,
+.pattern-control-panel .midi-compact{padding:8px 10px!important}
+.pattern-control-panel .mini-analyzer-head,
+.pattern-control-panel .midi-compact-head{height:18px!important}
+.pattern-control-panel #fxScope,
+.pattern-control-panel #bassOnlyScope{height:46px!important}
+.pattern-control-panel .mini-tabs{margin-top:4px!important}
+.pattern-control-panel .analyzer-tab{min-height:21px!important;padding:0 7px!important;font-size:.47rem!important}
+.pattern-control-panel .midi-compact-grid{margin-top:5px!important;gap:5px!important}
+.pattern-control-panel .midi-compact select,
+.pattern-control-panel .midi-connect,
+.pattern-control-panel .midi-clock{height:28px!important;min-height:28px!important}
+.pattern-control-panel .midi-compact>small{margin-top:4px!important;font-size:.47rem!important}
+
+.pattern-control-panel .pattern-actions{padding:8px!important;border-bottom:0!important;background:#101013!important}
+.pattern-control-panel .pattern-actions .toolbar-group,
+.pattern-control-panel .pattern-actions .pattern-action-grid{
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  grid-auto-rows:38px!important;
+  gap:7px!important;
+}
+.pattern-control-panel .pattern-actions .tool-button,
+.pattern-control-panel #generateButton,
+.pattern-control-panel #playButton,
+.pattern-control-panel #downloadButton,
+.pattern-control-panel #clearButton{
+  min-height:38px!important;
+  height:38px!important;
+  padding:0 9px!important;
+  border-radius:8px!important;
+  font-size:.55rem!important;
+}
+
+/* Random patch lives inside the synth strip without creating another large row. */
+#patternSheet #knobGrid{position:relative!important;padding-top:24px!important}
+#patternSheet .random-patch-button{
+  position:absolute;
+  z-index:5;
+  top:5px;
+  right:8px;
+  min-height:22px;
+  padding:0 8px;
+  border:1px solid #68791d;
+  border-radius:6px;
+  background:#171c09;
+  color:#ddff37;
+  font:850 .46rem/1 JetBrains Mono,monospace;
+  letter-spacing:.055em;
+  cursor:pointer;
+}
+#patternSheet .random-patch-button:hover{background:#20270b;border-color:#8ca326}
+#patternSheet .random-patch-button:active{transform:translateY(1px)}
+
+/* Rhythm controls use the same visual weight as the 303 controls. */
+.drum-machine.integrated-rhythm{margin-top:9px!important}
+.integrated-rhythm-label{padding:9px 13px!important;border-radius:14px 14px 0 0!important}
+.integrated-rhythm-label strong{font-size:.61rem!important}
+.integrated-rhythm-label span{font-size:.52rem!important}
+.drum-machine.integrated-rhythm .drum-toolbar{
+  grid-template-columns:minmax(330px,.82fr) minmax(0,1.18fr)!important;
+  gap:10px!important;
+  padding:8px!important;
+}
+.drum-machine.integrated-rhythm .drum-actions{
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  gap:7px!important;
+}
+.drum-machine.integrated-rhythm .drum-actions button{
+  min-height:38px!important;
+  height:38px!important;
+  padding:0 9px!important;
+  border-radius:8px!important;
+  font-size:.54rem!important;
+}
+.drum-machine.integrated-rhythm .drum-tools{
+  grid-template-columns:minmax(190px,.72fr) minmax(230px,1fr)!important;
+  gap:7px!important;
+}
+.drum-machine.integrated-rhythm .drum-switch,
+.drum-machine.integrated-rhythm .density{
+  min-height:38px!important;
+  padding:6px 9px!important;
+  border-radius:8px!important;
+}
+.drum-machine.integrated-rhythm .drum-switch{
+  grid-template-columns:auto 1fr!important;
+  align-items:center!important;
+}
+.drum-machine.integrated-rhythm .drum-switch input{margin:0!important}
+.drum-machine.integrated-rhythm .drum-switch small{display:none!important}
+.drum-machine.integrated-rhythm .drum-switch b{font-size:.51rem!important}
+.drum-machine.integrated-rhythm .density{
+  grid-template-columns:auto 1fr auto!important;
+  grid-template-areas:"label range value"!important;
+  gap:8px!important;
+}
+.drum-machine.integrated-rhythm .density>span{font-size:.49rem!important;white-space:nowrap!important}
+.drum-machine.integrated-rhythm .density>b{font-size:.49rem!important}
+.drum-machine.integrated-rhythm .density>input{min-width:100px!important}
+
+@media(max-width:900px){
+  .drum-machine.integrated-rhythm .drum-toolbar{grid-template-columns:1fr!important}
+  .drum-machine.integrated-rhythm .drum-tools{grid-template-columns:1fr 1fr!important}
+}
+
+@media(max-width:760px){
+  .pattern-control-panel .sheet-io{grid-template-columns:1fr!important}
+  .pattern-control-panel #fxScope,
+  .pattern-control-panel #bassOnlyScope{height:42px!important}
+  .pattern-control-panel .pattern-actions{padding:7px!important}
+  .pattern-control-panel .pattern-actions .toolbar-group,
+  .pattern-control-panel .pattern-actions .pattern-action-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    grid-auto-rows:38px!important;
+    gap:6px!important;
+  }
+  .pattern-control-panel .pattern-actions .tool-button,
+  .pattern-control-panel #generateButton,
+  .pattern-control-panel #playButton,
+  .pattern-control-panel #downloadButton,
+  .pattern-control-panel #clearButton{height:38px!important;min-height:38px!important}
+
+  #patternSheet #knobGrid{padding-top:27px!important}
+  #patternSheet .random-patch-button{top:5px;right:6px;min-height:21px;font-size:.44rem!important}
+
+  .integrated-rhythm-label{padding:8px 11px!important}
+  .drum-machine.integrated-rhythm .drum-toolbar{padding:7px!important;gap:7px!important}
+  .drum-machine.integrated-rhythm .drum-actions{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:6px!important}
+  .drum-machine.integrated-rhythm .drum-actions button{height:38px!important;min-height:38px!important}
+  .drum-machine.integrated-rhythm .drum-tools{grid-template-columns:1fr!important;gap:6px!important}
+  .drum-machine.integrated-rhythm .drum-switch,
+  .drum-machine.integrated-rhythm .density{min-height:36px!important}
+}
+
+@media(max-width:430px){
+  .pattern-control-panel .mini-analyzer,
+  .pattern-control-panel .midi-compact{padding:7px 8px!important}
+  .pattern-control-panel .midi-compact-grid{grid-template-columns:1fr!important}
+  .drum-machine.integrated-rhythm .density{
+    grid-template-columns:1fr auto!important;
+    grid-template-areas:"label value" "range range"!important;
+  }
+}
