@@ -9,6 +9,7 @@
   const previousConnect=proto?.connect;
   const networks=new WeakMap();
   const internal=new WeakSet();
+  const live=[];
 
   function impulse(ctx,seconds=1.7,decay=2.7){
     const len=Math.max(1,Math.floor(ctx.sampleRate*seconds));
@@ -30,7 +31,13 @@
     wet.gain.value=(value/100)*.42;
     previousConnect.call(pre,conv); previousConnect.call(conv,wet);
     previousConnect.call(dry,dest); previousConnect.call(wet,dest);
-    const net={ctx,dest,dry,pre,conv,wet}; networks.set(ctx,net); return net;
+    const net={ctx,dest,dry,pre,conv,wet};
+    networks.set(ctx,net); live.push(net);
+    ctx.addEventListener?.('statechange',()=>{
+      if(ctx.state!=='closed')return;
+      const i=live.indexOf(net);if(i>=0)live.splice(i,1);
+    });
+    return net;
   }
 
   if(proto&&previousConnect){
@@ -46,26 +53,14 @@
     };
   }
 
-  function updateNetworks(){
-    networks.forEach?.(()=>{});
-    // WeakMap is intentionally not iterable; current context is updated by the
-    // knob through the exposed transport context marker below when available.
-    document.dispatchEvent(new CustomEvent('303box:reverb-change',{detail:{value}}));
-  }
-
-  // Track networks explicitly as well, because WeakMap cannot be iterated.
-  const live=[];
-  const originalCreate=createNetwork;
-  createNetwork=function(ctx,dest){
-    const net=originalCreate(ctx,dest); live.push(net);
-    ctx.addEventListener?.('statechange',()=>{if(ctx.state==='closed'){const i=live.indexOf(net);if(i>=0)live.splice(i,1)}},{once:false});
-    return net;
-  };
-
   function setValue(v){
-    value=clamp(Math.round(v),0,100); localStorage.setItem(STORE,String(value));
-    live.forEach(net=>{if(net.ctx.state!=='closed'){try{net.wet.gain.setTargetAtTime((value/100)*.42,net.ctx.currentTime,.025)}catch(_){net.wet.gain.value=(value/100)*.42}}});
-    render(); updateNetworks();
+    value=clamp(Math.round(v),0,100);localStorage.setItem(STORE,String(value));
+    live.forEach(net=>{
+      if(net.ctx.state==='closed')return;
+      try{net.wet.gain.setTargetAtTime((value/100)*.42,net.ctx.currentTime,.025)}catch(_){net.wet.gain.value=(value/100)*.42}
+    });
+    render();
+    window.dispatchEvent(new CustomEvent('303box:reverb-change',{detail:{value}}));
   }
 
   function dialSvg(){
@@ -74,7 +69,7 @@
   }
 
   function mount(){
-    const grid=$('#knobGrid'); if(!grid)return false;
+    const grid=$('#knobGrid');if(!grid)return false;
     let wrap=grid.querySelector('[data-fx-knob="reverb"]');
     if(!wrap){
       wrap=document.createElement('div');wrap.className='knob fx-knob fx-reverb';wrap.dataset.fxKnob='reverb';
@@ -103,5 +98,5 @@
   function settle(){[0,80,220,600,1200,2200].forEach(ms=>setTimeout(mount,ms));}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',settle,{once:true});else settle();
   window.addEventListener('load',settle,{once:true});
-  window.__303boxMasterReverb={version:'1510',setValue,get value(){return value}};
+  window.__303boxMasterReverb={version:'1511',setValue,get value(){return value}};
 })();
