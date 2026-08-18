@@ -1,6 +1,6 @@
 (() => {
   'use strict';
-  const version = '20260818-1432';
+  const version = '20260818-1442';
 
   const addCss = (key, href) => {
     if (document.querySelector(`link[data-303box-${key}]`)) return;
@@ -16,6 +16,7 @@
   addCss('acid-console', './acid-console.20260818-1340.css');
   addCss('seo-content', './seo.20260818-1315.css');
   addCss('compact-workstation', './compact-workstation.20260818-1430.css');
+  addCss('console-io', './console-io.20260818-1440.css');
 
   const load = src => new Promise((resolve, reject) => {
     const script = document.createElement('script');
