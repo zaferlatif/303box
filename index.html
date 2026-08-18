@@ -27,9 +27,13 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./styles.css">
+  <link rel="stylesheet" href="./styles.css?v=20260818-0318">
+  <style>
+    /* Critical fallback: prevents unstyled inline controls during asset loading. */
+    .workspace-toolbar svg,.wave-button svg{width:18px;height:18px}button svg{max-width:100%;max-height:100%}
+  </style>
   <script defer src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-  <script defer src="./app.js"></script>
+  <script defer src="./app.js?v=20260818-0318"></script>
 
   <script type="application/ld+json">
   {
@@ -111,7 +115,7 @@
       </div>
 
       <div class="hero-visual" aria-hidden="true">
-        <div class="visual-head"><span data-i18n="signalLabel">303box / SIGNAL</span><span class="signal-live" data-i18n="liveLabel">LIVE</span></div>
+        <div class="visual-head"><span>303box / SIGNAL</span><span class="signal-live">LIVE</span></div>
         <div class="scope">
           <svg viewBox="0 0 600 210" preserveAspectRatio="none">
             <defs><linearGradient id="fade" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#dfff36" stop-opacity="0"/><stop offset=".15" stop-color="#dfff36"/><stop offset=".85" stop-color="#dfff36"/><stop offset="1" stop-color="#dfff36" stop-opacity="0"/></linearGradient></defs>
@@ -125,7 +129,7 @@
           <span class="on"></span><span></span><span class="on"></span><span></span>
           <span></span><span class="on"></span><span></span><span class="on"></span>
         </div>
-        <div class="visual-foot"><span data-i18n="visualAccent">ACCENT</span><span data-i18n="visualSlide">SLIDE</span><span data-i18n="visualFilter">FILTER</span><span data-i18n="visualExport">EXPORT</span></div>
+        <div class="visual-foot"><span>ACCENT</span><span>SLIDE</span><span>FILTER</span><span>EXPORT</span></div>
       </div>
     </section>
 
@@ -167,9 +171,9 @@
             <header class="sheet-header">
               <div class="sheet-title-wrap">
                 <svg class="triangle-logo" viewBox="0 0 100 100" aria-hidden="true"><path d="M50 10 90 85H10Z"/><path class="fill" d="M40 55c-5-10 5-20 15-10s0 25-10 15Z"/></svg>
-                <div><p class="sheet-kicker" data-i18n="sheetKicker">303BOX / SEQUENCER SHEET</p><h2>303 PATTERN</h2></div>
+                <div><p class="sheet-kicker">303BOX / SEQUENCER SHEET</p><h2>303 PATTERN</h2></div>
               </div>
-              <span class="sheet-model" data-i18n="sheetModel">ANALOG BASS LINE / 16 STEP</span>
+              <span class="sheet-model">ANALOG BASS LINE / 16 STEP</span>
             </header>
 
             <div class="sheet-meta">
