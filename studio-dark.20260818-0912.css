@@ -43,3 +43,19 @@
 #patternSheet .notes-panel{background:#111114}
 #patternSheet .notes-panel textarea{color:#d8d8dc;caret-color:var(--acid)}
 #patternSheet .notes-panel textarea::placeholder{color:#62626a}
+
+/* 303 action controls mirror the rhythm-machine 2x2 control grid. */
+#patternSheet .sheet-toolbar{padding:12px!important;background:#121215!important;border-top:1px solid #29292e!important}
+#patternSheet .sheet-toolbar .toolbar-group{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important;width:100%!important}
+#patternSheet .sheet-toolbar .tool-button{width:100%!important;min-width:0!important;min-height:56px!important;margin:0!important;padding:0 12px!important;display:flex!important;align-items:center!important;justify-content:center!important;gap:8px!important;border:1px solid #34343a!important;border-radius:10px!important;background:#1a1a1e!important;color:#e9e9eb!important;font:800 .66rem/1 JetBrains Mono,monospace!important;letter-spacing:.02em!important;white-space:normal!important;text-align:center!important;overflow:hidden!important}
+#patternSheet .sheet-toolbar .tool-button svg{display:none!important}
+#patternSheet .sheet-toolbar .tool-button-acid{border-color:#5b681b!important;background:#181c0b!important;color:#ddff37!important;box-shadow:none!important}
+#patternSheet .sheet-toolbar .tool-button-play{border-color:#34343a!important;background:#1a1a1e!important;box-shadow:none!important}
+#patternSheet .sheet-toolbar .tool-button-clear{border-color:#492522!important;background:#181112!important;color:#ff6b64!important}
+#patternSheet .sheet-toolbar .status-led{flex:0 0 7px;width:7px;height:7px}
+
+@media(max-width:640px){
+  #patternSheet .sheet-toolbar{width:calc(100vw - 28px)!important;max-width:calc(100vw - 28px)!important;min-width:0!important;box-sizing:border-box!important;padding:10px!important}
+  #patternSheet .sheet-toolbar .toolbar-group{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important}
+  #patternSheet .sheet-toolbar .tool-button{min-height:58px!important;padding:0 8px!important;font-size:.62rem!important}
+}
