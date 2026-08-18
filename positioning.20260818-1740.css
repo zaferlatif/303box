@@ -1,0 +1,13 @@
+/* 303box 1740 — product positioning: sketchpad, not performer */
+.intent-band{border-top:1px solid var(--line-soft);border-bottom:1px solid var(--line-soft);background:linear-gradient(180deg,#090a07,#0b0b0d)}
+.intent-inner{padding:34px 0 36px}
+.intent-kicker{margin:0 0 10px;color:var(--acid);font:800 .62rem/1 JetBrains Mono,monospace;letter-spacing:.15em;text-transform:uppercase}
+.intent-title{max-width:900px;margin:0;font-size:clamp(1.45rem,3vw,2.45rem);line-height:1.08;letter-spacing:-.035em}
+.intent-lead{max-width:900px;margin:14px 0 0;color:#9c9ca3;font-size:.9rem;line-height:1.72}
+.intent-grid{display:grid;grid-template-columns:repeat(3,1fr);margin-top:26px;border:1px solid #29292f;border-radius:14px;overflow:hidden;background:#0d0d0f}
+.intent-grid article{min-height:126px;padding:20px 22px;border-right:1px solid #29292f}
+.intent-grid article:last-child{border-right:0}
+.intent-grid b{display:block;color:#efefec;font-size:.82rem}
+.intent-grid p{margin:8px 0 0;color:#777780;font-size:.72rem;line-height:1.58}
+.intent-grid span{display:block;margin-bottom:14px;color:var(--acid);font:800 .55rem/1 JetBrains Mono,monospace}
+@media(max-width:760px){.intent-inner{padding:28px 0}.intent-grid{grid-template-columns:1fr}.intent-grid article{min-height:0;border-right:0;border-bottom:1px solid #29292f}.intent-grid article:last-child{border-bottom:0}.intent-lead{font-size:.84rem}}
