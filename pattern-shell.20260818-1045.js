@@ -1,45 +1,54 @@
 (() => {
   'use strict';
 
-  function arrangePatternShell() {
+  function arrange303() {
     const workspace = document.querySelector('.workspace.shell');
-    const scroll = workspace?.querySelector('.sheet-scroll');
+    const shellWrap = workspace?.querySelector('.sheet-scroll');
     const sheet = document.querySelector('#patternSheet');
     const toolbar = document.querySelector('.sheet-toolbar') || document.querySelector('.workspace-toolbar');
     const io = document.querySelector('.sheet-io');
-    if (!workspace || !scroll || !sheet || !toolbar) return false;
+    if (!workspace || !shellWrap || !sheet || !toolbar) return false;
 
-    let workbench = workspace.querySelector('.pattern-workbench');
-    if (!workbench) {
-      workbench = document.createElement('div');
-      workbench.className = 'pattern-workbench';
-      scroll.parentNode.insertBefore(workbench, scroll);
-      workbench.appendChild(scroll);
+    // Undo previous workbench wrappers completely.
+    const workbench = workspace.querySelector('.pattern-workbench');
+    if (workbench && workbench.contains(shellWrap)) {
+      workbench.parentNode.insertBefore(shellWrap, workbench);
+      workbench.remove();
+    }
+    const oldPanel = workspace.querySelector('.pattern-sheet-panel');
+    if (oldPanel && oldPanel !== shellWrap && oldPanel.contains(shellWrap)) {
+      oldPanel.parentNode.insertBefore(shellWrap, oldPanel);
+      oldPanel.remove();
     }
 
-    if (scroll.parentElement !== workbench) workbench.prepend(scroll);
-    scroll.classList.add('pattern-sheet-panel');
+    // The outer sheet wrapper is fixed to viewport width; it must never be a horizontal scroller.
+    shellWrap.className = 'sheet-scroll pattern-card-wrap';
 
-    let controls = workbench.querySelector('.pattern-control-panel');
+    // Controls live outside the sheet and stay fixed, just like the rhythm controls.
+    let controls = workspace.querySelector('.pattern-control-panel');
     if (!controls) {
       controls = document.createElement('section');
       controls.className = 'pattern-control-panel';
-      controls.setAttribute('aria-label', '303 playback, analyzer and MIDI controls');
-      workbench.appendChild(controls);
+      controls.setAttribute('data-html2canvas-ignore', 'true');
+      shellWrap.insertAdjacentElement('afterend', controls);
     }
 
     toolbar.classList.add('pattern-actions');
     controls.appendChild(toolbar);
-    if (io) controls.appendChild(io);
 
-    if (controls.firstElementChild !== toolbar) controls.insertBefore(toolbar, controls.firstElementChild);
-    if (io && toolbar.nextElementSibling !== io) controls.insertBefore(io, toolbar.nextElementSibling);
+    // studio.js creates scope/MIDI after the hardware strip inside #patternSheet; move it out.
+    const liveIo = document.querySelector('.sheet-io');
+    if (liveIo) controls.appendChild(liveIo);
+
+    // Keep actions first, scope/MIDI second.
+    if (controls.firstElementChild !== toolbar) controls.prepend(toolbar);
+    if (liveIo && toolbar.nextElementSibling !== liveIo) toolbar.insertAdjacentElement('afterend', liveIo);
 
     return true;
   }
 
   function settle() {
-    [0, 40, 120, 260, 520, 900, 1500].forEach(ms => setTimeout(arrangePatternShell, ms));
+    [0, 30, 90, 180, 360, 700, 1300].forEach(ms => setTimeout(arrange303, ms));
   }
 
   window.addEventListener('DOMContentLoaded', settle);
