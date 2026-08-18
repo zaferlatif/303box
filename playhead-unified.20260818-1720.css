@@ -1,0 +1,51 @@
+/* 303box 1720 — unified transport playhead
+   Playback position is indicated by the same red LED language used by the rhythm grid.
+   Pattern content/downbeat shading remains untouched while the transport is moving. */
+
+/* Cancel the legacy full-column acid highlight on the 303 sheet. */
+#patternSheet .sequence-table thead th[data-playing="true"]{
+  background:#17171b!important;
+  color:#9b9ba3!important;
+  box-shadow:none!important;
+}
+#patternSheet .sequence-table thead th.downbeat[data-playing="true"]{
+  background:#202025!important;
+  color:var(--acid)!important;
+}
+#patternSheet .sequence-table td.step-cell[data-playing="true"]{
+  position:relative!important;
+  background:#101012!important;
+  color:inherit!important;
+  box-shadow:none!important;
+}
+#patternSheet .sequence-table td.step-cell.shaded[data-playing="true"]{
+  background:#17171b!important;
+}
+
+/* Match the rhythm transport indicator: one small red LED per current step cell. */
+#patternSheet .sequence-table td.step-cell[data-playing="true"]::before{
+  content:"";
+  position:absolute;
+  left:50%;
+  top:5px;
+  width:4px;
+  height:4px;
+  margin-left:-2px;
+  border-radius:50%;
+  background:#ff4b40;
+  box-shadow:0 0 7px #ff4b40;
+  z-index:4;
+  pointer-events:none;
+}
+
+/* Controls keep their authored pattern colors while the LED passes over them. */
+#patternSheet .sequence-table td.step-cell[data-playing="true"] .cell-control,
+#patternSheet .sequence-table td.step-cell[data-playing="true"] .note-picker{
+  background-color:transparent!important;
+}
+#patternSheet .sequence-table td.step-cell[data-playing="true"] button.accentSlide-cell{
+  color:var(--acid)!important;
+}
+#patternSheet .sequence-table td.step-cell[data-playing="true"] button.gate-cell{
+  color:#f1f1ed!important;
+}
