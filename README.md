@@ -25,7 +25,7 @@ No account. No install. Open the page and start sequencing.
 - Saw / square browser synth preview
 - Cutoff, resonance, envelope modulation, decay and accent controls
 - Synchronized six-part rhythm machine
-- 808-first rhythm voices with optional 909 character per part
+- Hardware-faithful companion rhythm voice map
 - Independent 303 / rhythm mixer
 - Live mini oscilloscope and FFT view
 - Browser MIDI output and MIDI clock where Web MIDI is supported
@@ -52,18 +52,20 @@ That means a generated bass line and rhythm section are designed to belong to th
 
 ## Rhythm section
 
-The rhythm machine is intentionally compact and built to sit beside a 303 line.
+The rhythm machine is intentionally compact and built to sit beside a 303 line. The source voice map follows the compact companion architecture rather than offering arbitrary 808/909 switching on every row.
 
-| Part | Default | Alternative |
-|---|---|---|
-| Bass Drum | 808 | 909 |
-| Snare Drum | 808 | 909 |
-| Hand Clap | 808 | 909 |
-| Tom | 808 | 909 |
-| Closed Hi-Hat | 808 | 909 |
-| Open Hi-Hat | 808 | 909 |
+| Part | Voice |
+|---|---|
+| Bass Drum | TR-909 BD |
+| Snare Drum | TR-606 SD |
+| Hand Clap | TR-808 Clap / Noise Tom / TR-606 High Tom |
+| Tom | TR-808 Low Tom / TR-606 Low Tom |
+| Closed Hi-Hat | TR-606 CH |
+| Open Hi-Hat | TR-606 OH |
 
-Each part has its own level control and voice selector. The rhythm section can run independently or start in sync with the 303 sequence.
+Only the Hand Clap and Tom rows expose voice choices; the other rhythm parts are fixed. Each part has its own level control. The rhythm section can run independently or start in sync with the 303 sequence.
+
+The browser audio engine recreates the character of these source voices with Web Audio synthesis; it does not contain Roland sample ROMs or proprietary DSP code.
 
 ## MIDI
 
@@ -98,14 +100,15 @@ Web MIDI requires a secure context in normal production use, so the live HTTPS d
 
 ```text
 303box/
-├── index.html                    # production page
-├── app.js                        # core 303 sequencer / audio engine
-├── styles.css                    # base interface
-├── studio.20260818-0912.js       # rhythm, MIDI, analyzer and studio layer
-├── studio.20260818-0912.css      # studio layout and responsive styling
-├── studio-dark.20260818-0912.css # dark pattern-sheet styling
-├── privacy.html                  # EN/TR privacy policy
-├── ads.txt                       # Google AdSense publisher declaration
+├── index.html                         # production page
+├── app.js                             # core 303 sequencer / audio engine
+├── styles.css                         # base interface
+├── studio.20260818-0912.js            # rhythm, MIDI, analyzer and studio layer
+├── studio.20260818-0912.css           # studio layout and responsive styling
+├── studio-dark.20260818-0912.css      # dark pattern-sheet styling
+├── rhythm-exact.20260818-1030.js      # exact rhythm voice map + preview engine
+├── privacy.html                       # EN/TR privacy policy
+├── ads.txt                            # Google AdSense publisher declaration
 ├── sitemap.xml
 ├── robots.txt
 ├── llms.txt
@@ -135,7 +138,7 @@ The project intentionally stays framework-free so deployment remains transparent
 
 303box is a **Z3Z project** by [@zafer.pro](https://instagram.com/zafer.pro).
 
-The project has been developed iteratively with **AI-assisted coding using ChatGPT**, alongside direct product direction, testing and musical/UI decisions by the project owner. That collaboration is part of the development process rather than something the project needs to hide.
+The project has been developed iteratively with **AI-assisted coding using ChatGPT**, alongside direct product direction, testing and musical/UI decisions by the project owner.
 
 ## Links
 
