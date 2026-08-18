@@ -1,0 +1,28 @@
+/* Compact mobile memory selector + final responsive polish */
+@media (max-width:760px){
+  #patternSheet .memory-panel{
+    min-height:0!important;
+  }
+  #patternSheet .memory-row{
+    min-height:36px!important;
+    height:36px!important;
+  }
+  #patternSheet .segment-button{
+    min-height:36px!important;
+    height:36px!important;
+    padding:0!important;
+    font-size:.57rem!important;
+    line-height:1!important;
+    letter-spacing:.02em!important;
+  }
+}
+@media (max-width:430px){
+  #patternSheet .memory-row,
+  #patternSheet .segment-button{
+    min-height:32px!important;
+    height:32px!important;
+  }
+  #patternSheet .segment-button{
+    font-size:.53rem!important;
+  }
+}
