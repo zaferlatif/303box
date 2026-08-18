@@ -1,6 +1,6 @@
 (() => {
   'use strict';
-  const version = '20260818-1302';
+  const version = '20260818-1342';
 
   const addCss = (key, href) => {
     if (document.querySelector(`link[data-303box-${key}]`)) return;
@@ -13,6 +13,7 @@
 
   addCss('audio-ui', './ui-audio.20260818-1240.css');
   addCss('final-polish', './ui-polish.20260818-1255.css');
+  addCss('acid-console', './acid-console.20260818-1340.css');
 
   const load = src => new Promise((resolve, reject) => {
     const script = document.createElement('script');
@@ -23,8 +24,8 @@
     document.head.appendChild(script);
   });
 
-  load('./sequencer-engine.20260818-1300.js')
+  load('./acid-console.20260818-1340.js')
     .then(() => load('./ui-audio.20260818-1240.js'))
     .then(() => load('./ui-polish.20260818-1255.js'))
-    .catch(error => console.error('303box audio loader', error));
+    .catch(error => console.error('303box acid console loader', error));
 })();
