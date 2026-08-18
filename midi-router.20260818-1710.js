@@ -7,9 +7,10 @@
   const isTR=()=>document.documentElement.lang==='tr';
   const t=(en,tr)=>isTR()?tr:en;
 
-  const STORE='303box-midi-router-v11';
-  const LEGACY=['303box-midi-router-v10','303box-midi-router-v9','303box-midi-router-v8'];
+  const STORE='303box-midi-router-v12';
+  const LEGACY=['303box-midi-router-v11','303box-midi-router-v10','303box-midi-router-v9','303box-midi-router-v8'];
   const NOTE={C:60,'C#':61,D:62,'D#':63,E:64,F:65,'F#':66,G:67,'G#':68,A:69,'A#':70,B:71};
+  // Roland T-8 Rhythm RX note numbers (owner's manual v1.02).
   const DRUM={bd:36,sd:38,cp:50,tm:47,ch:42,oh:46};
 
   const PROFILES={
@@ -80,7 +81,6 @@
     const name=out()?portName(out()):state.outputName;
     return name?detect(name):(PROFILES[state.effective]?state.effective:'generic');
   }
-
   function profile(){return PROFILES[state.effective]||PROFILES.generic}
 
   function applyProfile({defaults=false}={}){
@@ -97,21 +97,13 @@
   }
 
   function rememberChannels(){state.channels[state.effective]={bass:state.bass,rhythm:state.rhythm}}
-
   function persist(){
     try{
       localStorage.setItem(STORE,JSON.stringify({
-        outputId:state.outputId,
-        outputName:state.outputName,
-        profileChoice:state.choice,
-        lastEffectiveProfile:state.effective,
-        channelByProfile:state.channels,
-        bassChannel:state.bass,
-        rhythmChannel:state.rhythm,
-        mode:state.mode,
-        modeExplicit:state.modeExplicit,
-        clock:state.clock,
-        transport:state.transport
+        outputId:state.outputId,outputName:state.outputName,profileChoice:state.choice,
+        lastEffectiveProfile:state.effective,channelByProfile:state.channels,
+        bassChannel:state.bass,rhythmChannel:state.rhythm,mode:state.mode,
+        modeExplicit:state.modeExplicit,clock:state.clock,transport:state.transport
       }));
       localStorage.setItem('303-midi-mode',state.mode);
     }catch(_){}
@@ -119,30 +111,20 @@
 
   function immediate(msg){const o=out();if(!o||o.state!=='connected')return;try{o.send(msg)}catch(_){}}
   function scheduled(msg,at){const o=out();if(!o||o.state!=='connected'||state.blocked)return;try{o.send(msg,at)}catch(_){}}
-  function clearQueue(){try{out()?.clear()}catch(_){} state.clockNextAt=0;}
+  function clearQueue(){try{out()?.clear()}catch(_){}state.clockNextAt=0}
   function cleanupChannels(){for(let ch=1;ch<=16;ch++){immediate([0xB0+ch-1,120,0]);immediate([0xB0+ch-1,123,0])}}
 
   function emergencyStop({block=false,stopSite=true,renderAfter=true}={}){
-    clearQueue();
-    cleanupChannels();
-    immediate([0xFC]);
-    state.running=false;
-    state.sentStart=false;
-    state.nextAt=0;
-    state.signature='';
-    state.rec=false;
-    state.clockNextAt=0;
+    clearQueue();cleanupChannels();immediate([0xFC]);
+    state.running=false;state.sentStart=false;state.nextAt=0;state.signature='';
+    state.rec=false;state.clockNextAt=0;
     if(state.recTimer){clearTimeout(state.recTimer);state.recTimer=0}
     if(block)state.blocked=true;
     if(stopSite){try{engine()?.stopAll?.()}catch(_){}}
     if(renderAfter)render();
   }
 
-  function status(message=''){
-    const el=$('#midiRouterStatus');
-    if(el)el.textContent=message;
-  }
-
+  function status(message=''){const el=$('#midiRouterStatus');if(el)el.textContent=message}
   function text(id,en,tr){const el=$(`#${id}`);if(el)el.textContent=t(en,tr)}
 
   function syncModeLabels(){
@@ -165,56 +147,37 @@
       sel.innerHTML='<option value="">—</option>'+outputs.map(x=>`<option value="${x.id}">${portName(x)}</option>`).join('');
       sel.value=outputs.some(x=>x.id===state.outputId)?state.outputId:'';
     }else if(state.outputName){
-      sel.disabled=true;
-      sel.innerHTML=`<option value="${state.outputId}">${state.outputName}</option>`;
-      sel.value=state.outputId;
+      sel.disabled=true;sel.innerHTML=`<option value="${state.outputId}">${state.outputName}</option>`;sel.value=state.outputId;
     }else{
-      sel.disabled=true;
-      sel.innerHTML='<option value="">—</option>';
+      sel.disabled=true;sel.innerHTML='<option value="">—</option>';
     }
   }
 
   function render(){
     applyProfile();
     const p=profile();
-
     text('midiConnectCopy',state.blocked?'RE-ARM MIDI':state.enabled?'MIDI ENABLED':'ENABLE MIDI',state.blocked?'MIDI’Yİ YENİDEN AÇ':state.enabled?'MIDI AÇIK':'MIDI’Yİ AÇ');
-    text('midiOutputLabel','OUTPUT','ÇIKIŞ');
-    text('midiDeviceLabel','DEVICE','CİHAZ');
-    text('midiPlaybackLabel','PLAYBACK','ÇALMA');
-    text('midiBassLabel','BASS CH','BASS KANAL');
-    text('midiRhythmLabel','RHYTHM CH','RİTİM KANAL');
-    text('midiClockTitle','SEND CLOCK','CLOCK GÖNDER');
-    text('midiTransportTitle','SEND START / STOP','START / STOP GÖNDER');
-    text('midiRecTitle','T-8 REC','T-8 REC');
-    text('midiRecBass','BASS → REC','BASS → REC');
-    text('midiRecRhythm','RHYTHM → REC','RİTİM → REC');
+    text('midiOutputLabel','OUTPUT','ÇIKIŞ');text('midiDeviceLabel','DEVICE','CİHAZ');text('midiPlaybackLabel','PLAYBACK','ÇALMA');
+    text('midiBassLabel','BASS CH','BASS KANAL');text('midiRhythmLabel','RHYTHM CH','RİTİM KANAL');
+    text('midiClockTitle','SEND CLOCK','CLOCK GÖNDER');text('midiTransportTitle','SEND START / STOP','START / STOP GÖNDER');
+    text('midiRecTitle','T-8 REC','T-8 REC');text('midiRecBass','BASS → REC','BASS → REC');text('midiRecRhythm','RHYTHM → REC','RİTİM → REC');
 
-    renderOutputs();
-    syncModeLabels();
-
+    renderOutputs();syncModeLabels();
     const prof=$('#midiDeviceProfile');if(prof)prof.value=state.choice;
     const mode=$('#midiRouterMode');if(mode)mode.value=state.mode;
     const bass=$('#midiBassCh');if(bass)bass.value=String(state.bass);
     const rhythm=$('#midiRhythmCh');if(rhythm){rhythm.value=String(state.rhythm);rhythm.disabled=!p.hasRhythm}
     $('#midiRhythmField')?.classList.toggle('disabled',!p.hasRhythm);
-
     const clock=$('#midiRouterClock');if(clock){clock.checked=state.clock;clock.disabled=!p.clock}
     const transport=$('#midiRouterTransport');if(transport){transport.checked=state.transport;transport.disabled=!p.transport}
 
     const badge=$('#midiRouterBadge');
-    if(badge){
-      badge.textContent=state.rec?'REC':state.blocked?'SAFE':ready()?p.label.replace(/^(Roland|Behringer|Korg)\s+/,''):'MIDI';
-      badge.classList.toggle('ready',ready()&&!state.blocked);
-    }
-
+    if(badge){badge.textContent=state.rec?'REC':state.blocked?'SAFE':ready()?p.label.replace(/^(Roland|Behringer|Korg)\s+/,''):'MIDI';badge.classList.toggle('ready',ready()&&!state.blocked)}
     const connect=$('#midiRouterConnect');if(connect)connect.disabled=state.rec;
     const recOkay=ready()&&p.rec&&!state.rec;
-    const rb=$('#midiRecBass'),rr=$('#midiRecRhythm');
-    if(rb)rb.disabled=!recOkay;
-    if(rr)rr.disabled=!recOkay||!p.hasRhythm;
+    const rb=$('#midiRecBass'),rr=$('#midiRecRhythm');if(rb)rb.disabled=!recOkay;if(rr)rr.disabled=!recOkay||!p.hasRhythm;
 
-    if(state.rec)status(t('Sending REC pass…','REC turu gönderiliyor…'));
+    if(state.rec)status(t('REC transfer in progress…','REC aktarımı sürüyor…'));
     else if(state.blocked)status(t('MIDI safety stop. Re-arm to continue.','MIDI güvenlik nedeniyle durdu. Devam etmek için yeniden aç.'));
     else status('');
 
@@ -249,13 +212,10 @@
 
   function bassStep(i){
     const n=$$('#patternSheet .note-input')[i];
-    return{
-      note:n?.value?.trim().toUpperCase()||'',
-      base:Number(n?.dataset?.baseOctave||0)?12:0,
+    return{note:n?.value?.trim().toUpperCase()||'',base:Number(n?.dataset?.baseOctave||0)?12:0,
       oct:$$('#patternSheet .octave-cell')[i]?.textContent.trim().toUpperCase()||'',
       expr:$$('#patternSheet .accentSlide-cell')[i]?.textContent.trim().toUpperCase()||'',
-      gate:$$('#patternSheet .gate-cell')[i]?.textContent.trim()||''
-    };
+      gate:$$('#patternSheet .gate-cell')[i]?.textContent.trim()||''};
   }
 
   function midiNote(x){let n=NOTE[x.note];if(n==null)return null;n+=x.base;if(x.oct==='D')n-=12;if(x.oct==='U')n+=12;return clamp(n,0,127)}
@@ -263,6 +223,14 @@
   const drumOn=(id,s)=>!!$(`#drums .drum-step[data-drum="${id}"][data-step="${s}"]`)?.classList.contains('on');
   const level=id=>{const v=Number($(`#drums [data-level="${id}"]`)?.value);return Number.isFinite(v)?clamp(v,0,100):80};
   function activeStep(){const h=$('#patternSheet [data-step-header][data-playing="true"]');const n=Number(h?.dataset?.stepHeader);return Number.isInteger(n)&&n>=0&&n<16?n:0}
+
+  // T-8 needs a hotter MIDI velocity curve than the browser synth to feel comparable.
+  // Keep zero as true mute; preserve a useful dynamic range below the top end.
+  function drumVelocity(l,{record=false}={}){
+    if(l<=0)return 0;
+    if(state.effective==='t8')return record?127:clamp(Math.round(86+l*.5),1,127);
+    return clamp((record?42:30)+l,1,127);
+  }
 
   function liveBass(s,at,d){
     const e=engine();if(!e?.bassOn)return;
@@ -276,26 +244,19 @@
     let k=0;
     for(const[id,n]of Object.entries(DRUM)){
       const l=level(id);if(!drumOn(id,s)||l<=0)continue;
-      const on=at+(k++*2.5);
-      note(state.rhythm,n,clamp(30+l,1,127),on,on+(id==='oh'?150:76));
+      const on=at+(k++*2.5),vel=drumVelocity(l);
+      note(state.rhythm,n,vel,on,on+(id==='oh'?150:76));
     }
   }
 
   function signature(){const e=engine();return `${e?.state}|${e?.bassOn?'b':'-'}${e?.drumsOn?'d':'-'}|${bpm()}|${Math.round(swing()*100)}|${state.bass}|${state.rhythm}|${state.effective}`}
-
   function clockWanted(){return sendEnabled()&&state.clock&&profile().clock&&!state.rec}
 
   function pumpClock(){
     if(!clockWanted()){state.clockNextAt=0;state.clockBpm=0;return}
     const now=performance.now(),currentBpm=bpm(),period=clockPeriod(),horizon=260;
-    if(state.clockBpm!==currentBpm||!state.clockNextAt||state.clockNextAt<now-period*2){
-      state.clockBpm=currentBpm;
-      state.clockNextAt=now+24;
-    }
-    while(state.clockNextAt<now+horizon){
-      scheduled([0xF8],state.clockNextAt);
-      state.clockNextAt+=period;
-    }
+    if(state.clockBpm!==currentBpm||!state.clockNextAt||state.clockNextAt<now-period*2){state.clockBpm=currentBpm;state.clockNextAt=now+24}
+    while(state.clockNextAt<now+horizon){scheduled([0xF8],state.clockNextAt);state.clockNextAt+=period}
   }
 
   function pumpNotes(){
@@ -331,13 +292,9 @@
     if(sendEnabled()&&e?.state==='playing'&&!state.rec){
       if(!state.running)startRouter();
       const sig=signature();
-      if(state.signature&&sig!==state.signature){
-        clearQueue();state.step=activeStep();state.nextAt=performance.now()+30;state.clockNextAt=0;
-      }
+      if(state.signature&&sig!==state.signature){clearQueue();state.step=activeStep();state.nextAt=performance.now()+30;state.clockNextAt=0}
       state.signature=sig;pumpNotes();pumpClock();
-    }else if(state.running){
-      stopRouter();pumpClock();
-    }
+    }else if(state.running){stopRouter();pumpClock()}
   }
 
   let worker=null;
@@ -345,32 +302,30 @@
     if(worker){worker.postMessage('start');return}
     const code=`let i=null;onmessage=e=>{if(e.data==='start'){if(i)clearInterval(i);i=setInterval(()=>postMessage(1),25)}else if(e.data==='stop'){clearInterval(i);i=null}}`;
     worker=new Worker(URL.createObjectURL(new Blob([code],{type:'text/javascript'})));
-    worker.onmessage=sync;
-    worker.postMessage('start');
+    worker.onmessage=sync;worker.postMessage('start');
   }
 
   function recBass(s,at,d){
     const x=bassStep(s),n=midiNote(x);if(n==null||x.gate==='-')return;
     const leg=x.gate==='○'||x.expr.includes('S');
-    note(state.bass,n,x.expr.includes('A')?126:98,at+12,at+(leg?d*1.08:d*.68));
+    note(state.bass,n,x.expr.includes('A')?126:98,at+10,at+(leg?d*1.08:d*.68));
   }
 
   function recDrums(s,at,d){
     let k=0;
     for(const[id,n]of Object.entries(DRUM)){
-      if(!drumOn(id,s)||level(id)<=0)continue;
-      const on=at+14+(k++*5);
-      note(state.rhythm,n,clamp(42+level(id),1,127),on,on+Math.min(d*.66,id==='oh'?150:96));
+      const l=level(id);if(!drumOn(id,s)||l<=0)continue;
+      const on=at+10+(k++*4),vel=drumVelocity(l,{record:true});
+      note(state.rhythm,n,vel,on,on+Math.min(d*.62,id==='oh'?150:92));
     }
   }
 
-  function scheduleClockedStep(at,d){
-    for(let c=0;c<6;c++)scheduled([0xF8],at+c*d/6);
-  }
+  function scheduleClockedStep(at,d){for(let c=0;c<6;c++)scheduled([0xF8],at+c*d/6)}
 
+  // Important for T-8 rhythm REC:
+  // clock lock happens BEFORE MIDI Start, so the recorder's first 16-step pass is not consumed by silence.
   function recPass(kind){
     const p=profile();if(!ready()||!p.rec||state.rec)return;
-
     if(state.effective==='t8')state.clock=true;
 
     try{engine()?.stopAll?.()}catch(_){}
@@ -378,74 +333,57 @@
     state.rec=true;state.clockNextAt=0;persist();render();
 
     const d=60000/bpm()/4;
-    const start=performance.now()+(kind==='rhythm'?360:260);
-    scheduled([0xFA],start-120);
+    const now=performance.now();
+    const lockSteps=kind==='rhythm'?8:2; // 2 beats for drums, half a beat for bass.
+    const lockStart=now+120;
+    const start=lockStart+lockSteps*d;
 
-    if(kind==='bass'){
-      for(let s=0;s<16;s++){
-        const at=start+s*d;
-        scheduleClockedStep(at,d);
-        recBass(s,at,d);
-      }
-      finishRec(start+16*d);
-      return;
-    }
+    // Clock-only lead-in while transport is stopped: lets T-8 lock without advancing REC.
+    for(let i=0;i<lockSteps;i++)scheduleClockedStep(lockStart+i*d,d);
 
-    const preRollSteps=16,writeLoops=2,totalSteps=preRollSteps+(16*writeLoops);
-    for(let i=0;i<totalSteps;i++){
-      const at=start+i*d;
+    // Start immediately before the first recorded step; notes begin on step 1, not one bar later.
+    scheduled([0xFA],start-12);
+    for(let s=0;s<16;s++){
+      const at=start+s*d;
       scheduleClockedStep(at,d);
-      if(i>=preRollSteps)recDrums((i-preRollSteps)%16,at,d);
+      if(kind==='bass')recBass(s,at,d);else recDrums(s,at,d);
     }
-    finishRec(start+totalSteps*d);
+    finishRec(start+16*d,kind);
   }
 
-  function finishRec(end){
-    scheduled([0xFC],end+20);
+  function finishRec(end,kind){
+    scheduled([0xFC],end+16);
     state.recTimer=setTimeout(()=>{
-      state.recTimer=0;state.rec=false;cleanupChannels();state.clockNextAt=0;status('');render();pumpClock();
+      state.recTimer=0;state.rec=false;state.sentStart=false;cleanupChannels();state.clockNextAt=0;
+      status(kind==='rhythm'
+        ? t('Rhythm REC pass finished. Check the T-8 pattern, then WRITE on the device.','Ritim REC turu bitti. T-8 patternini kontrol et, sonra cihazda WRITE yap.')
+        : t('Bass REC pass finished. Check the T-8 pattern, then WRITE on the device.','Bass REC turu bitti. T-8 patternini kontrol et, sonra cihazda WRITE yap.'));
+      render();pumpClock();
     },Math.max(300,end-performance.now()+180));
   }
 
   function bind(){
     $('#midiRouterConnect')?.addEventListener('click',connect);
-
     $('#midiRouterOut')?.addEventListener('change',e=>{
-      const value=e.target.value;
-      emergencyStop({stopSite:false,renderAfter:false});
+      const value=e.target.value;emergencyStop({stopSite:false,renderAfter:false});
       state.outputId=value;const o=out();state.outputName=portName(o);
       if(state.choice==='auto'){state.effective=detect(state.outputName);applyProfile({defaults:true})}
       if(!state.modeExplicit&&value){state.mode='both';state.modeExplicit=true}
       persist();render();
     });
-
     $('#midiDeviceProfile')?.addEventListener('change',e=>{
-      const value=e.target.value;
-      emergencyStop({stopSite:false,renderAfter:false});
-      state.choice=value;state.effective=effectiveId();applyProfile({defaults:true});persist();render();
+      emergencyStop({stopSite:false,renderAfter:false});state.choice=e.target.value;state.effective=effectiveId();applyProfile({defaults:true});persist();render();
     });
-
     $('#midiRouterMode')?.addEventListener('change',e=>{
-      const value=e.target.value;
-      emergencyStop({stopSite:false,renderAfter:false});
-      state.mode=value;state.modeExplicit=true;persist();render();
+      emergencyStop({stopSite:false,renderAfter:false});state.mode=e.target.value;state.modeExplicit=true;persist();render();
     });
-
     $('#midiBassCh')?.addEventListener('change',e=>{
-      const value=clamp(+e.target.value||1,1,16);
-      emergencyStop({stopSite:false,renderAfter:false});
-      state.bass=value;rememberChannels();persist();render();
+      emergencyStop({stopSite:false,renderAfter:false});state.bass=clamp(+e.target.value||1,1,16);rememberChannels();persist();render();
     });
-
     $('#midiRhythmCh')?.addEventListener('change',e=>{
-      const value=clamp(+e.target.value||10,1,16);
-      emergencyStop({stopSite:false,renderAfter:false});
-      state.rhythm=value;rememberChannels();persist();render();
+      emergencyStop({stopSite:false,renderAfter:false});state.rhythm=clamp(+e.target.value||10,1,16);rememberChannels();persist();render();
     });
-
-    $('#midiRouterClock')?.addEventListener('change',e=>{
-      state.clock=!!e.target.checked;state.clockNextAt=0;persist();pumpClock();
-    });
+    $('#midiRouterClock')?.addEventListener('change',e=>{state.clock=!!e.target.checked;state.clockNextAt=0;persist();pumpClock()});
     $('#midiRouterTransport')?.addEventListener('change',e=>{state.transport=!!e.target.checked;persist()});
     $('#midiPanic')?.addEventListener('click',()=>emergencyStop({stopSite:true}));
     $('#midiRecBass')?.addEventListener('click',()=>recPass('bass'));
@@ -456,12 +394,10 @@
     if(!$('#midiRouter'))return;
     applyProfile();bind();render();ensureWorker();
     new MutationObserver(()=>{syncModeLabels();render()}).observe(document.documentElement,{attributes:true,attributeFilter:['lang']});
-
     window.addEventListener('pagehide',()=>emergencyStop({block:true,stopSite:true,renderAfter:false}));
     window.addEventListener('beforeunload',()=>emergencyStop({block:true,stopSite:false,renderAfter:false}));
     document.addEventListener('freeze',()=>emergencyStop({block:true,stopSite:true,renderAfter:false}));
-
-    window.__303boxMidiRouter={version:'1710',panic:()=>emergencyStop({stopSite:true}),sendRecPass:recPass,get state(){return{...state}}};
+    window.__303boxMidiRouter={version:'1945',panic:()=>emergencyStop({stopSite:true}),sendRecPass:recPass,get state(){return{...state}}};
   }
 
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
