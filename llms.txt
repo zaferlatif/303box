@@ -1,34 +1,61 @@
 # 303box
 
-> 303box is a free browser-based 16-step 303 acid bassline and synchronized rhythm sequencer.
+> 303box is a free browser-based 16-step 303 acid bassline and synchronized rhythm workstation.
 
 Canonical URL: https://303box.com/
+Turkish landing page: https://303box.com/tr/
 
 ## Core capabilities
 - Program 16-step 303 patterns with note, octave, accent, slide, trigger, tie and rest states.
-- Choose sawtooth or square waveform and shape cutoff, resonance, envelope modulation, decay and accent.
-- Preview the 303 line with the Web Audio API.
-- Inspect the 303 signal with a compact oscilloscope and FFT display.
+- Choose sawtooth or square waveform and shape Tune, Cutoff, Resonance, Env Mod, Decay and Accent.
+- Add Delay and Distortion to the 303 preview.
+- Run bass and rhythm from one shared browser audio clock through the Acid Console.
+- Start bass and rhythm together with a global transport or control either part independently.
+- Control Master, 303 and Rhythm levels independently and mute either musical layer.
+- Apply shared Swing to the 16-step timing.
+- Apply Pump sidechain: active kick steps duck the 303 level and recover musically.
+- Preview the 303 and rhythm with the Web Audio API.
+- Inspect the signal with a compact oscilloscope and FFT display.
 - Connect supported MIDI hardware through the Web MIDI API and send note messages plus optional MIDI clock.
 - Program a synchronized six-part rhythm machine: bass drum, snare drum, hand clap, tom, closed hi-hat and open hi-hat.
-- Rhythm voice map: TR-909 bass drum; TR-606 snare drum; TR-606 closed/open hi-hats; hand-clap part selectable between TR-808 Clap, Noise Tom and TR-606 High Tom; tom part selectable between TR-808 Low Tom and TR-606 Low Tom.
-- Only the Hand Clap and Tom rhythm parts expose voice choices; the other rhythm voices are fixed.
-- Start the rhythm independently or synchronize its start to step 1 of the 303 sequencer.
-- Randomize both acid and rhythm patterns.
-- Mix 303 and rhythm levels independently; both default to 80%.
+- Rhythm voice map: TR-909 bass drum; TR-606 snare drum; TR-606 closed/open hi-hats; TR-808 Clap; TR-808 Low Tom, with the source architecture's real clap/tom alternatives where available.
+- Generate musically structured acid and rhythm patterns.
 - Export the visible 303 pattern and rhythm pattern as JPG images.
 - Store working sessions locally in the browser.
 
-## Languages
-- English
-- Turkish
+## Languages and localized URLs
+- English main application: https://303box.com/
+- Turkish discovery page: https://303box.com/tr/
 
-## Important sections
+## Guides
+- English Acid House Guide: https://303box.com/acid-house-guide.html
+- Turkish Acid House Rehberi: https://303box.com/tr/acid-house-rehberi.html
+- English 303 Pattern Guide: https://303box.com/303-pattern-guide.html
+- Turkish 303 Pattern Rehberi: https://303box.com/tr/303-pattern-rehberi.html
+
+## Important application sections
 - Sequencer: https://303box.com/#sequencer
-- Rhythm machine: https://303box.com/#drums
-- Sequencer guide: https://303box.com/#guide
+- Rhythm workstation: https://303box.com/#drums
+- Guide: https://303box.com/#guide
 - 303 history: https://303box.com/#history
 - FAQ: https://303box.com/#faq
+- Privacy: https://303box.com/privacy.html
+
+## Primary search intents
+303box is intended to answer and serve these topics directly:
+- free online 303 sequencer
+- acid house maker
+- acid bassline generator
+- 303 pattern generator
+- browser acid sequencer
+- 303 accent and slide programming
+- acid house BPM and workflow
+- online rhythm and 303 workstation
+- Web MIDI 303 pattern workflow
+- ücretsiz online 303 sequencer
+- acid house pattern oluşturucu
+- 303 pattern nasıl yapılır
+- accent slide octave kullanımı
 
 ## Historical coverage
-The site includes a sourced 303 timeline covering Tadao Kikumoto, Phuture, DJ Pierre, Ron Hardy, A Guy Called Gerald, Hardfloor, Josh Wink and the continuing 303 hardware/software ecosystem.
+The site includes 303 history and educational coverage of acid-house sequencing culture, including the role of early 303 experimentation and the continuing hardware/software ecosystem.
