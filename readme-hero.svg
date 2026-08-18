@@ -1,76 +1,100 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="620" viewBox="0 0 1400 620" role="img" aria-labelledby="title desc">
-  <title id="title">303box — browser acid sequencer</title>
-  <desc id="desc">Dark acid-green promotional banner for 303box with a live waveform, 16-step sequencer and rhythm grid.</desc>
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="760" viewBox="0 0 1600 760" role="img" aria-labelledby="title desc">
+  <title id="title">303box — acid workstation for browser and MIDI hardware</title>
+  <desc id="desc">A dark neon acid workstation interface with 303 sequencer, rhythm, scope and MIDI hardware controls.</desc>
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#070708"/>
-      <stop offset="0.68" stop-color="#0d0d10"/>
-      <stop offset="1" stop-color="#171b09"/>
-    </linearGradient>
-    <radialGradient id="glow" cx="82%" cy="12%" r="62%">
-      <stop offset="0" stop-color="#ddff37" stop-opacity=".18"/>
-      <stop offset=".45" stop-color="#ddff37" stop-opacity=".04"/>
-      <stop offset="1" stop-color="#ddff37" stop-opacity="0"/>
-    </radialGradient>
-    <filter id="soft"><feGaussianBlur stdDeviation="16"/></filter>
-    <filter id="waveGlow"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#050506"/><stop offset=".56" stop-color="#0a0a0d"/><stop offset="1" stop-color="#111707"/></linearGradient>
+    <linearGradient id="panel" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#111116"/><stop offset="1" stop-color="#09090b"/></linearGradient>
+    <linearGradient id="acid" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#e7ff38"/><stop offset="1" stop-color="#bfff18"/></linearGradient>
+    <radialGradient id="halo" cx="86%" cy="15%" r="64%"><stop stop-color="#dfff31" stop-opacity=".18"/><stop offset=".42" stop-color="#dfff31" stop-opacity=".035"/><stop offset="1" stop-color="#dfff31" stop-opacity="0"/></radialGradient>
+    <filter id="glow"><feGaussianBlur stdDeviation="7" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <filter id="soft"><feGaussianBlur stdDeviation="26"/></filter>
   </defs>
-  <rect width="1400" height="620" rx="34" fill="url(#bg)"/>
-  <rect width="1400" height="620" rx="34" fill="url(#glow)"/>
-  <g opacity=".15" stroke="#ffffff" stroke-width="1">
-    <path d="M0 80H1400M0 160H1400M0 240H1400M0 320H1400M0 400H1400M0 480H1400M0 560H1400"/>
-    <path d="M100 0V620M200 0V620M300 0V620M400 0V620M500 0V620M600 0V620M700 0V620M800 0V620M900 0V620M1000 0V620M1100 0V620M1200 0V620M1300 0V620"/>
-  </g>
-  <circle cx="1180" cy="80" r="180" fill="#ddff37" opacity=".04" filter="url(#soft)"/>
 
-  <g transform="translate(74 72)">
-    <rect width="92" height="44" rx="12" fill="#17171b" stroke="#34343a"/>
-    <text x="46" y="29" text-anchor="middle" fill="#ddff37" font-family="Arial,Helvetica,sans-serif" font-size="18" font-weight="900">303</text>
-    <text x="112" y="29" fill="#f4f4ef" font-family="Arial,Helvetica,sans-serif" font-size="26" font-weight="900">303box</text>
+  <rect width="1600" height="760" rx="38" fill="url(#bg)"/>
+  <rect width="1600" height="760" rx="38" fill="url(#halo)"/>
+  <g opacity=".11" stroke="#89908d"><path d="M0 95H1600M0 190H1600M0 285H1600M0 380H1600M0 475H1600M0 570H1600M0 665H1600"/><path d="M100 0V760M200 0V760M300 0V760M400 0V760M500 0V760M600 0V760M700 0V760M800 0V760M900 0V760M1000 0V760M1100 0V760M1200 0V760M1300 0V760M1400 0V760M1500 0V760"/></g>
+  <circle cx="1435" cy="92" r="220" fill="#dfff31" opacity=".045" filter="url(#soft)"/>
+
+  <g transform="translate(76 68)">
+    <rect width="112" height="50" rx="13" fill="#15151a" stroke="#35353c"/>
+    <text x="56" y="33" text-anchor="middle" fill="#dfff31" font-family="monospace" font-size="22" font-weight="900">303</text>
+    <text x="135" y="34" fill="#f7f7f3" font-family="Arial,Helvetica,sans-serif" font-size="31" font-weight="900">303box</text>
+    <text x="276" y="34" fill="#707078" font-family="monospace" font-size="14" font-weight="700" letter-spacing="3">Z3Z / ACID SYSTEM</text>
   </g>
 
-  <g transform="translate(74 160)">
-    <text fill="#ddff37" font-family="Arial,Helvetica,sans-serif" font-size="17" font-weight="800" letter-spacing="4">ACID PATTERN LABORATORY</text>
-    <text y="76" fill="#f7f7f3" font-family="Arial,Helvetica,sans-serif" font-size="60" font-weight="900" letter-spacing="-2">Build the line.</text>
-    <text y="140" fill="#f7f7f3" font-family="Arial,Helvetica,sans-serif" font-size="60" font-weight="900" letter-spacing="-2">Drive the rhythm.</text>
-    <text y="204" fill="#a3a3aa" font-family="Arial,Helvetica,sans-serif" font-size="22">16-step 303 sequencing, rhythm, live scope and browser MIDI.</text>
-    <g transform="translate(0 254)" font-family="Arial,Helvetica,sans-serif" font-size="15" font-weight="800">
-      <rect width="128" height="38" rx="19" fill="#ddff37"/><text x="64" y="25" text-anchor="middle" fill="#080809">303 SEQUENCER</text>
-      <rect x="140" width="124" height="38" rx="19" fill="#16161a" stroke="#34343a"/><text x="202" y="25" text-anchor="middle" fill="#d8d8dc">RHYTHM</text>
-      <rect x="276" width="112" height="38" rx="19" fill="#16161a" stroke="#34343a"/><text x="332" y="25" text-anchor="middle" fill="#d8d8dc">MIDI</text>
-      <rect x="400" width="112" height="38" rx="19" fill="#16161a" stroke="#34343a"/><text x="456" y="25" text-anchor="middle" fill="#d8d8dc">SCOPE</text>
+  <g transform="translate(76 185)">
+    <text fill="#dfff31" font-family="monospace" font-size="16" font-weight="900" letter-spacing="5">BROWSER ACID WORKSTATION</text>
+    <text y="78" fill="#fafaf6" font-family="Arial,Helvetica,sans-serif" font-size="72" font-weight="900" letter-spacing="-3">Sequence the acid.</text>
+    <text y="150" fill="#fafaf6" font-family="Arial,Helvetica,sans-serif" font-size="72" font-weight="900" letter-spacing="-3">Drive the hardware.</text>
+    <text y="205" fill="#9a9aa2" font-family="Arial,Helvetica,sans-serif" font-size="23">303 bass + rhythm + live scope + MIDI, in one focused instrument.</text>
+
+    <g transform="translate(0 258)" font-family="monospace" font-size="13" font-weight="800">
+      <rect width="154" height="40" rx="20" fill="url(#acid)"/><text x="77" y="25" text-anchor="middle" fill="#09090a">16 STEP 303</text>
+      <rect x="166" width="124" height="40" rx="20" fill="#15151a" stroke="#35353c"/><text x="228" y="25" text-anchor="middle" fill="#d7d7dc">RHYTHM</text>
+      <rect x="302" width="124" height="40" rx="20" fill="#15151a" stroke="#35353c"/><text x="364" y="25" text-anchor="middle" fill="#d7d7dc">WEB MIDI</text>
+      <rect x="438" width="116" height="40" rx="20" fill="#15151a" stroke="#35353c"/><text x="496" y="25" text-anchor="middle" fill="#d7d7dc">SCOPE</text>
     </g>
-    <text y="346" fill="#74747b" font-family="monospace" font-size="16">303box.com</text>
+
+    <g transform="translate(0 342)" font-family="monospace" font-size="13" font-weight="700">
+      <text fill="#6f6f77">303box.com</text>
+      <text x="140" fill="#4c4c54">/</text>
+      <text x="165" fill="#8d8d95">NO INSTALL</text>
+      <text x="270" fill="#4c4c54">/</text>
+      <text x="295" fill="#8d8d95">NO ACCOUNT</text>
+      <text x="408" fill="#4c4c54">/</text>
+      <text x="433" fill="#dfff31">LIVE HARDWARE MIDI</text>
+    </g>
   </g>
 
-  <g transform="translate(760 94)">
-    <rect width="566" height="430" rx="26" fill="#0d0d10" stroke="#303038" stroke-width="2"/>
-    <path d="M0 64H566" stroke="#2b2b31"/>
-    <text x="26" y="40" fill="#777780" font-family="monospace" font-size="14" font-weight="700" letter-spacing="3">303box / SIGNAL</text>
-    <text x="494" y="40" fill="#ddff37" font-family="monospace" font-size="14" font-weight="900" letter-spacing="2">LIVE</text>
+  <g transform="translate(830 105)">
+    <rect width="690" height="548" rx="28" fill="url(#panel)" stroke="#34343c" stroke-width="2"/>
+    <path d="M0 62H690" stroke="#29292f"/>
+    <text x="26" y="39" fill="#dfff31" font-family="monospace" font-size="14" font-weight="900" letter-spacing="3">ACID CONSOLE</text>
+    <text x="520" y="39" fill="#686870" font-family="monospace" font-size="12" font-weight="800" letter-spacing="2">BASS + RHYTHM</text>
 
-    <g transform="translate(28 92)">
-      <rect width="510" height="190" rx="16" fill="#070809" stroke="#2a2d31"/>
-      <g opacity=".55" stroke="#24272c">
-        <path d="M0 38H510M0 76H510M0 114H510M0 152H510"/>
-        <path d="M85 0V190M170 0V190M255 0V190M340 0V190M425 0V190"/>
+    <g transform="translate(24 86)">
+      <rect width="642" height="82" rx="14" fill="#0b0b0e" stroke="#29292f"/>
+      <rect x="14" y="14" width="116" height="54" rx="11" fill="url(#acid)"/>
+      <text x="72" y="37" text-anchor="middle" fill="#09090a" font-family="monospace" font-size="12" font-weight="900">PLAY BASS</text>
+      <text x="72" y="53" text-anchor="middle" fill="#09090a" font-family="monospace" font-size="12" font-weight="900">+ RHYTHM</text>
+      <g font-family="monospace" font-size="10" font-weight="800" fill="#8a8a92">
+        <text x="154" y="27">MASTER</text><text x="270" y="27">303</text><text x="370" y="27">RHYTHM</text><text x="490" y="27">SWING</text><text x="570" y="27">PUMP</text>
       </g>
-      <path d="M0 95 C20 28 42 28 62 95 S104 162 124 95 S166 28 186 95 S228 162 248 95 S290 28 310 95 S352 162 372 95 S414 28 434 95 S476 162 510 95" fill="none" stroke="#ddff37" stroke-width="4" filter="url(#waveGlow)"/>
+      <g stroke="#777780" stroke-width="4" stroke-linecap="round">
+        <path d="M154 52H242"/><path d="M270 52H346"/><path d="M370 52H456"/><path d="M490 52H548"/><path d="M570 52H624"/>
+      </g>
+      <g fill="#dfff31"><circle cx="214" cy="52" r="8"/><circle cx="324" cy="52" r="8"/><circle cx="431" cy="52" r="8"/><circle cx="506" cy="52" r="8"/><circle cx="592" cy="52" r="8"/></g>
     </g>
 
-    <g transform="translate(28 310)">
-      <g fill="#151519" stroke="#37373e">
-        <rect x="0" width="26" height="30" rx="5"/><rect x="31" width="26" height="30" rx="5"/><rect x="62" width="26" height="30" rx="5"/><rect x="93" width="26" height="30" rx="5"/><rect x="124" width="26" height="30" rx="5"/><rect x="155" width="26" height="30" rx="5"/><rect x="186" width="26" height="30" rx="5"/><rect x="217" width="26" height="30" rx="5"/><rect x="248" width="26" height="30" rx="5"/><rect x="279" width="26" height="30" rx="5"/><rect x="310" width="26" height="30" rx="5"/><rect x="341" width="26" height="30" rx="5"/><rect x="372" width="26" height="30" rx="5"/><rect x="403" width="26" height="30" rx="5"/><rect x="434" width="26" height="30" rx="5"/><rect x="465" width="26" height="30" rx="5"/>
-      </g>
-      <g fill="#2b3509" stroke="#a8c719">
-        <rect x="0" width="26" height="30" rx="5"/><rect x="93" width="26" height="30" rx="5"/><rect x="155" width="26" height="30" rx="5"/><rect x="248" width="26" height="30" rx="5"/><rect x="310" width="26" height="30" rx="5"/><rect x="403" width="26" height="30" rx="5"/><rect x="465" width="26" height="30" rx="5"/>
-      </g>
+    <g transform="translate(24 188)">
+      <rect width="244" height="154" rx="14" fill="#070908" stroke="#292d28"/>
+      <text x="14" y="24" fill="#dfff31" font-family="monospace" font-size="11" font-weight="900" letter-spacing="2">SCOPE</text>
+      <g opacity=".5" stroke="#253021"><path d="M14 54H230M14 82H230M14 110H230M68 36V132M122 36V132M176 36V132"/></g>
+      <path d="M14 83 C31 42 47 124 65 83 S99 42 116 83 S150 124 168 83 S202 42 230 83" fill="none" stroke="#dfff31" stroke-width="3" filter="url(#glow)"/>
+      <text x="14" y="142" fill="#65656d" font-family="monospace" font-size="9">SCOPE   FFT</text>
     </g>
 
-    <g transform="translate(28 370)" font-family="monospace" font-size="12" font-weight="700" fill="#777780" letter-spacing="2">
-      <text>ACCENT</text><text x="94">SLIDE</text><text x="174">RHYTHM</text><text x="282">MIDI</text>
+    <g transform="translate(286 188)">
+      <rect width="380" height="154" rx="14" fill="#0b0b0e" stroke="#29292f"/>
+      <text x="14" y="24" fill="#f1f1f4" font-family="monospace" font-size="11" font-weight="900" letter-spacing="2">MIDI</text>
+      <g font-family="monospace" font-size="9" font-weight="800" fill="#6d6d75"><text x="14" y="52">OUTPUT</text><text x="150" y="52">DEVICE</text><text x="260" y="52">PLAYBACK</text></g>
+      <rect x="14" y="62" width="126" height="32" rx="7" fill="#16161a" stroke="#34343b"/><rect x="150" y="62" width="100" height="32" rx="7" fill="#16161a" stroke="#34343b"/><rect x="260" y="62" width="106" height="32" rx="7" fill="#151b09" stroke="#60721a"/>
+      <text x="77" y="82" text-anchor="middle" fill="#d6d6dc" font-family="monospace" font-size="9" font-weight="800">ROLAND T-8</text><text x="200" y="82" text-anchor="middle" fill="#d6d6dc" font-family="monospace" font-size="9" font-weight="800">AUTO</text><text x="313" y="82" text-anchor="middle" fill="#dfff31" font-family="monospace" font-size="8" font-weight="900">BROWSER + MIDI</text>
+      <rect x="14" y="108" width="68" height="28" rx="6" fill="#16161a" stroke="#34343b"/><rect x="90" y="108" width="68" height="28" rx="6" fill="#16161a" stroke="#34343b"/><rect x="166" y="108" width="86" height="28" rx="6" fill="#16161a" stroke="#34343b"/><rect x="260" y="108" width="106" height="28" rx="6" fill="#211011" stroke="#6c2d29"/>
+      <text x="48" y="126" text-anchor="middle" fill="#9b9ba3" font-family="monospace" font-size="8">BASS 2</text><text x="124" y="126" text-anchor="middle" fill="#9b9ba3" font-family="monospace" font-size="8">RHY 10</text><text x="209" y="126" text-anchor="middle" fill="#9b9ba3" font-family="monospace" font-size="8">CLOCK</text><text x="313" y="126" text-anchor="middle" fill="#ff7069" font-family="monospace" font-size="8" font-weight="900">PANIC</text>
+    </g>
+
+    <g transform="translate(24 370)">
+      <text fill="#6c6c74" font-family="monospace" font-size="10" font-weight="900" letter-spacing="2">303 PATTERN / 16 STEP</text>
+      <g transform="translate(0 24)">
+        <g fill="#151519" stroke="#33333a">
+          <rect x="0" width="34" height="54" rx="6"/><rect x="39" width="34" height="54" rx="6"/><rect x="78" width="34" height="54" rx="6"/><rect x="117" width="34" height="54" rx="6"/><rect x="156" width="34" height="54" rx="6"/><rect x="195" width="34" height="54" rx="6"/><rect x="234" width="34" height="54" rx="6"/><rect x="273" width="34" height="54" rx="6"/><rect x="312" width="34" height="54" rx="6"/><rect x="351" width="34" height="54" rx="6"/><rect x="390" width="34" height="54" rx="6"/><rect x="429" width="34" height="54" rx="6"/><rect x="468" width="34" height="54" rx="6"/><rect x="507" width="34" height="54" rx="6"/><rect x="546" width="34" height="54" rx="6"/><rect x="585" width="34" height="54" rx="6"/>
+        </g>
+        <g fill="#dfff31"><rect x="0" y="36" width="34" height="18" rx="5"/><rect x="78" y="36" width="34" height="18" rx="5"/><rect x="156" y="36" width="34" height="18" rx="5"/><rect x="273" y="36" width="34" height="18" rx="5"/><rect x="351" y="36" width="34" height="18" rx="5"/><rect x="468" y="36" width="34" height="18" rx="5"/><rect x="585" y="36" width="34" height="18" rx="5"/></g>
+        <g fill="#ff3bbd"><rect x="117" y="4" width="34" height="12" rx="4"/><rect x="234" y="4" width="34" height="12" rx="4"/><rect x="429" y="4" width="34" height="12" rx="4"/></g>
+      </g>
     </g>
   </g>
 
-  <rect x="1" y="1" width="1398" height="618" rx="33" fill="none" stroke="#2b2b31" stroke-width="2"/>
+  <rect x="1" y="1" width="1598" height="758" rx="37" fill="none" stroke="#2d2d33" stroke-width="2"/>
 </svg>
