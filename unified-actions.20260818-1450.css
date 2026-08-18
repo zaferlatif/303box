@@ -1,0 +1,152 @@
+/* 303box unified actions — 303 and Rhythm share one control language */
+
+/* Historical rhythm helper controls are no longer part of the workstation UI. */
+#drums .drum-switch,
+#drums .density,
+#drums .drum-tools{display:none!important}
+
+/* Both action areas use the same padding, grid and button geometry. */
+.pattern-control-panel .pattern-actions,
+.drum-machine.integrated-rhythm .drum-toolbar{
+  display:block!important;
+  width:100%!important;
+  padding:8px!important;
+  margin:0!important;
+  background:#101013!important;
+  border:0!important;
+  box-sizing:border-box!important;
+}
+
+.pattern-control-panel .pattern-actions .toolbar-group,
+.pattern-control-panel .pattern-actions .pattern-action-grid,
+.drum-machine.integrated-rhythm .drum-actions{
+  display:grid!important;
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  grid-auto-rows:40px!important;
+  gap:7px!important;
+  width:100%!important;
+  max-width:100%!important;
+  min-width:0!important;
+}
+
+.pattern-control-panel #generateButton,
+.pattern-control-panel #playButton,
+.pattern-control-panel #downloadButton,
+.pattern-control-panel #clearButton,
+.drum-machine.integrated-rhythm #drumRandom,
+.drum-machine.integrated-rhythm #drumPlay,
+.drum-machine.integrated-rhythm #drumDownload,
+.drum-machine.integrated-rhythm #drumClear{
+  width:100%!important;
+  min-width:0!important;
+  max-width:none!important;
+  min-height:40px!important;
+  height:40px!important;
+  margin:0!important;
+  padding:0 10px!important;
+  border:1px solid #34343a!important;
+  border-radius:8px!important;
+  background:#1a1a1e!important;
+  color:#e9e9eb!important;
+  box-shadow:none!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:7px!important;
+  font:800 .55rem/1 JetBrains Mono,monospace!important;
+  letter-spacing:.025em!important;
+  text-align:center!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  cursor:pointer!important;
+}
+
+/* Generate */
+.pattern-control-panel #generateButton,
+.drum-machine.integrated-rhythm #drumRandom{
+  border-color:#5b681b!important;
+  background:#181c0b!important;
+  color:#ddff37!important;
+}
+.pattern-control-panel #generateButton:hover,
+.drum-machine.integrated-rhythm #drumRandom:hover{
+  border-color:#778a20!important;
+  background:#20270b!important;
+}
+
+/* Play */
+.pattern-control-panel #playButton,
+.drum-machine.integrated-rhythm #drumPlay{
+  border-color:#34343a!important;
+  background:#1a1a1e!important;
+  color:#e9e9eb!important;
+}
+
+/* Download */
+.pattern-control-panel #downloadButton,
+.drum-machine.integrated-rhythm #drumDownload{
+  border-color:#34343a!important;
+  background:#1a1a1e!important;
+  color:#e9e9eb!important;
+}
+
+/* Clear */
+.pattern-control-panel #clearButton,
+.drum-machine.integrated-rhythm #drumClear{
+  border-color:#492522!important;
+  background:#181112!important;
+  color:#ff6b64!important;
+}
+.pattern-control-panel #clearButton:hover,
+.drum-machine.integrated-rhythm #drumClear:hover{
+  border-color:#71332e!important;
+  background:#211314!important;
+}
+
+/* Same status LED language on both Play buttons. */
+.drum-machine.integrated-rhythm #drumPlay .rhythm-status-led{
+  order:-1!important;
+  flex:0 0 7px!important;
+  width:7px!important;
+  height:7px!important;
+  padding:0!important;
+  margin:0!important;
+  border-radius:50%!important;
+  border:1px solid #210807!important;
+  background:#4d1210!important;
+  box-shadow:inset 0 0 2px #000!important;
+}
+.drum-machine.integrated-rhythm #drumPlay .rhythm-status-led.on{
+  background:#ff4238!important;
+  box-shadow:0 0 10px rgba(255,59,48,.8)!important;
+}
+
+/* Rhythm toolbar now contains only the four actions. */
+.drum-machine.integrated-rhythm .drum-actions{grid-column:1/-1!important}
+
+@media(max-width:760px){
+  .pattern-control-panel .pattern-actions,
+  .drum-machine.integrated-rhythm .drum-toolbar{padding:7px!important}
+
+  .pattern-control-panel .pattern-actions .toolbar-group,
+  .pattern-control-panel .pattern-actions .pattern-action-grid,
+  .drum-machine.integrated-rhythm .drum-actions{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    grid-auto-rows:40px!important;
+    gap:6px!important;
+  }
+
+  .pattern-control-panel #generateButton,
+  .pattern-control-panel #playButton,
+  .pattern-control-panel #downloadButton,
+  .pattern-control-panel #clearButton,
+  .drum-machine.integrated-rhythm #drumRandom,
+  .drum-machine.integrated-rhythm #drumPlay,
+  .drum-machine.integrated-rhythm #drumDownload,
+  .drum-machine.integrated-rhythm #drumClear{
+    min-height:40px!important;
+    height:40px!important;
+    padding:0 8px!important;
+    font-size:.54rem!important;
+  }
+}
