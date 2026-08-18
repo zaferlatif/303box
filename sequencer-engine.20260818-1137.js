@@ -1,6 +1,6 @@
 (() => {
   'use strict';
-  const version = '20260818-1240';
+  const version = '20260818-1248';
   if (!document.querySelector('link[data-303box-audio-ui]')) {
     const link = document.createElement('link');
     link.rel = 'stylesheet';
