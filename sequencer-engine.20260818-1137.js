@@ -1,6 +1,6 @@
 (() => {
   'use strict';
-  const version = '20260818-1255';
+  const version = '20260818-1256';
 
   const addCss = (key, href) => {
     if (document.querySelector(`link[data-303box-${key}]`)) return;
