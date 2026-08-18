@@ -1,12 +1,12 @@
 {
-  "name": "303box — Acid Pattern Generator",
+  "name": "303box — 303 Acid Pattern & Rhythm Sequencer",
   "short_name": "303box",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "background_color": "#070708",
   "theme_color": "#070708",
-  "description": "Browser-based 16-step acid bassline pattern generator with drum machine and MIDI output.",
+  "description": "Browser-based 16-step 303 acid bassline and synchronized rhythm sequencer with MIDI output.",
   "icons": [
     {
       "src": "/favicon.svg",
