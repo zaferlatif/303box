@@ -1,0 +1,25 @@
+/* 303box 1680 — stable workstation controls */
+#patternSheet .tempo-module{position:relative!important}
+#patternSheet .tempo-module .random-patch-button{
+  position:static!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:auto!important;
+  max-width:100%!important;
+  min-height:28px!important;
+  margin:8px auto 0!important;
+  padding:0 10px!important;
+  border:1px solid #68791d!important;
+  border-radius:7px!important;
+  background:#171c09!important;
+  color:#ddff37!important;
+  font:850 .48rem/1 JetBrains Mono,monospace!important;
+  letter-spacing:.055em!important;
+  cursor:pointer!important;
+  white-space:nowrap!important;
+}
+#patternSheet .tempo-module .random-patch-button:hover{background:#20270b!important;border-color:#8ca326!important}
+#patternSheet .tempo-module .random-patch-button:active{transform:translateY(1px)}
+#patternSheet #knobGrid{padding-top:0!important}
+@media(max-width:760px){#patternSheet .tempo-module .random-patch-button{min-height:26px!important;margin-top:6px!important;font-size:.45rem!important}}
