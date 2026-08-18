@@ -91,11 +91,15 @@ These are **303box routing profiles**, not manufacturer certifications. AUTO det
 
 ### MIDI clock / tempo
 
-When `SEND CLOCK` is enabled, 303box now keeps a continuous 24 PPQN MIDI clock running even while the web transport is stopped. This lets external hardware stay locked to the current 303box BPM instead of immediately falling back to its own internal tempo after Stop.
+When `SEND CLOCK` is enabled, 303box keeps a continuous 24 PPQN MIDI clock running even while the web transport is stopped. This lets external hardware stay locked to the current 303box BPM instead of immediately falling back to its own internal tempo after Stop.
 
 This is external synchronization, not a rewrite of the hardware's stored tempo value. On a Roland T-8, the internal tempo remains a device setting; when external clock disappears the hardware can return to its saved/internal tempo.
 
 The T-8 MIDI implementation exposes MIDI Clock / Start / Stop, but does not expose Control Change or System Exclusive receive for changing synth parameters such as the stored bass waveform. The browser SAW/SQR choice therefore remains a browser-engine setting unless the hardware itself offers a documented MIDI mapping for it.
+
+### T-8 rhythm velocity
+
+Roland T-8 rhythm notes respond to MIDI velocity. 303box therefore does not drive T-8 drums at near-maximum velocity by default anymore. The T-8 profile uses a moderate velocity curve so live MIDI playback sits closer to the level of the device's own sequencer instead of overpowering it. The six web rhythm level sliders still shape the outgoing velocity.
 
 ### Background playback
 
@@ -105,7 +109,7 @@ Switching browser tabs is **not** treated as Stop.
 
 ## T-8 REC
 
-A physical Roland T-8 test confirmed that a 303box bass performance can be captured by the T-8 after REC is armed on the hardware. Rhythm capture also works, but the first hardware test showed that early steps could be missed while the T-8 recorder/transport was locking to the incoming clock.
+A physical Roland T-8 test confirmed that a 303box bass performance can be captured by the T-8 after REC is armed on the hardware. Rhythm capture is more sensitive to transport/record timing and is still being tuned with real hardware tests.
 
 The compact MIDI panel exposes:
 
@@ -114,17 +118,18 @@ The compact MIDI panel exposes:
 
 Bass REC remains a single 16-step pass because it already tested reliably.
 
-Rhythm REC is deliberately more defensive: 303box sends one silent 16-step pre-roll so the T-8 can lock to Start/Clock, then sends the same 16-step drum pattern twice. Repeating the identical loop is intended to reinforce missed early hits without changing their sequencer positions.
+Rhythm REC now avoids sending MIDI Stop after the user has armed REC on the T-8. 303box first sends clock-only lock-in while the T-8 transport remains stopped, then sends MIDI Start and the actual drum pattern. The identical 16-step rhythm is sent twice so a missed hit on the first loop can be reinforced on the same sequencer step during the second loop.
 
 Workflow:
 
 1. Connect the T-8 and enable MIDI.
 2. Use AUTO or choose `Roland T-8`.
-3. Arm REC on the T-8.
-4. Press `BASS → REC` or `RHYTHM → REC`.
-5. 303box sends the controlled clocked transfer.
-6. Check the pattern on the T-8.
-7. Save it with WRITE on the hardware.
+3. Stop the web transport.
+4. Arm REC on the T-8.
+5. Press `BASS → REC` or `RHYTHM → REC`.
+6. 303box sends the controlled clocked transfer.
+7. Check the pattern on the T-8.
+8. Save it with WRITE on the hardware.
 
 Starting a T-8 REC transfer also enables `SEND CLOCK`, so after the transfer the device can remain externally synchronized to the 303box session tempo while the MIDI connection stays active.
 
@@ -165,7 +170,7 @@ For hardware MIDI testing, the live HTTPS deployment is usually the easiest path
 ├── index.html                            # static workstation shell
 ├── app.js                                # core sequencer foundation
 ├── acid-console.20260818-1340.js         # unified Web Audio engine
-├── midi-router.20260818-1710.js          # MIDI clock / routing / T-8 REC reinforcement
+├── midi-router.20260818-1730.js          # MIDI clock / T-8 velocity / REC timing
 ├── console-stable.20260818-1700.css      # Acid Console + Scope + MIDI layout
 ├── playhead-unified.20260818-1720.css    # shared red transport LED for 303 + rhythm
 ├── bass-scope.20260818-1680.js           # 303-only Scope / FFT renderer
