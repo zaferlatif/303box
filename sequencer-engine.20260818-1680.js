@@ -6,6 +6,7 @@
   addCss('final-polish','./ui-polish.20260818-1255.css');
   addCss('seo-content','./seo.20260818-1315.css');
   addCss('unified-actions','./unified-actions.20260818-1450.css');
+  addCss('workstation-ui','./workstation-ui.20260818-1680.css');
   const load=src=>new Promise((resolve,reject)=>{const s=document.createElement('script');s.src=`${src}?v=${version}`;s.async=false;s.onload=resolve;s.onerror=reject;document.head.appendChild(s)});
   load('./cache-reset.20260818-1680.js')
     .then(()=>load('./transport-fuse.20260818-1530.js'))
