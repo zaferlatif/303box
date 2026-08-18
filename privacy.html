@@ -10,14 +10,37 @@
   <link rel="canonical" href="https://303box.com/privacy.html">
   <link rel="icon" type="image/svg+xml" href="./favicon.svg?v=3">
   <style>
-    :root{--bg:#070708;--panel:#111114;--line:#29292f;--text:#f4f4ef;--muted:#9b9ba2;--acid:#ddff37}
-    *{box-sizing:border-box}html{background:var(--bg);color:var(--text);font-family:Inter,system-ui,sans-serif}body{margin:0;background:radial-gradient(circle at 75% 0,rgba(221,255,55,.08),transparent 28%),var(--bg)}
-    a{color:inherit}.wrap{width:min(calc(100% - 32px),900px);margin:auto}.top{min-height:72px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line)}
-    .brand{font-weight:900;text-decoration:none}.brand b{color:var(--acid)}.back{color:var(--muted);font-size:.85rem}.top a{text-decoration:none}
-    main{padding:72px 0 100px}h1{font-size:clamp(2.8rem,8vw,5.5rem);line-height:.95;letter-spacing:-.06em;margin:0 0 22px}.lead{font-size:1.05rem;line-height:1.7;color:var(--muted);max-width:760px}
-    .updated{margin:24px 0 48px;color:#6f6f77;font-size:.78rem}.card{border:1px solid var(--line);border-radius:16px;background:rgba(17,17,20,.8);padding:28px;margin:14px 0}
-    h2{font-size:1.15rem;margin:0 0 12px}p,li{color:var(--muted);line-height:1.72;font-size:.9rem}ul{padding-left:20px}.accent{color:var(--acid)}hr{border:0;border-top:1px solid var(--line);margin:54px 0}
-    footer{padding:30px 0 50px;border-top:1px solid var(--line);color:#77777f;font-size:.8rem}.langtag{display:inline-block;margin-bottom:14px;color:var(--acid);font:800 .65rem/1 monospace;letter-spacing:.12em}
+    :root{--bg:#070708;--panel:#111114;--line:#29292f;--text:#f4f4ef;--muted:#9b9ba2;--muted2:#77777f;--acid:#ddff37}
+    *{box-sizing:border-box}
+    html{background:var(--bg);color:var(--text);font-family:Inter,system-ui,sans-serif}
+    body{margin:0;background:radial-gradient(circle at 75% 0,rgba(221,255,55,.08),transparent 28%),var(--bg);-webkit-font-smoothing:antialiased}
+    a{color:inherit}
+    .wrap{width:min(calc(100% - 32px),900px);margin:auto}
+    .top{min-height:72px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line)}
+    .brand{font-weight:900;text-decoration:none}.brand b{color:var(--acid)}
+    .back{color:var(--muted);font-size:.85rem}.top a{text-decoration:none}
+    main{padding:72px 0 100px}
+    h1{font-size:clamp(2.8rem,8vw,5.5rem);line-height:.95;letter-spacing:-.06em;margin:0 0 22px}
+    .lead{font-size:1.05rem;line-height:1.7;color:var(--muted);max-width:760px}
+    .updated{margin:24px 0 48px;color:#6f6f77;font-size:.78rem}
+    .card{border:1px solid var(--line);border-radius:16px;background:rgba(17,17,20,.8);padding:28px;margin:14px 0}
+    h2{font-size:1.15rem;margin:0 0 12px}
+    p,li{color:var(--muted);line-height:1.72;font-size:.9rem}
+    ul{padding-left:20px}.accent{color:var(--acid)}
+    hr{border:0;border-top:1px solid var(--line);margin:54px 0}
+    .langtag{display:inline-block;margin-bottom:14px;color:var(--acid);font:800 .65rem/1 monospace;letter-spacing:.12em}
+
+    .site-footer{border-top:1px solid #202024;background:#080809}
+    .footer-inner{width:min(calc(100% - 40px),1000px);min-height:150px;margin:auto;display:flex;justify-content:space-between;align-items:center;gap:30px}
+    .footer-inner strong{font-size:1rem}
+    .footer-inner p{margin:7px 0 0;color:var(--muted2);font-size:.78rem}
+    .footer-links{display:flex;gap:22px;color:#8f8f95;font-size:.76rem;font-weight:700;flex-wrap:wrap}
+    .footer-links a{text-decoration:none}.footer-links a:hover{color:var(--text)}
+    @media(max-width:640px){
+      main{padding:54px 0 72px}.card{padding:22px}
+      .footer-inner{width:calc(100% - 28px);min-height:0;padding:34px 0;align-items:flex-start;flex-direction:column;gap:18px}
+      .footer-links{gap:16px}
+    }
   </style>
 </head>
 <body>
@@ -35,7 +58,9 @@
     <section class="card"><h2>6. Third-party services and links</h2><p>Google services are governed by Google’s own privacy terms and policies. 303box also links to external services such as Instagram and YouTube; their own privacy policies apply when you visit them.</p></section>
     <section class="card"><h2>7. Your controls</h2><ul><li>You can clear 303box local data through your browser’s site-data or storage controls.</li><li>You can deny or revoke MIDI permission in browser settings.</li><li>You can use the consent interface where available to manage advertising and analytics choices.</li><li>You can block or delete cookies using browser controls, although some site or advertising features may then work differently.</li></ul></section>
     <section class="card"><h2>8. Contact</h2><p>For questions about 303box and this policy, contact the project through <a class="accent" href="https://instagram.com/zafer.pro" target="_blank" rel="noopener">@zafer.pro</a>.</p></section>
+
     <hr>
+
     <span class="langtag">TÜRKÇE</span>
     <h1>Gizlilik Politikası</h1>
     <p class="lead">303box tarayıcı üzerinde çalışan bir müzik aracıdır. Bu bölüm, hangi bilgilerin tarayıcıda yerel olarak saklandığını, Google servislerinin ne zaman veri işleyebileceğini ve MIDI gibi tarayıcı izinlerinin nasıl kullanıldığını açıklar.</p>
@@ -49,6 +74,16 @@
     <section class="card"><h2>7. Kontrolleriniz</h2><ul><li>303box yerel verilerini tarayıcınızın site verileri/depolama ayarlarından silebilirsiniz.</li><li>MIDI iznini tarayıcı ayarlarından reddedebilir veya geri alabilirsiniz.</li><li>Sunulduğu bölgelerde rıza arayüzü üzerinden reklam ve analiz tercihlerinizi yönetebilirsiniz.</li><li>Çerezleri tarayıcı ayarlarıyla engelleyebilir veya silebilirsiniz; bazı özellikler bundan etkilenebilir.</li></ul></section>
     <section class="card"><h2>8. İletişim</h2><p>303box ve bu politika hakkında sorularınız için <a class="accent" href="https://instagram.com/zafer.pro" target="_blank" rel="noopener">@zafer.pro</a> üzerinden iletişime geçebilirsiniz.</p></section>
   </main>
-  <footer><div class="wrap">303box — a Z3Z project.</div></footer>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div><strong>303box</strong><p>A Z3Z project.</p></div>
+      <div class="footer-links">
+        <a href="./privacy.html" aria-current="page">Privacy</a>
+        <a href="https://instagram.com/zafer.pro" rel="me noopener" target="_blank">Instagram</a>
+        <a href="https://youtube.com/@zaferlatif" rel="noopener" target="_blank">YouTube</a>
+      </div>
+    </div>
+  </footer>
 </body>
 </html>
