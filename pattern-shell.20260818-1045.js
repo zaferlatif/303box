@@ -3,6 +3,9 @@
 
   const lang = () => document.documentElement.lang === 'tr' ? 'tr' : 'en';
   const STORAGE_KEY = '303box-shortcuts-dismissed-v1';
+  const RHYTHM_STORE = '303box-rhythm-v6';
+  const RHYTHM_VOICE_STORE = '303box-rhythm-exact-voices-v1';
+  const DEFAULT_DRUM_LEVEL = 80;
 
   const COPY = {
     en: {
@@ -21,6 +24,67 @@
     }
   };
   const t = key => COPY[lang()][key] || COPY.en[key] || key;
+
+  const DRUM_LABELS = {
+    bd: { code: 'BD-909', name: { en: 'Bass Drum', tr: 'Bas Davul' }, value: '909bd' },
+    sd: { code: 'SD-606', name: { en: 'Snare Drum', tr: 'Trampet' }, value: '606sd' },
+    cp: { code: 'CP-808', name: { en: 'Hand Clap', tr: 'Clap' }, value: '808clap' },
+    tm: { code: 'TM-808', name: { en: 'Low Tom', tr: 'Low Tom' }, value: '808lowTom' },
+    ch: { code: 'CH-606', name: { en: 'Closed Hi-Hat', tr: 'Kapalı Hi-Hat' }, value: '606ch' },
+    oh: { code: 'OH-606', name: { en: 'Open Hi-Hat', tr: 'Açık Hi-Hat' }, value: '606oh' }
+  };
+
+  function sanitizeStoredRhythm() {
+    try {
+      const raw = localStorage.getItem(RHYTHM_STORE);
+      if (raw) {
+        const data = JSON.parse(raw);
+        if (data && typeof data === 'object') {
+          delete data.levels;
+          delete data.variants;
+          localStorage.setItem(RHYTHM_STORE, JSON.stringify(data));
+        }
+      }
+      localStorage.removeItem(RHYTHM_VOICE_STORE);
+    } catch (_) {}
+  }
+
+  function resetDrumChannelLevels() {
+    document.querySelectorAll('#drums [data-level]').forEach(input => {
+      input.value = String(DEFAULT_DRUM_LEVEL);
+      const label = input.closest('label');
+      const out = label?.querySelector('b, output, [data-level-value]');
+      if (out) out.textContent = `${DEFAULT_DRUM_LEVEL}%`;
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+    setTimeout(sanitizeStoredRhythm, 0);
+  }
+
+  function normalizeDrumVoices() {
+    const drums = document.querySelector('#drums');
+    if (!drums) return;
+
+    Object.entries(DRUM_LABELS).forEach(([id, spec]) => {
+      const select = drums.querySelector(`[data-variant="${id}"]`);
+      if (select) {
+        select.value = spec.value;
+        const voiceLabel = select.closest('label');
+        if (voiceLabel) voiceLabel.classList.add('voice-selector-hidden');
+      }
+
+      const preview = drums.querySelector(`[data-preview="${id}"]`);
+      if (preview) {
+        preview.classList.add('drum-voice-id');
+        const strong = preview.querySelector('b');
+        const small = preview.querySelector('span');
+        if (strong) strong.textContent = spec.code;
+        if (small) small.textContent = spec.name[lang()] || spec.name.en;
+      }
+    });
+
+    drums.querySelectorAll('.drum-voice').forEach(row => row.classList.add('drum-voice-compact'));
+    sanitizeStoredRhythm();
+  }
 
   function arrange303() {
     const workspace = document.querySelector('.workspace.shell');
@@ -72,6 +136,7 @@
     syncActionLabels();
     installActionObservers();
     installFooterShortcutLink();
+    normalizeDrumVoices();
     return true;
   }
 
@@ -177,7 +242,6 @@
   window.addEventListener('keydown', e => {
     const key = (e.key || '').toLowerCase();
 
-    // Neutralize the old R handlers without blocking browser refresh.
     if (key === 'r') {
       e.stopImmediatePropagation();
       if (e.ctrlKey || e.metaKey || e.altKey) return;
@@ -216,14 +280,32 @@
     }
   }, true);
 
+  document.addEventListener('click', e => {
+    if (e.target.closest('#drumRandom, #generateButton')) {
+      setTimeout(resetDrumChannelLevels, 0);
+    }
+    if (e.target.closest('#drums')) {
+      setTimeout(normalizeDrumVoices, 1);
+    }
+  }, true);
+
+  document.addEventListener('input', e => {
+    if (e.target.matches?.('#drums [data-level]')) setTimeout(sanitizeStoredRhythm, 0);
+  }, true);
+  window.addEventListener('pagehide', sanitizeStoredRhythm);
+
   function settle() {
+    sanitizeStoredRhythm();
     [0, 30, 90, 180, 360, 700, 1300].forEach(ms => setTimeout(() => {
       arrange303();
       syncActionLabels();
       installFooterShortcutLink();
+      normalizeDrumVoices();
     }, ms));
 
     setTimeout(() => {
+      resetDrumChannelLevels();
+      normalizeDrumVoices();
       if (!localStorage.getItem(STORAGE_KEY)) openShortcuts({automatic:true});
     }, 900);
   }
