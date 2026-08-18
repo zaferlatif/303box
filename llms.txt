@@ -11,6 +11,11 @@ Canonical URL: https://303box.com/
 - Adjust tempo from 50 to 250 BPM with a hardware-style knob and seven-segment display.
 - Adjust cutoff, resonance, envelope modulation, decay and accent.
 - Preview patterns with the Web Audio API.
+- Inspect the browser synth with a live oscilloscope and spectrum analyzer.
+- Detect dominant frequency and nearest musical note in real time.
+- Connect supported MIDI hardware through the Web MIDI API.
+- Send note messages, accent velocity and optional MIDI Start/Stop/24-PPQN clock.
+- Choose Browser, Browser + MIDI, or MIDI-only playback.
 - Export the complete pattern sheet as a JPG.
 - Store the current working session locally in the browser.
 
@@ -20,6 +25,10 @@ Canonical URL: https://303box.com/
 
 ## Important sections
 - Sequencer: https://303box.com/#sequencer
-- Workflow guide: https://303box.com/#workflow
-- Sequencer reference: https://303box.com/#reference
+- Live signal and MIDI: https://303box.com/#live
+- Sequencer guide: https://303box.com/#guide
+- TB-303 history: https://303box.com/#history
 - FAQ: https://303box.com/#faq
+
+## Historical coverage
+The site includes a sourced TB-303 timeline covering Roland/Tadao Kikumoto, Phuture (DJ Pierre, Spanky, Herb J), Ron Hardy, Marshall Jefferson, A Guy Called Gerald, Hardfloor, Josh Wink, and the Roland TB-03 revival.
