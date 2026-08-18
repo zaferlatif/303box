@@ -1,0 +1,47 @@
+/* Scope + MIDI are physically inside #acidConsole, above the 303 pattern. */
+#acidConsole>.sheet-io.acid-console-io{
+  width:100%!important;
+  max-width:100%!important;
+  min-width:0!important;
+  display:grid!important;
+  grid-template-columns:minmax(0,.82fr) minmax(0,1.18fr)!important;
+  margin:0!important;
+  border:0!important;
+  border-top:1px solid #29292e!important;
+  background:#0b0b0d!important;
+  overflow:hidden!important;
+}
+#acidConsole>.sheet-io .mini-analyzer,
+#acidConsole>.sheet-io .midi-compact{
+  min-width:0!important;
+  padding:8px 11px!important;
+  background:#0d0d10!important;
+}
+#acidConsole>.sheet-io .mini-analyzer{border-right:1px solid #29292e!important}
+#acidConsole>.sheet-io .mini-analyzer-head,
+#acidConsole>.sheet-io .midi-compact-head{height:18px!important}
+#acidConsole>.sheet-io #fxScope,
+#acidConsole>.sheet-io #bassOnlyScope{height:44px!important}
+#acidConsole>.sheet-io .mini-tabs{margin-top:4px!important}
+#acidConsole>.sheet-io .analyzer-tab{min-height:21px!important;padding:0 7px!important;font-size:.47rem!important}
+#acidConsole>.sheet-io .midi-compact-grid{margin-top:5px!important;gap:5px!important}
+#acidConsole>.sheet-io .midi-compact select,
+#acidConsole>.sheet-io .midi-connect,
+#acidConsole>.sheet-io .midi-clock{height:28px!important;min-height:28px!important}
+#acidConsole>.sheet-io .midi-compact>small{display:none!important}
+
+/* With IO removed, the local 303 action card is intentionally shallow. */
+.pattern-control-panel{overflow:hidden!important}
+.pattern-control-panel>.pattern-actions{border-bottom:0!important}
+
+@media(max-width:760px){
+  #acidConsole>.sheet-io.acid-console-io{grid-template-columns:1fr!important}
+  #acidConsole>.sheet-io .mini-analyzer{border-right:0!important;border-bottom:1px solid #29292e!important}
+  #acidConsole>.sheet-io #fxScope,
+  #acidConsole>.sheet-io #bassOnlyScope{height:40px!important}
+}
+@media(max-width:430px){
+  #acidConsole>.sheet-io .mini-analyzer,
+  #acidConsole>.sheet-io .midi-compact{padding:7px 8px!important}
+  #acidConsole>.sheet-io .midi-compact-grid{grid-template-columns:1fr!important}
+}
