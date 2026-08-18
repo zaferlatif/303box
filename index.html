@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script>try{document.documentElement.lang=localStorage.getItem('303-lang')==='tr'?'tr':'en'}catch(_){}</script>
   <title>303box — 303 Acid Pattern & Rhythm Sequencer</title>
   <meta name="description" content="Build, hear, randomize and export 303 acid patterns with a synchronized 16-step rhythm machine, live scope and browser MIDI output.">
   <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
@@ -10,8 +11,8 @@
   <meta name="color-scheme" content="dark">
   <meta name="google-site-verification" content="uQ3Lw1MyKXpHzSP4Rwj1ijKvB229AUvrjWhwdEW6x1Y">
   <link rel="canonical" href="https://303box.com/">
-  <link rel="manifest" href="./site.webmanifest?v=20260818-1670">
-  <link rel="icon" type="image/svg+xml" href="./favicon.svg?v=20260818-1670">
+  <link rel="manifest" href="./site.webmanifest?v=20260818-1680">
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg?v=20260818-1680">
 
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="303box">
@@ -27,8 +28,6 @@
   <meta name="twitter:image" content="https://303box.com/og-image.svg">
 
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-0419155924861622" crossorigin="anonymous"></script>
-
-  <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-P89YNLFKQX"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
@@ -40,24 +39,30 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./styles.css?v=20260818-1670">
-  <link rel="stylesheet" href="./studio.20260818-0912.css?v=20260818-1670">
-  <link rel="stylesheet" href="./studio-dark.20260818-0912.css?v=20260818-1670">
-  <link rel="stylesheet" href="./pattern-shell.20260818-1045.css?v=20260818-1670">
-  <style>.workspace-toolbar svg,.wave-button svg{width:18px;height:18px}button svg{max-width:100%;max-height:100%}.sheet-io:not(.acid-console-io){display:none!important}#acidConsole>.sheet-io.acid-console-io:not(.io-layout-ready){visibility:hidden!important}</style>
+  <link rel="stylesheet" href="./styles.css?v=20260818-1680">
+  <link rel="stylesheet" href="./studio.20260818-0912.css?v=20260818-1680">
+  <link rel="stylesheet" href="./studio-dark.20260818-0912.css?v=20260818-1680">
+  <link rel="stylesheet" href="./pattern-shell.20260818-1045.css?v=20260818-1680">
+  <link rel="stylesheet" href="./acid-console.20260818-1340.css?v=20260818-1680">
+  <link rel="stylesheet" href="./console-stable.20260818-1680.css?v=20260818-1680">
+  <style>.workspace-toolbar svg,.wave-button svg{width:18px;height:18px}button svg{max-width:100%;max-height:100%}</style>
+
   <script defer src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-  <script defer src="./app.js?v=20260818-1670"></script>
-  <script defer src="./studio.20260818-0912.js?v=20260818-1670"></script>
-  <script defer src="./rhythm-exact.20260818-1030.js?v=20260818-1670"></script>
-  <script defer src="./pattern-shell.20260818-1045.js?v=20260818-1670"></script>
-  <script defer src="./sequencer-engine.20260818-1670.js?v=20260818-1670"></script>
+  <script defer src="./app.js?v=20260818-1680"></script>
+  <script defer src="./studio.20260818-0912.js?v=20260818-1680"></script>
+  <script defer src="./rhythm-exact.20260818-1030.js?v=20260818-1680"></script>
+  <script defer src="./pattern-shell.20260818-1045.js?v=20260818-1680"></script>
+  <script defer src="./workstation-ui.20260818-1680.js?v=20260818-1680"></script>
+  <script defer src="./midi-router.20260818-1680.js?v=20260818-1680"></script>
+  <script defer src="./bass-scope.20260818-1680.js?v=20260818-1680"></script>
+  <script defer src="./sequencer-engine.20260818-1680.js?v=20260818-1680"></script>
 
   <script type="application/ld+json">
   {
     "@context":"https://schema.org",
     "@graph":[
       {"@type":"WebSite","@id":"https://303box.com/#website","url":"https://303box.com/","name":"303box","description":"Browser-based 303 acid pattern and rhythm sequencer.","inLanguage":["en","tr"]},
-      {"@type":"WebApplication","@id":"https://303box.com/#app","url":"https://303box.com/","name":"303box","applicationCategory":"MultimediaApplication","applicationSubCategory":"Music sequencer","operatingSystem":"Any modern browser","browserRequirements":"JavaScript and Web Audio API","isAccessibleForFree":true,"featureList":["16-step 303 sequencing","Accent and slide","Synchronized six-part rhythm machine","Live oscilloscope and FFT","Browser MIDI output","JPG pattern export","Rhythm pattern export"]},
+      {"@type":"WebApplication","@id":"https://303box.com/#app","url":"https://303box.com/","name":"303box","applicationCategory":"MultimediaApplication","applicationSubCategory":"Music sequencer","operatingSystem":"Any modern browser","browserRequirements":"JavaScript and Web Audio API","isAccessibleForFree":true,"featureList":["16-step 303 sequencing","Accent and slide","Synchronized six-part rhythm machine","Live oscilloscope and FFT","Browser MIDI output","Hardware MIDI profiles","T-8 REC assist","JPG pattern export","Rhythm pattern export"]},
       {"@type":"FAQPage","@id":"https://303box.com/#faq","mainEntity":[{"@type":"Question","name":"What is 303box?","acceptedAnswer":{"@type":"Answer","text":"303box is a free browser-based 16-step acid bassline and rhythm tool built around the classic 303 sequencing language."}},{"@type":"Question","name":"Does 303box require installation?","acceptedAnswer":{"@type":"Answer","text":"No. It runs directly in a modern browser."}},{"@type":"Question","name":"Can 303box send MIDI?","acceptedAnswer":{"@type":"Answer","text":"Yes, in browsers with Web MIDI support and when a MIDI output device is available."}}]}
     ]
   }
@@ -95,10 +100,55 @@
     <section class="sequencer-section" id="sequencer" aria-labelledby="sequencerHeading">
       <div class="shell section-intro compact-intro"><div><p class="eyebrow" data-i18n="sequencerEyebrow">Pattern workspace</p><h2 id="sequencerHeading" data-i18n="sequencerTitle">Build the line. Then perform it.</h2></div><p data-i18n="sequencerIntro">Rhythm, pitch, expression and the core 303 controls stay visible together.</p></div>
       <div class="workspace shell">
+        <section class="acid-console static-console" id="acidConsole" data-html2canvas-ignore="true" aria-label="Acid Console">
+          <div class="acid-console-head"><span>ACID CONSOLE</span><small><span class="lang-en">ONE CLOCK / BASS + RHYTHM</span><span class="lang-tr">TEK CLOCK / BASS + RİTİM</span></small></div>
+          <div class="acid-console-grid">
+            <div class="acid-console-cell acid-console-play-cell"><button type="button" class="acid-master-play" id="acidPlayAll"><span class="lang-en">PLAY BASS + RHYTHM</span><span class="lang-tr">303 + RİTMİ ÇAL</span></button></div>
+            <div class="acid-console-cell"><label>MASTER<output>88%</output></label><input id="consoleMaster" type="range" min="0" max="100" value="88"></div>
+            <div class="acid-console-cell"><label>303<output>80%</output></label><div class="acid-part-row"><input id="consoleBass" type="range" min="0" max="100" value="80"><button id="consoleBassMute" class="acid-mute" type="button"><span class="lang-en">MUTE</span><span class="lang-tr">KIS</span></button></div></div>
+            <div class="acid-console-cell"><label><span class="lang-en">RHYTHM</span><span class="lang-tr">RİTİM</span><output>80%</output></label><div class="acid-part-row"><input id="consoleRhythm" type="range" min="0" max="100" value="80"><button id="consoleRhythmMute" class="acid-mute" type="button"><span class="lang-en">MUTE</span><span class="lang-tr">KIS</span></button></div></div>
+            <div class="acid-console-cell acid-swing-cell"><label class="acid-console-label">SWING<output>0%</output></label><input id="consoleSwing" type="range" min="0" max="60" value="0"></div>
+            <div class="acid-console-cell acid-pump-cell"><label class="acid-console-label">PUMP<output>28%</output></label><input id="consolePump" type="range" min="0" max="100" value="28"></div>
+
+            <div class="acid-console-cell acid-console-scope-cell">
+              <div class="scope-panel">
+                <div class="mini-analyzer-head"><span>SCOPE</span><strong id="scopeNote">--</strong><b id="scopeHz">-- Hz</b></div>
+                <canvas id="bassOnlyScope" aria-label="303 oscillator scope and FFT"></canvas>
+                <div class="mini-tabs"><button type="button" class="analyzer-tab active" data-mode="scope">SCOPE</button><button type="button" class="analyzer-tab" data-mode="fft">FFT</button></div>
+              </div>
+            </div>
+
+            <div class="midi-router-v8" id="midiRouter">
+              <div class="midi-compact-head"><strong id="midiTitle">MIDI</strong><span class="midi-badge" id="midiRouterBadge">MIDI</span></div>
+              <div class="midi-router-primary">
+                <button id="midiRouterConnect" class="midi-connect" type="button"><span id="midiConnectCopy">ENABLE MIDI</span></button>
+                <label class="midi-field midi-output"><span id="midiOutputLabel">OUTPUT</span><select id="midiRouterOut" disabled><option value="">—</option></select></label>
+                <label class="midi-field midi-profile"><span id="midiDeviceLabel">DEVICE</span><select id="midiDeviceProfile"><option value="auto">AUTO</option></select></label>
+                <label class="midi-field midi-playback"><span id="midiPlaybackLabel">PLAYBACK</span><select id="midiRouterMode"><option value="browser">BROWSER</option></select></label>
+              </div>
+              <div class="midi-router-secondary">
+                <label class="midi-field"><span id="midiBassLabel">BASS CH</span><select id="midiBassCh"><option>2</option></select></label>
+                <label class="midi-field" id="midiRhythmField"><span id="midiRhythmLabel">RHYTHM CH</span><select id="midiRhythmCh"><option>10</option></select></label>
+                <label class="midi-toggle"><input id="midiRouterClock" type="checkbox"><span><b id="midiClockTitle">SEND CLOCK</b><small id="midiClockSub">303box → device</small></span></label>
+                <label class="midi-toggle"><input id="midiRouterTransport" type="checkbox"><span><b id="midiTransportTitle">SEND START / STOP</b><small id="midiTransportSub">Device transport output</small></span></label>
+                <button id="midiPanic" class="midi-panic" type="button">PANIC</button>
+              </div>
+              <div class="midi-rec-assist" id="midiRecAssist">
+                <strong class="midi-rec-title" id="midiRecTitle">REC ASSIST</strong>
+                <button class="midi-rec-button" id="midiRecBass" type="button" disabled>BASS → REC</button>
+                <button class="midi-rec-button" id="midiRecRhythm" type="button" disabled>RHYTHM → REC</button>
+                <small class="midi-rec-hint" id="midiRecHint">Arm REC on the T-8 first. Sends one 16-step pass; save with WRITE on the device.</small>
+              </div>
+              <div class="midi-capability" id="midiCapability"><span class="midi-cap-device">MIDI</span><span>LIVE</span><span>REC ASSIST</span></div>
+              <div class="midi-router-status" id="midiRouterStatus">Browser audio is active. MIDI is opt-in.</div>
+            </div>
+          </div>
+        </section>
+
         <div class="workspace-toolbar" data-html2canvas-ignore="true"><div class="toolbar-group"><button class="tool-button tool-button-acid" id="generateButton" type="button"><svg viewBox="0 0 24 24"><path d="M4 7h10M4 17h10M17 4l3 3-3 3M17 14l3 3-3 3"/></svg><span data-i18n="generate">Generate pattern</span></button><button class="tool-button tool-button-play" id="playButton" type="button" aria-pressed="false"><span class="status-led" id="playLed"></span><span id="playLabel">PLAY</span></button><button class="tool-button" id="downloadButton" type="button"><svg viewBox="0 0 24 24"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 20h14"/></svg><span data-i18n="download">Download sheet</span></button></div><button class="tool-button tool-button-clear" id="clearButton" type="button" data-i18n="clear">Clear</button></div>
         <div class="sheet-scroll"><article id="patternSheet" class="pattern-sheet" aria-label="303 pattern sheet">
           <header class="sheet-header"><div class="sheet-title-wrap"><div><p class="sheet-kicker">303BOX / SEQUENCER SHEET</p><h2>303 PATTERN</h2></div></div><span class="sheet-model">ANALOG BASS LINE / 16 STEP</span></header>
-          <div class="sheet-meta"><div class="meta-fields"><label><span data-i18n="author">Author</span><input id="authorInput" type="text" value="Z3Z" autocomplete="off"></label><label><span data-i18n="title">Title</span><input id="titleInput" type="text" value="Acid Pattern" autocomplete="off"></label></div><div class="memory-panel"><div class="memory-row" id="groupSelector"><button class="segment-button selected" type="button" data-value="I">I</button><button class="segment-button" type="button" data-value="II">II</button><button class="segment-button" type="button" data-value="III">III</button><button class="segment-button" type="button" data-value="IV">IV</button></div><div class="memory-row" id="bankSelector"><button class="segment-button selected" type="button" data-value="A">A</button><button class="segment-button" type="button" data-value="B">B</button></div></div></div>
+          <div class="sheet-meta"><div class="meta-fields"><label><span data-i18n="author">Author</span><input id="authorInput" type="text" value="Z3Z" autocomplete="off"></label><label><span data-i18n="title">Title</span><input id="titleInput" type="text" value="Acid Gnome" autocomplete="off"></label></div><div class="memory-panel"><div class="memory-row" id="groupSelector"><button class="segment-button selected" type="button" data-value="I">I</button><button class="segment-button" type="button" data-value="II">II</button><button class="segment-button" type="button" data-value="III">III</button><button class="segment-button" type="button" data-value="IV">IV</button></div><div class="memory-row" id="bankSelector"><button class="segment-button selected" type="button" data-value="A">A</button><button class="segment-button" type="button" data-value="B">B</button></div></div></div>
           <div class="sequence-table-wrap"><table class="sequence-table"><thead><tr id="stepHeaderRow"><th class="row-label" scope="col" data-i18n="step">Step</th></tr></thead><tbody id="patternGrid"></tbody></table></div>
           <section class="hardware-strip" aria-label="303 controls"><div class="hardware-module waveform-module"><span class="control-label" data-i18n="waveform">Waveform</span><div class="wave-selector"><button class="wave-button" id="waveSaw" type="button" data-wave="saw" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M3 17 9 7v10l6-10v10h6"/></svg><small>SAW</small></button><button class="wave-button selected" id="waveSquare" type="button" data-wave="square" aria-pressed="true"><svg viewBox="0 0 24 24"><path d="M3 17V7h8v10h8V7h2"/></svg><small>SQR</small></button></div></div><div class="hardware-module tempo-module"><span class="control-label" data-i18n="tempo">Tempo</span><button class="seven-display" id="bpmDisplay" type="button"><span class="seven-digits" id="sevenDigits"></span><small>BPM</small></button><div id="tempoKnob"></div></div><div class="synth-controls" id="knobGrid"></div></section>
           <section class="notes-panel"><label for="notesArea" class="control-label" data-i18n="notes">EFX / Notes</label><textarea id="notesArea" rows="4" data-i18n-placeholder="notesPlaceholder" placeholder="Write your patch notes here..."></textarea></section>
