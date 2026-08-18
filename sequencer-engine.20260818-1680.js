@@ -5,7 +5,6 @@
   addCss('audio-ui','./ui-audio.20260818-1240.css');
   addCss('final-polish','./ui-polish.20260818-1255.css');
   addCss('seo-content','./seo.20260818-1315.css');
-  addCss('compact-workstation','./compact-workstation.20260818-1430.css');
   addCss('unified-actions','./unified-actions.20260818-1450.css');
   const load=src=>new Promise((resolve,reject)=>{const s=document.createElement('script');s.src=`${src}?v=${version}`;s.async=false;s.onload=resolve;s.onerror=reject;document.head.appendChild(s)});
   load('./cache-reset.20260818-1680.js')
