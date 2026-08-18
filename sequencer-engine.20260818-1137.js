@@ -1,6 +1,6 @@
 (() => {
   'use strict';
-  const version = '20260818-1352';
+  const version = '20260818-1402';
 
   const addCss = (key, href) => {
     if (document.querySelector(`link[data-303box-${key}]`)) return;
@@ -25,7 +25,8 @@
     document.head.appendChild(script);
   });
 
-  load('./acid-console.20260818-1340.js')
+  load('./transport-fuse.20260818-1400.js')
+    .then(() => load('./acid-console.20260818-1340.js'))
     .then(() => load('./acid-console-guard.20260818-1343.js'))
     .then(() => load('./ui-audio.20260818-1240.js'))
     .then(() => load('./ui-polish.20260818-1255.js'))
