@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const MIGRATION = '303box-acid-gnome-default-v1';
+  const MIGRATION = '303box-acig-gnome-default-v2';
 
   function currentBpm() {
     const value = Number(document.querySelector('[data-knob-id="bpm"]')?.getAttribute('aria-valuenow'));
@@ -48,12 +48,12 @@
     const a = author.value.trim();
     const t = title.value.trim();
     const isBladeDefault = a === 'New Order / The Pump Panel' || t === 'Confusion / Blade Theme';
-    const isStockDefault = (a === 'Z3Z' || a === 'DJ Pierre' || a === '') && (t === 'Acid Pattern' || t === 'Acid Tracks' || t === '');
+    const isStockDefault = (a === 'Z3Z' || a === 'DJ Pierre' || a === '') && (t === 'Acid Pattern' || t === 'Acid Tracks' || t === 'Acid Gnome' || t === '');
 
     if (isBladeDefault || isStockDefault) {
       // Use the site's own acid-aware generator so the opening pattern is musically coherent.
       document.querySelector('#generateButton')?.click();
-      setTimeout(() => setMeta('Z3Z', 'Acid Gnome'), 20);
+      setTimeout(() => setMeta('Z3Z', 'Acig Gnome'), 20);
     }
     localStorage.setItem(MIGRATION, '1');
     // Prevent the retired Blade reference seed from being considered again.
