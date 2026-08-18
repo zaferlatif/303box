@@ -1,0 +1,31 @@
+/* 303 workbench: same containment model as the rhythm panel. */
+.workspace.shell{min-width:0;overflow:visible}
+.pattern-workbench{width:100%;max-width:1080px;min-width:0;margin-inline:auto;overflow:hidden;border:1px solid #2d2d33;border-radius:17px;background:#0f0f12}
+.pattern-workbench .sheet-scroll{width:100%;max-width:100%;min-width:0;margin:0;padding:0;overflow-x:auto;overflow-y:hidden;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}
+.pattern-workbench #patternSheet{margin:0!important;border:0!important;border-radius:0!important;box-shadow:none!important}
+.pattern-workbench .pattern-actions{position:relative!important;inset:auto!important;width:100%!important;max-width:100%!important;min-width:0!important;margin:0!important;padding:15px!important;box-sizing:border-box!important;border-top:1px solid #29292e!important;border-bottom:1px solid #29292e!important;background:#121215!important}
+.pattern-workbench .pattern-actions .toolbar-group{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important;width:100%!important}
+.pattern-workbench .pattern-actions .tool-button{width:100%!important;min-width:0!important;min-height:44px!important;margin:0!important;padding:0 12px!important;display:flex!important;align-items:center!important;justify-content:center!important;gap:7px!important;border:1px solid #34343a!important;border-radius:8px!important;background:#1a1a1e!important;color:#e9e9eb!important;box-shadow:none!important;font:800 .59rem/1 JetBrains Mono,monospace!important;letter-spacing:.01em!important;text-align:center!important;white-space:normal!important;overflow:hidden!important}
+.pattern-workbench .pattern-actions .tool-button svg{display:none!important}
+.pattern-workbench .pattern-actions .tool-button-acid{border-color:#5b681b!important;color:#ddff37!important;background:#181c0b!important}
+.pattern-workbench .pattern-actions .tool-button-play{border-color:#34343a!important;background:#1a1a1e!important}
+.pattern-workbench .pattern-actions .tool-button-clear{border-color:#492522!important;color:#ff6b64!important;background:#181112!important}
+.pattern-workbench .pattern-actions .status-led{flex:0 0 7px;width:7px;height:7px}
+.pattern-workbench .sheet-io{width:100%;max-width:100%;min-width:0;margin:0;border-top:0!important;background:#0b0b0d}
+
+@media(min-width:1120px){
+  .pattern-workbench .sheet-scroll{overflow-x:visible!important}
+  .pattern-workbench #patternSheet{width:1080px!important;min-width:1080px!important;max-width:1080px!important}
+}
+
+@media(max-width:1119px){
+  .pattern-workbench #patternSheet{width:1080px!important;min-width:1080px!important;max-width:1080px!important}
+}
+
+@media(max-width:640px){
+  .pattern-workbench{width:100%;max-width:100%;border-radius:15px}
+  .pattern-workbench .pattern-actions{padding:11px!important}
+  .pattern-workbench .pattern-actions .toolbar-group{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important}
+  .pattern-workbench .pattern-actions .tool-button{min-height:44px!important;padding:0 8px!important;font-size:.55rem!important}
+  .pattern-workbench .sheet-io{grid-template-columns:1fr!important}
+}
