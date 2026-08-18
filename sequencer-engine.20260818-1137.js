@@ -6,13 +6,14 @@
   const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
 
   const NOTE_MIDI = { C:60, 'C#':61, D:62, 'D#':63, E:64, F:65, 'F#':66, G:67, 'G#':68, A:69, 'A#':70, B:71 };
+
   const engine = {
     ctx: null,
     master: null,
     playing: false,
     timer: null,
     step: 0,
-    absStep: 0,
+    absoluteStep: 0,
     nextAt: 0,
     continuationUntil: -1,
     sources: new Set()
@@ -23,7 +24,8 @@
   }
 
   function knob(id, fallback = 50) {
-    return clamp(Number($(`[data-knob-id="${id}"]`)?.getAttribute('aria-valuenow')) || fallback, 0, 100) / 100;
+    const value = Number($(`[data-knob-id="${id}"]`)?.getAttribute('aria-valuenow'));
+    return clamp(Number.isFinite(value) ? value : fallback, 0, 100) / 100;
   }
 
   function tuneSemitones() {
@@ -35,18 +37,16 @@
 
   function readStep(i) {
     const noteInput = $$('.note-input')[i];
-    const note = noteInput?.value?.trim().toUpperCase() || '';
-    const baseOctave = Number(noteInput?.dataset?.baseOctave || 0) ? 12 : 0;
     return {
-      note,
-      baseOctave,
-      octave: $$('.octave-cell')[i]?.textContent.trim() || '',
-      expr: $$('.accentSlide-cell')[i]?.textContent.trim() || '',
+      note: noteInput?.value?.trim().toUpperCase() || '',
+      baseOctave: Number(noteInput?.dataset?.baseOctave || 0) ? 12 : 0,
+      octave: $$('.octave-cell')[i]?.textContent.trim().toUpperCase() || '',
+      expr: $$('.accentSlide-cell')[i]?.textContent.trim().toUpperCase() || '',
       gate: $$('.gate-cell')[i]?.textContent.trim() || ''
     };
   }
 
-  function isActive(step) {
+  function playable(step) {
     return !!step.note && step.gate !== '-';
   }
 
@@ -73,23 +73,30 @@
     return (60 / bpm()) / 4;
   }
 
+  /*
+   * 303box gate semantics:
+   *   ● = trigger this step
+   *   ○ = tie THIS step into the following step
+   *   - = rest
+   *   S = slide THIS step into the following step
+   *
+   * The previous engine incorrectly looked at next.gate === '○'.
+   */
   function connectsToNext(current, next) {
-    if (!isActive(next)) return false;
-    if (current.expr.includes('S')) return true;
-    if (next.gate === '○') return true;
-    return false;
+    if (!playable(current) || !playable(next)) return false;
+    return current.gate === '○' || current.expr.includes('S');
   }
 
-  function collectSegment(startStep) {
+  function collectLegatoSegment(startStep) {
     const out = [startStep];
-    let step = startStep;
+    let currentIndex = startStep;
     for (let guard = 0; guard < 15; guard += 1) {
-      const current = readStep(step);
-      const nextStep = (step + 1) % 16;
-      const next = readStep(nextStep);
+      const current = readStep(currentIndex);
+      const nextIndex = (currentIndex + 1) % 16;
+      const next = readStep(nextIndex);
       if (!connectsToNext(current, next)) break;
-      out.push(nextStep);
-      step = nextStep;
+      out.push(nextIndex);
+      currentIndex = nextIndex;
     }
     return out;
   }
@@ -104,13 +111,63 @@
     return curve;
   }
 
+  function scheduleFilterStart(filter, when, accented, dur) {
+    const cutoff = knob('cutoff', 38);
+    const envMod = knob('envMod', 64);
+    const decay = knob('decay', 34);
+    const accent = knob('accent', 70);
+    const base = 90 + cutoff * 1800;
+    const peak = base + 500 + envMod * 3900 + (accented ? 900 + accent * 1900 : 0);
+    const decayTime = Math.min(dur * 0.92, 0.055 + decay * 0.38);
+    filter.frequency.setValueAtTime(Math.max(90, peak), when);
+    filter.frequency.exponentialRampToValueAtTime(Math.max(90, base), when + decayTime);
+    return { base, accent };
+  }
+
+  function scheduleConnectedAccent(filter, gain, when, accented, base, accent, dur) {
+    const normal = 0.155;
+    const boosted = normal + 0.075 + accent * 0.11;
+    if (!accented) {
+      gain.gain.setTargetAtTime(normal, when, 0.012);
+      return;
+    }
+
+    const envMod = knob('envMod', 64);
+    const peak = base + 700 + envMod * 2400 + 850 + accent * 1500;
+    gain.gain.setTargetAtTime(boosted, when, 0.006);
+    gain.gain.setTargetAtTime(normal, when + Math.min(dur * 0.42, 0.07), 0.025);
+    filter.frequency.setValueAtTime(Math.max(90, base), when);
+    filter.frequency.exponentialRampToValueAtTime(Math.max(100, peak), when + 0.009);
+    filter.frequency.exponentialRampToValueAtTime(Math.max(90, base), when + Math.min(dur * 0.66, 0.09));
+  }
+
+  function schedulePitchTransition(osc, current, next, boundary, dur) {
+    const currentFreq = frequencyFor(current);
+    const nextFreq = frequencyFor(next);
+    if (!currentFreq || !nextFreq) return;
+
+    if (current.expr.includes('S')) {
+      /*
+       * A real 303-style slide happens when the pitch CV changes at the NEXT
+       * step boundary while the gate stays open.  Start at the boundary, then
+       * slew toward the new pitch for roughly 40–75 ms depending on tempo.
+       */
+      const slideTime = clamp(dur * 0.52, 0.04, 0.075);
+      osc.frequency.setValueAtTime(Math.max(20, currentFreq), boundary);
+      osc.frequency.exponentialRampToValueAtTime(Math.max(20, nextFreq), boundary + slideTime);
+    } else {
+      /* Tie without slide: gate remains open but pitch jumps at the boundary. */
+      osc.frequency.setValueAtTime(Math.max(20, nextFreq), boundary);
+    }
+  }
+
   function scheduleSegment(startStep, when) {
     const first = readStep(startStep);
-    if (!isActive(first)) return 1;
+    if (!playable(first)) return 1;
     const firstFreq = frequencyFor(first);
     if (!firstFreq) return 1;
 
-    const segment = collectSegment(startStep);
+    const segment = collectLegatoSegment(startStep);
     const dur = stepDuration();
     const ctx = engine.ctx;
 
@@ -127,50 +184,43 @@
     shaper.curve = distortionCurve(7 + knob('resonance', 78) * 9);
     shaper.oversample = '2x';
 
+    const firstAccent = first.expr.includes('A');
     const accentAmount = knob('accent', 70);
-    const cutoff = knob('cutoff', 38);
-    const envMod = knob('envMod', 64);
-    const decay = knob('decay', 34);
+    const startVolume = 0.155 + (firstAccent ? 0.075 + accentAmount * 0.11 : 0);
+    const filterState = scheduleFilterStart(filter, when, firstAccent, dur);
 
     gain.gain.setValueAtTime(0.0001, when);
+    gain.gain.exponentialRampToValueAtTime(Math.max(0.001, startVolume), when + 0.008);
 
-    segment.forEach((stepIndex, pos) => {
-      const data = readStep(stepIndex);
-      const t = when + pos * dur;
-      const accented = data.expr.includes('A');
-      const vol = 0.15 + (accented ? 0.075 + accentAmount * 0.11 : 0);
-      const baseCutoff = 95 + cutoff * 1750;
-      const peak = baseCutoff + 450 + envMod * 3900 + (accented ? 900 + accentAmount * 1800 : 0);
+    for (let pos = 0; pos < segment.length; pos += 1) {
+      const stepIndex = segment[pos];
+      const current = readStep(stepIndex);
+      const stepAt = when + pos * dur;
 
-      if (pos === 0) gain.gain.exponentialRampToValueAtTime(Math.max(0.001, vol), t + 0.008);
-      else gain.gain.linearRampToValueAtTime(Math.max(0.001, vol), t + 0.012);
-
-      filter.frequency.setValueAtTime(Math.max(95, peak), t);
-      filter.frequency.exponentialRampToValueAtTime(Math.max(95, baseCutoff), t + Math.min(dur * 0.88, 0.055 + decay * 0.36));
+      if (pos > 0) {
+        scheduleConnectedAccent(
+          filter,
+          gain,
+          stepAt,
+          current.expr.includes('A'),
+          filterState.base,
+          filterState.accent,
+          dur
+        );
+      }
 
       if (pos < segment.length - 1) {
         const next = readStep(segment[pos + 1]);
-        const nextFreq = frequencyFor(next);
-        if (nextFreq) {
-          if (data.expr.includes('S')) {
-            const slideStart = t + dur * 0.48;
-            const slideEnd = t + dur * 0.98;
-            const currentFreq = frequencyFor(data) || firstFreq;
-            osc.frequency.setValueAtTime(Math.max(20, currentFreq), slideStart);
-            osc.frequency.exponentialRampToValueAtTime(Math.max(20, nextFreq), slideEnd);
-          } else {
-            osc.frequency.setValueAtTime(Math.max(20, nextFreq), t + dur);
-          }
-        }
+        const boundary = when + (pos + 1) * dur;
+        schedulePitchTransition(osc, current, next, boundary, dur);
       }
-    });
+    }
 
     const end = when + segment.length * dur;
-    const lastData = readStep(segment[segment.length - 1]);
-    const lastAccent = lastData.expr.includes('A');
-    const finalVol = 0.15 + (lastAccent ? 0.075 + accentAmount * 0.11 : 0);
-    try { gain.gain.setValueAtTime(Math.max(0.001, finalVol), Math.max(when + 0.01, end - Math.min(0.035, dur * 0.16))); } catch (_) {}
-    gain.gain.exponentialRampToValueAtTime(0.0001, end + 0.09 + decay * 0.16);
+    const decay = knob('decay', 34);
+    const releaseStart = Math.max(when + 0.012, end - Math.min(0.025, dur * 0.14));
+    gain.gain.setValueAtTime(Math.max(0.001, gain.gain.value || 0.155), releaseStart);
+    gain.gain.exponentialRampToValueAtTime(0.0001, end + 0.075 + decay * 0.15);
 
     osc.connect(filter);
     filter.connect(shaper);
@@ -178,7 +228,7 @@
     gain.connect(engine.master);
 
     osc.start(when);
-    osc.stop(end + 0.36);
+    osc.stop(end + 0.34);
     engine.sources.add(osc);
     osc.addEventListener('ended', () => engine.sources.delete(osc), { once: true });
 
@@ -197,21 +247,25 @@
 
   function scheduler() {
     if (!engine.playing || !engine.ctx) return;
+
     while (engine.nextAt < engine.ctx.currentTime + 0.12) {
       const step = engine.step;
-      const abs = engine.absStep;
-      if (abs > engine.continuationUntil) {
+      const absoluteStep = engine.absoluteStep;
+
+      if (absoluteStep > engine.continuationUntil) {
         const data = readStep(step);
-        if (isActive(data)) {
-          const len = scheduleSegment(step, engine.nextAt);
-          engine.continuationUntil = abs + Math.max(1, len) - 1;
+        if (playable(data)) {
+          const length = scheduleSegment(step, engine.nextAt);
+          engine.continuationUntil = absoluteStep + Math.max(1, length) - 1;
         }
       }
+
       scheduleVisual(step, engine.nextAt);
       engine.nextAt += stepDuration();
       engine.step = (engine.step + 1) % 16;
-      engine.absStep += 1;
+      engine.absoluteStep += 1;
     }
+
     engine.timer = setTimeout(scheduler, 25);
   }
 
@@ -221,21 +275,27 @@
     button.setAttribute('aria-pressed', String(playing));
     $('#playLed')?.classList.toggle('on', playing);
     const label = $('#playLabel');
-    if (label) label.textContent = playing ? (document.documentElement.lang === 'tr' ? 'DUR' : 'STOP') : (document.documentElement.lang === 'tr' ? 'ÇAL' : 'PLAY');
+    if (label) {
+      label.textContent = playing
+        ? (document.documentElement.lang === 'tr' ? 'DUR' : 'STOP')
+        : (document.documentElement.lang === 'tr' ? 'ÇAL' : 'PLAY');
+    }
   }
 
   async function start() {
     if (engine.playing) return;
-    const AC = window.AudioContext || window.webkitAudioContext;
-    if (!AC) return;
-    engine.ctx = new AC();
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContextClass) return;
+
+    engine.ctx = new AudioContextClass();
     if (engine.ctx.state === 'suspended') await engine.ctx.resume();
     engine.master = engine.ctx.createGain();
     engine.master.gain.value = 1;
     engine.master.connect(engine.ctx.destination);
+
     engine.playing = true;
     engine.step = 0;
-    engine.absStep = 0;
+    engine.absoluteStep = 0;
     engine.continuationUntil = -1;
     engine.nextAt = engine.ctx.currentTime + 0.055;
     updateUi(true);
@@ -246,9 +306,13 @@
     clearTimeout(engine.timer);
     engine.timer = null;
     engine.playing = false;
-    engine.sources.forEach(src => { try { src.stop(); } catch (_) {} });
+
+    engine.sources.forEach(source => {
+      try { source.stop(); } catch (_) {}
+    });
     engine.sources.clear();
     $$('[data-playing="true"]').forEach(el => el.removeAttribute('data-playing'));
+
     const ctx = engine.ctx;
     engine.ctx = null;
     engine.master = null;
@@ -274,29 +338,44 @@
     }, true);
 
     document.addEventListener('visibilitychange', () => {
-      if (!document.hidden && engine.ctx?.state === 'suspended') engine.ctx.resume().catch(() => {});
+      if (!document.hidden && engine.ctx?.state === 'suspended') {
+        engine.ctx.resume().catch(() => {});
+      }
     });
   }
 
+  /* Keep the last C in the picker independent from the U/D row. */
   function installIndependentNotePickers() {
     const inputs = $$('.note-input');
     if (!inputs.length) return false;
 
     $$('.note-picker, .note-picker-v2').forEach(x => x.remove());
+
     const savedBase = (() => {
       try {
         const data = JSON.parse(localStorage.getItem('303box-note-base-octaves-v2') || '[]');
         return Array.isArray(data) ? data : [];
-      } catch (_) { return []; }
+      } catch (_) {
+        return [];
+      }
     })();
 
     const notes = [
-      ['','—'],['C','C'],['C#','C#'],['D','D'],['D#','D#'],['E','E'],['F','F'],['F#','F#'],['G','G'],['G#','G#'],['A','A'],['A#','A#'],['B','B'],['C+','C']
+      ['','—'],['C','C'],['C#','C#'],['D','D'],['D#','D#'],['E','E'],['F','F'],
+      ['F#','F#'],['G','G'],['G#','G#'],['A','A'],['A#','A#'],['B','B'],['C+','C']
     ];
 
     const persistBase = () => {
       const values = $$('.note-input').map(input => Number(input.dataset.baseOctave || 0) ? 1 : 0);
       localStorage.setItem('303box-note-base-octaves-v2', JSON.stringify(values));
+    };
+
+    const syncPickers = () => {
+      $$('.note-input').forEach((input, index) => {
+        const picker = $$('.note-picker-v2')[index];
+        if (!picker) return;
+        picker.value = input.dataset.baseOctave === '1' && input.value === 'C' ? 'C+' : (input.value || '');
+      });
     };
 
     inputs.forEach((input, index) => {
@@ -307,9 +386,9 @@
 
       if (input.dataset.topC === '1') {
         input.dataset.baseOctave = '1';
-        const oct = $$('.octave-cell')[index];
-        if (oct?.textContent.trim() === 'U') oct.textContent = '';
         input.dataset.topC = '0';
+        const octaveCell = $$('.octave-cell')[index];
+        if (octaveCell?.textContent.trim() === 'U') octaveCell.textContent = '';
       } else if (savedBase[index] != null) {
         input.dataset.baseOctave = savedBase[index] ? '1' : '0';
       } else if (!input.dataset.baseOctave) {
@@ -320,8 +399,6 @@
       select.className = 'cell-control note-picker-v2';
       select.setAttribute('aria-label', `${document.documentElement.lang === 'tr' ? 'Nota' : 'Note'} ${index + 1}`);
       notes.forEach(([value, label]) => select.appendChild(new Option(label, value)));
-      const isTop = input.dataset.baseOctave === '1' && input.value === 'C';
-      select.value = isTop ? 'C+' : (input.value || '');
       input.after(select);
 
       select.addEventListener('change', () => {
@@ -337,29 +414,51 @@
       });
     });
 
+    syncPickers();
+
     document.addEventListener('click', event => {
       const generated = event.target.closest?.('#generateButton');
       const cleared = event.target.closest?.('#clearButton');
       if (!generated && !cleared) return;
       setTimeout(() => {
-        $$('.note-input').forEach((input, index) => {
-          input.dataset.baseOctave = '0';
-          const picker = $$('.note-picker-v2')[index];
-          if (picker) picker.value = input.value || '';
-        });
+        $$('.note-input').forEach(input => { input.dataset.baseOctave = '0'; });
         persistBase();
+        syncPickers();
       }, 0);
     });
 
     return true;
   }
 
+  function debugPattern() {
+    return Array.from({ length: 16 }, (_, i) => {
+      const step = readStep(i);
+      return {
+        step: i + 1,
+        ...step,
+        midi: midiFor(step),
+        hz: frequencyFor(step),
+        connectsToNext: connectsToNext(step, readStep((i + 1) % 16))
+      };
+    });
+  }
+
   function init() {
-    if (!$('#patternGrid') || !$('#playButton')) return setTimeout(init, 40);
+    if (!$('#patternGrid') || !$('#playButton')) {
+      setTimeout(init, 40);
+      return;
+    }
     installPlaybackOwnership();
     installIndependentNotePickers();
     updateUi(false);
-    window.__303boxPlaybackEngine = { start, stop, toggle, readStep, frequencyFor };
+    window.__303boxPlaybackEngine = {
+      start,
+      stop,
+      toggle,
+      readStep,
+      frequencyFor,
+      debugPattern
+    };
   }
 
   window.addEventListener('DOMContentLoaded', () => setTimeout(init, 80));
