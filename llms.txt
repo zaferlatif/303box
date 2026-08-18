@@ -1,26 +1,34 @@
 # 303box
 
-> 303box is a free browser-based 16-step 303 acid bassline and synchronized rhythm workstation.
+> 303box is a browser-based 16-step pattern sketchpad for writing, previewing and transferring 303 acid bassline and rhythm ideas to hardware.
 
 Canonical URL: https://303box.com/
 Turkish landing page: https://303box.com/tr/
 
+## Important positioning
+- 303box is not an AI composition service.
+- 303box is not intended to replace a musician, live performance, hardware performance or final recording decisions.
+- Pattern Random uses explicit rule-based randomization; it provides an editable starting sketch rather than finished AI-generated music.
+- The main purpose is convenience: make 16-step note/rhythm entry easier to read and edit than working only through a small hardware interface.
+- The user decides which notes, rests, accents, slides, rhythms and sound settings remain in the pattern.
+- Browser audio is an audition/preview surface for the sketch.
+- MIDI can help move the sketch to compatible hardware; final sound shaping, performance and hardware WRITE/save remain with the user/device.
+- The software development process has included AI-assisted coding, but the musical pattern engine itself is not an AI composition model.
+
 ## Core capabilities
 - Program 16-step 303 patterns with note, octave, accent, slide, trigger, tie and rest states.
-- Choose sawtooth or square waveform and shape Tune, Cutoff, Resonance, Env Mod, Decay and Accent.
-- Add Delay and Distortion to the 303 preview.
+- Choose sawtooth or square waveform for the browser preview and shape Tune, Cutoff, Resonance, Env Mod, Decay and Accent.
+- Preview bass and rhythm with the Web Audio API.
 - Run bass and rhythm from one shared browser audio clock through the Acid Console.
-- Start bass and rhythm together with a global transport or control either part independently.
-- Control Master, 303 and Rhythm levels independently and mute either musical layer.
-- Apply shared Swing to the 16-step timing.
-- Apply Pump sidechain: active kick steps duck the 303 level and recover musically.
-- Preview the 303 and rhythm with the Web Audio API.
-- Inspect the signal with a compact oscilloscope and FFT display.
-- Connect supported MIDI hardware through the Web MIDI API and send note messages plus optional MIDI clock.
-- Program a synchronized six-part rhythm machine: bass drum, snare drum, hand clap, tom, closed hi-hat and open hi-hat.
-- Rhythm voice map: TR-909 bass drum; TR-606 snare drum; TR-606 closed/open hi-hats; TR-808 Clap; TR-808 Low Tom, with the source architecture's real clap/tom alternatives where available.
-- Generate musically structured acid and rhythm patterns.
-- Export the visible 303 pattern and rhythm pattern as JPG images.
+- Control Master, 303 and Rhythm levels independently.
+- Apply shared Swing and Pump behavior.
+- Inspect the browser bass signal with Scope and FFT views.
+- Connect compatible MIDI hardware through Web MIDI and send notes plus optional clock/transport.
+- Use device routing profiles for Roland T-8, Behringer TD-3 / TD-3-MO, Korg volca bass / nubass and Generic MIDI.
+- Use the T-8 REC helper to perform a live MIDI pass after REC is armed on the hardware; final WRITE/save remains on the physical device.
+- Program a synchronized six-part rhythm sketch: bass drum, snare, clap, tom, closed hi-hat and open hi-hat.
+- Generate rule-based acid and rhythm starting patterns that remain fully editable.
+- Export visible 303 and rhythm patterns as image references.
 - Store working sessions locally in the browser.
 
 ## Languages and localized URLs
@@ -42,20 +50,22 @@ Turkish landing page: https://303box.com/tr/
 - Privacy: https://303box.com/privacy.html
 
 ## Primary search intents
-303box is intended to answer and serve these topics directly:
+303box is intended to serve topics such as:
+- online 303 pattern editor
+- 303 pattern sketchpad
+- hardware 303 pattern workflow
 - free online 303 sequencer
-- acid house maker
-- acid bassline generator
-- 303 pattern generator
+- acid bassline pattern editor
 - browser acid sequencer
 - 303 accent and slide programming
 - acid house BPM and workflow
-- online rhythm and 303 workstation
-- Web MIDI 303 pattern workflow
-- ücretsiz online 303 sequencer
-- acid house pattern oluşturucu
+- Web MIDI 303 hardware workflow
+- T-8 pattern REC workflow
+- online 303 pattern notepad
+- 303 pattern yazma aracı
+- donanım için 303 pattern editörü
 - 303 pattern nasıl yapılır
 - accent slide octave kullanımı
 
 ## Historical coverage
-The site includes 303 history and educational coverage of acid-house sequencing culture, including the role of early 303 experimentation and the continuing hardware/software ecosystem.
+The site includes 303 history and educational coverage of acid-house sequencing culture, including the role of hands-on experimentation and the continuing hardware/software ecosystem.
