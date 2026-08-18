@@ -12,7 +12,7 @@
 
 # 303box
 
-**303box** is a browser-based acid pattern laboratory for building, hearing, randomizing and exporting 16-step 303 lines together with a synchronized rhythm section.
+**303box** is a browser-based acid pattern laboratory for building, hearing, randomizing and exporting 16-step 303 lines together with a synchronized rhythm section and optional hardware MIDI output.
 
 No account. No install. Open the page and start sequencing.
 
@@ -23,15 +23,17 @@ No account. No install. Open the page and start sequencing.
 - Acid-aware random pattern generation
 - BPM generation matched to the musical profile
 - Saw / square browser synth preview
-- Cutoff, resonance, envelope modulation, decay and accent controls
+- Tune, cutoff, resonance, envelope modulation, decay and accent controls
+- Delay, distortion and reverb in the browser audio engine
 - Synchronized six-part rhythm machine
-- Hardware-faithful companion rhythm voice map
-- Independent 303 / rhythm mixer
-- Live mini oscilloscope and FFT view
-- Browser MIDI output and MIDI clock where Web MIDI is supported
+- Independent 303 / rhythm level control
+- Live 303-only oscilloscope and FFT view
+- Web MIDI output with device profiles
+- Separate bass and rhythm MIDI routing where the selected hardware supports it
+- Optional MIDI clock and Start / Stop output
 - JPG export for both the 303 pattern sheet and rhythm pattern
 - EN / TR interface
-- Local browser persistence — current work stays on the device
+- Local browser persistence
 - Responsive GitHub Pages deployment
 
 ## Acid-aware generation
@@ -46,39 +48,77 @@ The generator works with musical profiles that combine:
 - motif repetition and mutation,
 - accents,
 - ties and slides,
-- and a matching drum-groove family.
+- and a matching groove language.
 
-That means a generated bass line and rhythm section are designed to belong to the same idea rather than two independent random patterns.
+The 303 and rhythm generators can also be used independently: generating a new bass pattern does not overwrite the rhythm grid, and generating a new rhythm does not overwrite the 303 line.
 
 ## Rhythm section
 
-The rhythm machine is intentionally compact and built to sit beside a 303 line. The source voice map follows the compact companion architecture rather than offering arbitrary 808/909 switching on every row.
+The rhythm machine is intentionally compact and built to sit beside a 303 line.
 
-| Part | Voice |
+| Part | Browser voice / hardware note role |
 |---|---|
-| Bass Drum | TR-909 BD |
-| Snare Drum | TR-606 SD |
-| Hand Clap | TR-808 Clap / Noise Tom / TR-606 High Tom |
-| Tom | TR-808 Low Tom / TR-606 Low Tom |
-| Closed Hi-Hat | TR-606 CH |
-| Open Hi-Hat | TR-606 OH |
+| Bass Drum | TR-909-inspired BD |
+| Snare Drum | TR-606-inspired SD |
+| Hand Clap | TR-808-inspired clap |
+| Tom | TR-808-inspired low tom |
+| Closed Hi-Hat | TR-606-inspired CH |
+| Open Hi-Hat | TR-606-inspired OH |
 
-Only the Hand Clap and Tom rows expose voice choices; the other rhythm parts are fixed. Each part has its own level control. The rhythm section can run independently or start in sync with the 303 sequence.
+Each part has its own level control. Closed and open hi-hat steps can coexist in the grid; choke behavior belongs to playback rather than pattern editing.
 
-The browser audio engine recreates the character of these source voices with Web Audio synthesis; it does not contain Roland sample ROMs or proprietary DSP code.
+The browser audio engine synthesizes these voices with Web Audio. It does not contain Roland sample ROMs, Behringer firmware, Korg firmware, or proprietary DSP code.
 
 ## MIDI
 
-On browsers with Web MIDI support, 303box can send the programmed line to an available MIDI output.
+303box uses the Web MIDI API to route the sequencer to supported hardware profiles or a generic MIDI output.
 
-Available controls include:
+### Playback modes
 
-- MIDI output selection
-- MIDI channel
-- Browser / Browser + MIDI / MIDI-only playback
-- MIDI clock
+- **Browser** — browser audio only
+- **Browser + MIDI** — browser audio and connected hardware together
+- **MIDI only** — hardware output only when a valid MIDI connection is active
 
-MIDI access is always requested by the browser and requires explicit user permission. If no physical or virtual MIDI output exists, 303box keeps browser audio active rather than pretending a device is connected.
+### Device profiles
+
+The profile selector changes channel defaults and prevents incompatible data from being sent to synth-only devices.
+
+| 303box profile | Live bass | Live rhythm | Default routing | Direct pattern-memory write |
+|---|---:|---:|---|---|
+| Roland T-8 | Yes | Yes | Bass CH 2 / Rhythm CH 10 | Not exposed; no documented browser-safe pattern write protocol |
+| Behringer TD-3 | Yes | No | Bass CH 1 | Not exposed; no documented public pattern dump/write protocol used by 303box |
+| Behringer TD-3-MO | Yes | No | Bass CH 1 | Not exposed; no documented public pattern dump/write protocol used by 303box |
+| Korg volca bass | Yes | No | Bass CH 1 | Not exposed; no documented direct memory-write workflow used by 303box |
+| Korg volca nubass | Yes | No | Bass CH 1 | Not exposed; no documented direct memory-write workflow used by 303box |
+| Generic MIDI | Yes | Optional | User-selectable | Never assumed |
+
+These are **303box MIDI profiles**, not manufacturer certifications. Auto-detection is based on the connected MIDI port name and can be overridden manually.
+
+### Live MIDI vs writing device memory
+
+Live MIDI playback and writing a pattern into a hardware sequencer's non-volatile memory are different operations.
+
+303box currently supports the first one: it can send notes, velocities and — where appropriate — timing/transport messages while the browser sequencer is running.
+
+It intentionally does **not** show a `WRITE BASS` or `WRITE RHYTHM` button unless a device exposes a documented, safe pattern-write protocol that can be implemented without guessing proprietary messages. For hardware such as the T-8, saving a pattern remains a device-side operation.
+
+### MIDI safety
+
+Hardware MIDI is opt-in and fail-safe:
+
+- MIDI permission must be explicitly granted by the browser.
+- MIDI output stops if the 303box tab loses visibility.
+- Scheduled MIDI data is cleared where the browser/device API allows it.
+- Note Off / All Notes Off / All Sound Off cleanup is sent when the router stops.
+- MIDI does not silently re-arm after a tab change; the user must enable it again.
+- `PANIC` is available for emergency note cleanup.
+- Clock and Start / Stop are separate opt-in controls.
+
+This behavior is intentional: a hardware sequencer should not continue receiving a long queued pattern after the user leaves or closes the page.
+
+## Scope and FFT
+
+The analyzer is intentionally scoped to the 303 line rather than the full master output. Drum hits do not change the displayed 303 note/frequency. Scope and FFT controls are moved into the Acid Console before they become visible, avoiding the startup layout jump that previously showed the panel below the pattern before moving it upward.
 
 ## Run locally
 
@@ -94,21 +134,25 @@ Then open:
 http://localhost:8080
 ```
 
-Web MIDI requires a secure context in normal production use, so the live HTTPS deployment is recommended for hardware testing.
+Web MIDI normally requires a secure context in production, so the live HTTPS deployment is recommended for hardware testing.
 
 ## Project structure
 
 ```text
 303box/
-├── index.html                         # production page
-├── app.js                             # core 303 sequencer / audio engine
-├── styles.css                         # base interface
-├── studio.20260818-0912.js            # rhythm, MIDI, analyzer and studio layer
-├── studio.20260818-0912.css           # studio layout and responsive styling
-├── studio-dark.20260818-0912.css      # dark pattern-sheet styling
-├── rhythm-exact.20260818-1030.js      # exact rhythm voice map + preview engine
-├── privacy.html                       # EN/TR privacy policy
-├── ads.txt                            # Google AdSense publisher declaration
+├── index.html                          # production page
+├── app.js                              # core sequencer / browser synth foundation
+├── styles.css                          # base interface
+├── studio.20260818-0912.js             # studio composition layer
+├── rhythm-exact.20260818-1030.js       # rhythm voice/grid foundation
+├── sequencer-engine.20260818-1660.js   # current production layer loader
+├── midi-router.20260818-1660.js        # safe Web MIDI router + device profiles
+├── midi-router.20260818-1660.css       # device-profile MIDI UI
+├── generator-router.20260818-1650.js   # independent bass / rhythm generators
+├── bass-scope.20260818-1600.js         # 303-only scope / FFT layer
+├── cache-reset.20260818-1660.js        # runtime asset-cache epoch reset
+├── privacy.html                        # EN/TR privacy policy
+├── ads.txt                             # Google AdSense publisher declaration
 ├── sitemap.xml
 ├── robots.txt
 ├── llms.txt
@@ -124,7 +168,7 @@ Web MIDI requires a secure context in normal production use, so the live HTTPS d
 
 Privacy policy: **https://303box.com/privacy.html**
 
-The MIDI feature does not upload MIDI performances to a 303box user account or project database.
+MIDI performances are not uploaded to a 303box user account or project database.
 
 ## Deployment
 
