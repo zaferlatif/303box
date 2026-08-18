@@ -1,28 +1,55 @@
 /* Compact mobile memory selector + final responsive polish */
 @media (max-width:760px){
-  #patternSheet .memory-panel{
-    min-height:0!important;
+  #patternSheet .memory-panel{min-height:0!important}
+  #patternSheet .memory-row{min-height:36px!important;height:36px!important}
+  #patternSheet .segment-button{min-height:36px!important;height:36px!important;padding:0!important;font-size:.57rem!important;line-height:1!important;letter-spacing:.02em!important}
+
+  /* BPM display + knob are one optical unit and are centered together. */
+  #patternSheet .tempo-module{
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:center!important;
+    justify-content:center!important;
+    gap:10px!important;
+    padding:12px 8px!important;
   }
-  #patternSheet .memory-row{
-    min-height:36px!important;
-    height:36px!important;
+  #patternSheet .tempo-module>.control-label{
+    width:100%!important;
+    text-align:center!important;
+    margin:0!important;
   }
-  #patternSheet .segment-button{
-    min-height:36px!important;
-    height:36px!important;
-    padding:0!important;
-    font-size:.57rem!important;
-    line-height:1!important;
-    letter-spacing:.02em!important;
+  #patternSheet .tempo-cluster{
+    width:max-content!important;
+    max-width:100%!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    gap:6px!important;
+    margin:0 auto!important;
+  }
+  #patternSheet .tempo-cluster>.seven-display{
+    flex:0 0 104px!important;
+    width:104px!important;
+    max-width:104px!important;
+    margin:0!important;
+  }
+  #patternSheet .tempo-cluster>#tempoKnob{
+    flex:0 0 58px!important;
+    width:58px!important;
+    margin:0!important;
+    display:grid!important;
+    place-items:center!important;
+  }
+  #patternSheet .tempo-cluster>#tempoKnob .knob-control{
+    width:54px!important;
+    height:54px!important;
   }
 }
 @media (max-width:430px){
-  #patternSheet .memory-row,
-  #patternSheet .segment-button{
-    min-height:32px!important;
-    height:32px!important;
-  }
-  #patternSheet .segment-button{
-    font-size:.53rem!important;
-  }
+  #patternSheet .memory-row,#patternSheet .segment-button{min-height:32px!important;height:32px!important}
+  #patternSheet .segment-button{font-size:.53rem!important}
+  #patternSheet .tempo-cluster{gap:3px!important}
+  #patternSheet .tempo-cluster>.seven-display{flex-basis:98px!important;width:98px!important;max-width:98px!important}
+  #patternSheet .tempo-cluster>#tempoKnob{flex-basis:54px!important;width:54px!important}
+  #patternSheet .tempo-cluster>#tempoKnob .knob-control{width:50px!important;height:50px!important}
 }
