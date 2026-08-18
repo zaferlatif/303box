@@ -42,6 +42,14 @@
 .pattern-control-panel .sheet-io{width:100%!important;max-width:100%!important;min-width:0!important;margin:0!important;border:0!important;background:#0b0b0d!important;overflow:hidden!important}
 .pattern-control-panel .mini-analyzer,.pattern-control-panel .midi-compact{min-width:0!important}
 
+/* Rhythm voice identity now lives in the left channel card; the middle VOICE selector is hidden. */
+#drums .voice-selector-hidden{display:none!important}
+#drums .drum-voice.drum-voice-compact{grid-template-columns:minmax(132px,1.25fr) minmax(105px,1fr)!important;gap:12px!important}
+#drums .drum-voice.drum-voice-compact .drum-voice-id{height:50px!important;padding:8px 10px!important}
+#drums .drum-voice.drum-voice-compact .drum-voice-id b{font-size:.68rem!important;letter-spacing:.015em!important}
+#drums .drum-voice.drum-voice-compact .drum-voice-id span{font-size:.51rem!important}
+#drums .drum-voice.drum-voice-compact label:has([data-level]){min-width:0!important;width:100%!important}
+
 /* Shortcut guide */
 .shortcuts-open{overflow:hidden}
 .shortcut-overlay{position:fixed;inset:0;z-index:1200;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(0,0,0,.72);backdrop-filter:blur(10px)}
