@@ -1,6 +1,6 @@
 (() => {
   'use strict';
-  const version = '20260818-1412';
+  const version = '20260818-1422';
 
   const addCss = (key, href) => {
     if (document.querySelector(`link[data-303box-${key}]`)) return;
@@ -26,6 +26,7 @@
   });
 
   load('./transport-fuse.20260818-1410.js')
+    .then(() => load('./drum-level-fix.20260818-1420.js'))
     .then(() => load('./acid-console.20260818-1340.js'))
     .then(() => load('./acid-console-guard.20260818-1343.js'))
     .then(() => load('./ui-audio.20260818-1240.js'))
