@@ -42,6 +42,27 @@
 .pattern-control-panel .sheet-io{width:100%!important;max-width:100%!important;min-width:0!important;margin:0!important;border:0!important;background:#0b0b0d!important;overflow:hidden!important}
 .pattern-control-panel .mini-analyzer,.pattern-control-panel .midi-compact{min-width:0!important}
 
+/* Shortcut guide */
+.shortcuts-open{overflow:hidden}
+.shortcut-overlay{position:fixed;inset:0;z-index:1200;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(0,0,0,.72);backdrop-filter:blur(10px)}
+.shortcut-overlay.open{display:flex}
+.shortcut-dialog{width:min(100%,520px);border:1px solid #303038;border-radius:18px;background:linear-gradient(180deg,#151518,#0d0d10);box-shadow:0 36px 110px rgba(0,0,0,.58),inset 0 1px rgba(255,255,255,.035);overflow:hidden}
+.shortcut-head{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;padding:20px 22px 16px;border-bottom:1px solid #29292f;background:radial-gradient(circle at 85% 0,rgba(221,255,55,.08),transparent 40%)}
+.shortcut-head span{display:block;margin-bottom:7px;color:#ddff37;font:800 .55rem/1 JetBrains Mono,monospace;letter-spacing:.13em}
+.shortcut-head h2{margin:0;color:#f3f3ef;font-size:1.22rem;letter-spacing:-.025em}
+.shortcut-x{width:34px;height:34px;border:1px solid #33333a;border-radius:8px;background:#19191d;color:#8a8a92;font-size:1.15rem;cursor:pointer}
+.shortcut-x:hover{color:#fff;background:#222227}
+.shortcut-intro{margin:0;padding:16px 22px;color:#85858d;font-size:.76rem;line-height:1.6;border-bottom:1px solid #25252b}
+.shortcut-list{padding:8px 22px}
+.shortcut-list>div{min-height:52px;display:flex;align-items:center;gap:8px;border-bottom:1px solid #232329;color:#b4b4ba;font-size:.74rem}
+.shortcut-list>div:last-child{border-bottom:0}
+.shortcut-list>div span{margin-left:auto;text-align:right;color:#9b9ba2}
+.shortcut-list b{color:#55555c;font-size:.68rem}
+.shortcut-list kbd{min-width:35px;height:27px;padding:0 8px;display:inline-flex;align-items:center;justify-content:center;border:1px solid #393940;border-bottom-color:#202025;border-radius:6px;background:#1c1c20;color:#efefeb;box-shadow:inset 0 -2px #101012;font:800 .57rem/1 JetBrains Mono,monospace;white-space:nowrap}
+.shortcut-done{width:calc(100% - 44px);min-height:44px;margin:8px 22px 20px;border:1px solid #62721c;border-radius:9px;background:#1b200b;color:#ddff37;font:800 .66rem/1 JetBrains Mono,monospace;cursor:pointer}
+.shortcut-done:hover{background:#22290d}
+.footer-links [data-shortcuts-link]{color:#ddff37}
+
 @media(max-width:760px){
   .pattern-card-wrap,#patternSheet,.pattern-control-panel{width:100%!important;max-width:100%!important;min-width:0!important}
 
@@ -77,6 +98,15 @@
   .pattern-control-panel .sheet-io{grid-template-columns:1fr!important}
   .pattern-control-panel .mini-analyzer{border-right:0!important;border-bottom:1px solid #303036!important}
   .pattern-control-panel .midi-compact-grid{grid-template-columns:1fr!important}
+
+  .shortcut-overlay{align-items:flex-end;padding:10px}
+  .shortcut-dialog{border-radius:16px}
+  .shortcut-head{padding:17px 17px 14px}
+  .shortcut-intro{padding:14px 17px}
+  .shortcut-list{padding:5px 17px}
+  .shortcut-list>div{min-height:48px;font-size:.68rem}
+  .shortcut-list>div span{max-width:48%}
+  .shortcut-done{width:calc(100% - 34px);margin:8px 17px 17px}
 }
 
 @media(min-width:1120px){
