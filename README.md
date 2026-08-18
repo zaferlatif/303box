@@ -118,7 +118,11 @@ This behavior is intentional: a hardware sequencer should not continue receiving
 
 ## Scope and FFT
 
-The analyzer is intentionally scoped to the 303 line rather than the full master output. Drum hits do not change the displayed 303 note/frequency. Scope and FFT controls are moved into the Acid Console before they become visible, avoiding the startup layout jump that previously showed the panel below the pattern before moving it upward.
+The analyzer is intentionally scoped to the 303 line rather than the full master output. Drum hits do not change the displayed 303 note/frequency.
+
+The 1670 UI layer gives Scope a responsive physical position rather than treating it as a loose card: on desktop it shares a compact strip with MIDI; on mobile it moves into the Acid Console grid next to the performance controls. The panel is hidden until its final location is resolved, preventing the startup jump that previously showed Scope below the pattern before moving it upward.
+
+The current scope renderer uses a stable hardware-style trace with a center reference, acid grid/glow treatment, smooth pitch transitions and a logarithmic FFT representation of the 303 oscillator/filter state.
 
 ## Run locally
 
@@ -140,19 +144,21 @@ Web MIDI normally requires a secure context in production, so the live HTTPS dep
 
 ```text
 303box/
-├── index.html                          # production page
-├── app.js                              # core sequencer / browser synth foundation
-├── styles.css                          # base interface
-├── studio.20260818-0912.js             # studio composition layer
-├── rhythm-exact.20260818-1030.js       # rhythm voice/grid foundation
-├── sequencer-engine.20260818-1660.js   # current production layer loader
-├── midi-router.20260818-1660.js        # safe Web MIDI router + device profiles
-├── midi-router.20260818-1660.css       # device-profile MIDI UI
-├── generator-router.20260818-1650.js   # independent bass / rhythm generators
-├── bass-scope.20260818-1600.js         # 303-only scope / FFT layer
-├── cache-reset.20260818-1660.js        # runtime asset-cache epoch reset
-├── privacy.html                        # EN/TR privacy policy
-├── ads.txt                             # Google AdSense publisher declaration
+├── index.html                           # production page
+├── app.js                               # core sequencer / browser synth foundation
+├── styles.css                           # base interface
+├── studio.20260818-0912.js              # studio composition layer
+├── rhythm-exact.20260818-1030.js        # rhythm voice/grid foundation
+├── sequencer-engine.20260818-1670.js    # current production layer loader
+├── midi-router.20260818-1660.js         # safe Web MIDI router + device profiles
+├── midi-router.20260818-1660.css        # device-profile MIDI UI
+├── console-layout.20260818-1670.js      # responsive Scope/MIDI placement authority
+├── console-layout.20260818-1670.css     # mobile/desktop console control layout
+├── generator-router.20260818-1650.js    # independent bass / rhythm generators
+├── bass-scope.20260818-1670.js          # upgraded 303-only scope / FFT layer
+├── cache-reset.20260818-1670.js         # runtime asset-cache epoch reset
+├── privacy.html                         # EN/TR privacy policy
+├── ads.txt                              # Google AdSense publisher declaration
 ├── sitemap.xml
 ├── robots.txt
 ├── llms.txt
