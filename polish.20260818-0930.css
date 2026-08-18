@@ -1,0 +1,27 @@
+/* 303box production polish — desktop fit + note picker + density layout */
+.note-source-hidden{display:none!important}
+.note-picker{width:100%;height:100%;border:0;outline:0;background:transparent;color:#ededeb;text-align:center;font:800 .86rem/1 JetBrains Mono,monospace;cursor:pointer;appearance:none;padding:0 12px 0 3px;background-image:linear-gradient(45deg,transparent 50%,#777780 50%),linear-gradient(135deg,#777780 50%,transparent 50%);background-position:calc(100% - 9px) 48%,calc(100% - 5px) 48%;background-size:4px 4px,4px 4px;background-repeat:no-repeat}
+.note-picker:hover,.note-picker:focus{background-color:rgba(221,255,55,.11);color:#fff}.note-picker option{background:#151518;color:#f4f4ef}
+
+.density{display:grid!important;grid-template-columns:1fr auto!important;grid-template-areas:"label value" "range range"!important;gap:8px 10px!important;align-items:center!important;padding:10px 12px!important}
+.density>span{grid-area:label;display:block;line-height:1.3;white-space:normal}.density>input{grid-area:range;width:100%!important;min-width:0}.density>b{grid-area:value;text-align:right;color:#a7a7ad!important}
+
+@media (min-width:1001px){
+  .sequencer-section .section-intro,.workspace.shell,.drum-machine.shell,.field-guide .shell,.history303 .shell,.faq-section.shell{width:1000px!important;max-width:1000px!important;margin-left:auto!important;margin-right:auto!important}
+  .sheet-scroll,.drum-grid-scroll{overflow-x:visible!important;overflow-y:visible!important;width:100%!important;max-width:none!important}
+  .pattern-sheet{width:100%!important;min-width:0!important;max-width:1000px!important;box-sizing:border-box!important}
+  .drum-panel,.drum-export-card{width:100%!important;max-width:1000px!important;box-sizing:border-box!important}
+  .drum-grid{width:100%!important;min-width:0!important;grid-template-columns:250px minmax(0,1fr)!important}
+  .sequence-table{width:100%!important;table-layout:fixed!important}
+  .sheet-toolbar,.sheet-io{width:100%!important;box-sizing:border-box!important}
+}
+
+@media (max-width:1000px){
+  .sheet-scroll,.drum-grid-scroll{overflow-x:auto!important;overflow-y:hidden!important;max-width:100%!important;-webkit-overflow-scrolling:touch}
+  .pattern-sheet,.drum-grid{min-width:1000px!important}
+}
+
+@media (max-width:760px){
+  .density{min-height:76px!important}
+  .density>span{font-size:.56rem!important}
+}
