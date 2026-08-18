@@ -1,0 +1,64 @@
+/* 303box unified Acid Console — one workstation, one transport */
+.acid-console{margin:0 0 14px;border:1px solid #2b2b31;border-radius:18px;background:linear-gradient(180deg,#131316,#0c0c0f);overflow:hidden;box-shadow:0 18px 50px rgba(0,0,0,.22)}
+.acid-console-head{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:13px 16px;border-bottom:1px solid #29292e;background:#0a0a0c}
+.acid-console-head span{font:800 .69rem/1 JetBrains Mono,monospace;letter-spacing:.16em;color:#d9ff2f;text-transform:uppercase}
+.acid-console-head small{font:650 .62rem/1 JetBrains Mono,monospace;letter-spacing:.09em;color:#696972;text-transform:uppercase}
+.acid-console-grid{display:grid;grid-template-columns:148px repeat(5,minmax(0,1fr));gap:1px;background:#29292e}
+.acid-console-cell{min-width:0;background:#111114;padding:13px 14px;display:flex;flex-direction:column;justify-content:center;gap:8px}
+.acid-console-cell>label,.acid-console-label{display:flex;align-items:center;justify-content:space-between;gap:10px;color:#85858e;font:750 .63rem/1 JetBrains Mono,monospace;letter-spacing:.08em;text-transform:uppercase}
+.acid-console-cell output{color:#bdbdc4;font:750 .63rem/1 JetBrains Mono,monospace}
+.acid-console input[type=range]{width:100%;height:18px;margin:0;accent-color:#d9ff2f}
+.acid-master-play{border:0;background:#d9ff2f;color:#080808;border-radius:11px;min-height:54px;font:900 .78rem/1 JetBrains Mono,monospace;letter-spacing:.08em;cursor:pointer;transition:.16s ease;box-shadow:inset 0 -3px 0 rgba(0,0,0,.17)}
+.acid-master-play:hover{filter:brightness(1.04)}
+.acid-master-play:active{transform:translateY(1px)}
+.acid-master-play[data-playing="true"]{background:#f1504a;color:#080808}
+.acid-part-row{display:grid;grid-template-columns:minmax(0,1fr) 50px;gap:8px;align-items:center}
+.acid-mute{height:28px;border:1px solid #34343b;border-radius:8px;background:#17171b;color:#85858e;font:800 .56rem/1 JetBrains Mono,monospace;letter-spacing:.06em;cursor:pointer}
+.acid-mute[aria-pressed="true"]{border-color:#77372f;background:#241311;color:#ff6f64}
+.acid-pump-cell{background:linear-gradient(180deg,#15170e,#11120e)}
+.acid-pump-cell .acid-console-label{color:#b7c867}
+.acid-swing-cell .acid-console-label{color:#b3b3ba}
+
+/* Physically integrate rhythm under the 303 workbench. */
+.workspace.shell.acid-workstation{display:block!important}
+.workspace.shell.acid-workstation>.drum-machine.integrated-rhythm{width:100%!important;max-width:none!important;margin:14px 0 0!important;padding:0!important}
+.drum-machine.integrated-rhythm .drum-intro{display:none!important}
+.drum-machine.integrated-rhythm .drum-export-card{margin:0!important}
+.drum-machine.integrated-rhythm .drum-panel{border-radius:18px!important;overflow:hidden!important}
+.drum-machine.integrated-rhythm .drum-dna{display:none!important}
+.drum-machine.integrated-rhythm .mini-mixer{display:none!important}
+.drum-machine.integrated-rhythm .drum-toolbar{border-radius:0!important;border-left:0!important;border-right:0!important;border-top:0!important;padding:12px!important}
+.integrated-rhythm-label{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 16px;border:1px solid #29292e;border-bottom:0;border-radius:18px 18px 0 0;background:#0a0a0c}
+.integrated-rhythm-label strong{font:800 .7rem/1 JetBrains Mono,monospace;letter-spacing:.14em;color:#d9ff2f;text-transform:uppercase}
+.integrated-rhythm-label span{font:650 .62rem/1 JetBrains Mono,monospace;letter-spacing:.09em;color:#6e6e77;text-transform:uppercase}
+.drum-machine.integrated-rhythm .integrated-rhythm-label+.drum-export-card .drum-panel{border-radius:0 0 18px 18px!important}
+
+/* The old part mixers stay as state backends, not duplicate UI. */
+#mixBass,#mixDrum{accent-color:#d9ff2f}
+
+/* Compact secondary transport: global play is primary, local controls remain useful. */
+.drum-machine.integrated-rhythm .drum-actions{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+.drum-machine.integrated-rhythm .drum-actions button{min-height:42px!important}
+.drum-machine.integrated-rhythm .drum-tools{grid-template-columns:minmax(220px,.8fr) minmax(240px,1fr)!important}
+
+@media(max-width:900px){
+  .acid-console-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .acid-console-play-cell{grid-row:span 2}
+  .drum-machine.integrated-rhythm .drum-tools{grid-template-columns:1fr!important}
+}
+@media(max-width:620px){
+  .acid-console{border-radius:15px}
+  .acid-console-head{padding:12px 13px}
+  .acid-console-head small{display:none}
+  .acid-console-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .acid-console-play-cell{grid-row:auto;grid-column:1/-1}
+  .acid-master-play{min-height:48px}
+  .acid-console-cell{padding:12px;gap:7px}
+  .drum-machine.integrated-rhythm .drum-actions{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .integrated-rhythm-label{padding:12px 14px}
+}
+@media(max-width:390px){
+  .acid-console-grid{grid-template-columns:1fr 1fr}
+  .acid-console-cell{padding:10px}
+  .acid-part-row{grid-template-columns:minmax(0,1fr) 44px}
+}
