@@ -1,0 +1,67 @@
+/* Rhythm spacing + complete information grid */
+#drums .drum-voice.drum-voice-compact label:has([data-level]){
+  box-sizing:border-box!important;
+  padding:0 14px 0 4px!important;
+}
+#drums .drum-voice.drum-voice-compact label:has([data-level]) input[type="range"]{
+  width:100%!important;
+  max-width:100%!important;
+  margin:0!important;
+}
+#drums .drum-dna{
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+}
+#drums .drum-dna>*{
+  min-width:0!important;
+  border-left:1px solid #29292e!important;
+  border-top:1px solid #29292e!important;
+}
+#drums .drum-dna>*:nth-child(-n+3){border-top:0!important}
+#drums .drum-dna>*:nth-child(3n+1){border-left:0!important}
+
+/* 303 hardware: TUNE + five core controls + DELAY + DISTORTION */
+#patternSheet .synth-controls{
+  grid-template-columns:repeat(8,minmax(0,1fr))!important;
+}
+#patternSheet .fx-knob .knob-title{color:#b9b9c0!important}
+#patternSheet .fx-knob .knob-value{font-family:JetBrains Mono,monospace!important}
+#patternSheet .fx-delay .knob-title{color:#b8c879!important}
+#patternSheet .fx-distortion .knob-title{color:#d4b088!important}
+
+@media(max-width:760px){
+  #drums .drum-voice.drum-voice-compact label:has([data-level]){
+    padding-right:16px!important;
+  }
+  #drums .drum-dna{
+    grid-template-columns:1fr!important;
+  }
+  #drums .drum-dna>*{
+    border-left:0!important;
+    border-top:1px solid #29292e!important;
+  }
+  #drums .drum-dna>*:first-child{border-top:0!important}
+
+  #patternSheet .synth-controls{
+    grid-template-columns:repeat(4,minmax(0,1fr))!important;
+    row-gap:13px!important;
+  }
+  #patternSheet .synth-controls .knob-control{
+    width:54px!important;
+    height:54px!important;
+  }
+  #patternSheet .synth-controls .knob-title{
+    font-size:.43rem!important;
+    min-height:1.1rem!important;
+  }
+}
+
+@media(max-width:430px){
+  #patternSheet .synth-controls{
+    grid-template-columns:repeat(4,minmax(0,1fr))!important;
+    padding-inline:4px!important;
+  }
+  #patternSheet .synth-controls .knob-control{
+    width:50px!important;
+    height:50px!important;
+  }
+}
