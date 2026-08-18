@@ -1,6 +1,6 @@
 (() => {
   'use strict';
-  const version = '20260818-1514';
+  const version = '20260818-1522';
 
   const addCss = (key, href) => {
     if (document.querySelector(`link[data-303box-${key}]`)) return;
@@ -19,6 +19,7 @@
   addCss('console-io', './console-io.20260818-1440.css');
   addCss('unified-actions', './unified-actions.20260818-1450.css');
   addCss('midi-router', './midi-router.20260818-1510.css');
+  addCss('workstation-layout', './workstation-layout.20260818-1520.css');
 
   const load = src => new Promise((resolve, reject) => {
     const script = document.createElement('script');
@@ -41,5 +42,6 @@
     .then(() => load('./bass-scope.20260818-1500.js'))
     .then(() => load('./hero-stability.20260818-1500.js'))
     .then(() => load('./seo.20260818-1315.js'))
+    .then(() => load('./workstation-layout.20260818-1520.js'))
     .catch(error => console.error('303box production loader', error));
 })();
