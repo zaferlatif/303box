@@ -9,23 +9,37 @@
     const io = document.querySelector('.sheet-io');
     if (!workspace || !scroll || !sheet || !toolbar) return false;
 
-    let panel = workspace.querySelector('.pattern-workbench');
-    if (!panel) {
-      panel = document.createElement('div');
-      panel.className = 'pattern-workbench';
-      scroll.parentNode.insertBefore(panel, scroll);
-      panel.appendChild(scroll);
+    let workbench = workspace.querySelector('.pattern-workbench');
+    if (!workbench) {
+      workbench = document.createElement('div');
+      workbench.className = 'pattern-workbench';
+      scroll.parentNode.insertBefore(workbench, scroll);
+      workbench.appendChild(scroll);
+    }
+
+    if (scroll.parentElement !== workbench) workbench.prepend(scroll);
+    scroll.classList.add('pattern-sheet-panel');
+
+    let controls = workbench.querySelector('.pattern-control-panel');
+    if (!controls) {
+      controls = document.createElement('section');
+      controls.className = 'pattern-control-panel';
+      controls.setAttribute('aria-label', '303 playback, analyzer and MIDI controls');
+      workbench.appendChild(controls);
     }
 
     toolbar.classList.add('pattern-actions');
-    panel.appendChild(toolbar);
-    if (io) panel.appendChild(io);
+    controls.appendChild(toolbar);
+    if (io) controls.appendChild(io);
+
+    if (controls.firstElementChild !== toolbar) controls.insertBefore(toolbar, controls.firstElementChild);
+    if (io && toolbar.nextElementSibling !== io) controls.insertBefore(io, toolbar.nextElementSibling);
 
     return true;
   }
 
   function settle() {
-    [40, 160, 420, 900].forEach(ms => setTimeout(arrangePatternShell, ms));
+    [0, 40, 120, 260, 520, 900, 1500].forEach(ms => setTimeout(arrangePatternShell, ms));
   }
 
   window.addEventListener('DOMContentLoaded', settle);
