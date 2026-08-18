@@ -87,6 +87,14 @@ Every part has its own level. Closed and open hats can coexist in the pattern; c
 
 These are **303box routing profiles**, not manufacturer certifications. AUTO detection uses the MIDI port name and can always be overridden manually.
 
+### MIDI clock / tempo
+
+When `SEND CLOCK` is enabled, 303box now keeps a continuous 24 PPQN MIDI clock running even while the web transport is stopped. This lets external hardware stay locked to the current 303box BPM instead of immediately falling back to its own internal tempo after Stop.
+
+This is external synchronization, not a rewrite of the hardware's stored tempo value. On a Roland T-8, the internal tempo remains a device setting; when external clock disappears the hardware can return to its saved/internal tempo.
+
+The T-8 MIDI implementation exposes MIDI Clock / Start / Stop, but does not expose Control Change or System Exclusive receive for changing synth parameters such as the stored bass waveform. The browser SAW/SQR choice therefore remains a browser-engine setting unless the hardware itself offers a documented MIDI mapping for it.
+
 ### Background playback
 
 Switching browser tabs is **not** treated as Stop.
@@ -95,12 +103,16 @@ Switching browser tabs is **not** treated as Stop.
 
 ## T-8 REC
 
-A physical Roland T-8 test confirmed that a 303box bass performance can be captured by the T-8 after REC is armed on the hardware. Rhythm capture works as the same live-recording concept but remains the part we continue to tune for dense simultaneous hits.
+A physical Roland T-8 test confirmed that a 303box bass performance can be captured by the T-8 after REC is armed on the hardware. Rhythm capture also works, but the first hardware test showed that early steps could be missed while the T-8 recorder/transport was locking to the incoming clock.
 
 The compact MIDI panel exposes:
 
 - `BASS → REC`
 - `RHYTHM → REC`
+
+Bass REC remains a single 16-step pass because it already tested reliably.
+
+Rhythm REC is deliberately more defensive: 303box sends one silent 16-step pre-roll so the T-8 can lock to Start/Clock, then sends the same 16-step drum pattern twice. Repeating the identical loop is intended to reinforce missed early hits without changing their sequencer positions.
 
 Workflow:
 
@@ -108,11 +120,13 @@ Workflow:
 2. Use AUTO or choose `Roland T-8`.
 3. Arm REC on the T-8.
 4. Press `BASS → REC` or `RHYTHM → REC`.
-5. 303box sends one clocked 16-step pass.
+5. 303box sends the controlled clocked transfer.
 6. Check the pattern on the T-8.
 7. Save it with WRITE on the hardware.
 
-This does **not** pretend to write undocumented non-volatile memory directly. 303box performs the live MIDI pass; the final hardware WRITE remains yours.
+Starting a T-8 REC transfer also enables `SEND CLOCK`, so after the transfer the device can remain externally synchronized to the 303box session tempo while the MIDI connection stays active.
+
+This does **not** write undocumented non-volatile memory directly. 303box performs the live MIDI pass; the final hardware WRITE remains yours.
 
 ## Scope / FFT
 
@@ -149,13 +163,13 @@ For hardware MIDI testing, the live HTTPS deployment is usually the easiest path
 ├── index.html                            # static workstation shell
 ├── app.js                                # core sequencer foundation
 ├── acid-console.20260818-1340.js         # unified Web Audio engine
-├── midi-router.20260818-1700.js          # MIDI state / routing / background transport / T-8 REC
+├── midi-router.20260818-1710.js          # MIDI clock / routing / T-8 REC reinforcement
 ├── console-stable.20260818-1700.css      # Acid Console + Scope + MIDI layout
 ├── bass-scope.20260818-1680.js           # 303-only Scope / FFT renderer
 ├── generator-router.20260818-1650.js     # independent bass / rhythm generators
 ├── workstation-ui.20260818-1680.js       # stable workstation controls
 ├── sequencer-engine.20260818-1700.js     # production compatibility loader
-├── cache-reset.20260818-1700.js          # cache epoch reset
+├── cache-reset.20260818-1700.js          # cache reset for compatibility layer
 ├── privacy.html
 ├── sitemap.xml
 ├── robots.txt
