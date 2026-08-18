@@ -1,11 +1,10 @@
 {
-  "name":"303 Pattern Playground",
-  "short_name":"303box",
-  "description":"Browser-based acid bassline pattern generator and 16-step sequencer.",
-  "start_url":"/",
-  "scope":"/",
-  "display":"standalone",
-  "background_color":"#070708",
-  "theme_color":"#070708",
-  "lang":"en"
+  "name": "303box — Acid Pattern Generator",
+  "short_name": "303box",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#070708",
+  "theme_color": "#070708",
+  "description": "Browser-based 16-step acid bassline pattern generator."
 }
