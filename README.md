@@ -6,7 +6,7 @@
   <a href="https://303box.com"><img alt="OPEN 303BOX" src="https://img.shields.io/badge/OPEN_303BOX-LIVE-ddff37?style=for-the-badge&labelColor=1f2126"></a>
   <img alt="Pattern sketchpad" src="https://img.shields.io/badge/PATTERN-SKETCHPAD-f4f4ef?style=for-the-badge&labelColor=1f2126">
   <img alt="Web MIDI" src="https://img.shields.io/badge/WEB_MIDI-HARDWARE-ddff37?style=for-the-badge&labelColor=1f2126">
-  <img alt="Runtime" src="https://img.shields.io/badge/RUNTIME-2201-ddff37?style=for-the-badge&labelColor=1f2126">
+  <img alt="Runtime" src="https://img.shields.io/badge/RUNTIME-2202-ddff37?style=for-the-badge&labelColor=1f2126">
 </p>
 
 <h1 align="center">303box</h1>
@@ -33,7 +33,7 @@ Browser synth controls:
 
 `TUNE` · `CUTOFF` · `RESONANCE` · `ENV MOD` · `DECAY` · `ACCENT` · `DELAY` · `FEEDBACK` · `REVERB` · `DISTORTION`
 
-The final control bank is a 5 + 5 desktop layout. `FEEDBACK` independently controls the delay regeneration path, while `DISTORTION` stays at the end of the signal-shaping control order. On narrow mobile layouts the controls reflow inside the component rather than increasing the page width.
+The final control bank is a 5 + 5 layout on desktop and on narrow mobile screens. Mobile keeps all ten controls in two compact rows rather than turning the control bank into a long 2-column stack. `FEEDBACK` independently controls the delay regeneration path, while `DISTORTION` stays at the end of the signal-shaping control order.
 
 Rhythm voices:
 
@@ -46,13 +46,13 @@ Rhythm voices:
 | CH | 606 closed hi-hat | `CH` |
 | OH | 606 open hi-hat | `OH` |
 
-## Runtime 2201
+## Runtime 2202
 
 The workstation stays behind a small animated `303BOX / INITIALIZING` surface until the final UI is ready, instead of visibly rewriting text, knobs, scope and layout after first paint.
 
-Runtime 2201 keeps the narrow-screen workstation authority from Runtime 2200 and removes the remaining MIDI header collision. A legacy `.midi-compact-head{height:22px}` rule from the studio layer was clipping the two-row mobile header, causing Hardware Guide to sit underneath the Enable MIDI / Playback row. The final layout now explicitly resets that header to natural height and JavaScript no longer injects the obsolete 2110 MIDI grid after CSS has loaded.
+Runtime 2201 removed the remaining MIDI header collision by cancelling the old fixed 22 px MIDI header and eliminating the obsolete JavaScript-injected MIDI grid. Runtime 2202 keeps that ownership model and fixes the next mobile regression in the 303 module itself: the old mobile `flex-direction: column` header is explicitly cancelled, the 303 module title returns to the same one-line left-aligned hierarchy as the other workstation modules, waveform + tempo stay as a compact two-cell hardware row, and the ten synth controls remain a true 5 × 2 bank on phones.
 
-The MIDI connection state also removes any stale `#midiGridAuthority2110` style tag if an older cached UI script attempts to recreate it, then reasserts the 2201 layout stylesheet.
+Only the 16-step matrix is intended to scroll horizontally. The surrounding pattern module and hardware strip remain bounded to the viewport.
 
 ### Single ownership rules
 
@@ -65,10 +65,10 @@ The MIDI connection state also removes any stale `#midiGridAuthority2110` style 
 - **Rule-based generation:** `generator-router.20260818-1650.js`
 - **Feedback control:** `fx-feedback.20260819-2120.js`
 - **T-8 PRM export:** `t8-prm-export.20260819-2120.js`
-- **Final workstation ownership:** `ui-system.20260819-2100.js` (`2201`, no MIDI geometry injection)
-- **Final desktop/mobile MIDI + narrow workstation layout:** `midi-layout-fix.20260819-2150.css` (`v=20260820-2201`)
-- **MIDI connection/cache guard:** `midi-connection-state.20260819-1910.js` (`2201`)
-- **Atomic boot:** `sequencer-engine.20260818-1740.js`
+- **Final workstation ownership:** `ui-system.20260819-2100.js` (no MIDI geometry injection)
+- **Final desktop/mobile MIDI + narrow workstation layout:** `midi-layout-fix.20260819-2150.css` (`v=20260820-2202`)
+- **MIDI connection/cache guard:** `midi-connection-state.20260819-1910.js` (`2202`)
+- **Atomic boot:** `sequencer-engine.20260818-1740.js` (`2202`)
 
 ## Transport contract
 
@@ -160,7 +160,7 @@ Confirmed values and mappings:
 
 ### PRM generator — first restore-test build
 
-Runtime 2201 contains a conservative T-8 Rhythm PRM writer. It intentionally exports only information that has been directly confirmed by controlled hardware backups:
+Runtime 2202 contains a conservative T-8 Rhythm PRM writer. It intentionally exports only information that has been directly confirmed by controlled hardware backups:
 
 - the current 16-step six-voice rhythm grid;
 - default active-hit encoding `170AA`;
@@ -201,15 +201,15 @@ The development process includes AI-assisted coding with ChatGPT together with d
 ├── acid-console.20260818-1340.js             # shared audible bass + rhythm engine
 ├── transport-fuse.20260819-1750.js           # single transport authority
 ├── midi-router.20260818-1730.js              # Web MIDI router
-├── midi-connection-state.20260819-1910.js    # 2201 layout/cache guard
+├── midi-connection-state.20260819-1910.js    # 2202 layout/cache guard
 ├── scope-live.20260819-1830.js               # synth + real USB Audio scope/FFT
 ├── generator-router.20260818-1650.js          # rule-based startup/random engine
 ├── fx-feedback.20260819-2120.js              # independent delay feedback control
 ├── t8-prm-export.20260819-2120.js             # decoded T-8 Rhythm PRM generator
 ├── content-stable.20260819-2000.js            # visible-copy authority
 ├── ui-system.20260819-2100.js                 # machine ownership; no runtime MIDI grid injection
-├── midi-layout-fix.20260819-2150.css          # Runtime 2201 responsive final authority
-└── sequencer-engine.20260818-1740.js          # Runtime 2201 boot coordinator
+├── midi-layout-fix.20260819-2150.css          # Runtime 2202 responsive final authority
+└── sequencer-engine.20260818-1740.js          # Runtime 2202 boot coordinator
 ```
 
 ## Philosophy
