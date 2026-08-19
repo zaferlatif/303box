@@ -1,0 +1,137 @@
+/* 303box 1750 — anthracite refresh, compact 303 sheet and creator follow */
+:root{
+  --site-bg:#111214;
+  --site-bg-2:#141519;
+  --site-panel:#17181c;
+  --site-panel-2:#1b1c20;
+}
+html,body{background:var(--site-bg)!important}
+body{background-color:var(--site-bg)!important}
+.site-header,.site-footer{background:#101114!important}
+.product-band,.intent-band,.sequencer-section,.reference-section,.content-section{background-color:var(--site-bg)!important}
+.hero{background-color:transparent!important}
+
+/* The 303 sheet is now a sequencer, not a fake memory card. */
+#patternSheet .sheet-meta{display:none!important}
+#patternSheet .sheet-header{border-bottom:6px solid #dcff25!important}
+#patternSheet .sequence-table-wrap{border-top:0!important}
+
+/* Keep waveform + tempo + all synth controls on one deliberate baseline. */
+#patternSheet .hardware-strip{
+  display:grid!important;
+  grid-template-columns:150px 190px minmax(0,1fr)!important;
+  align-items:stretch!important;
+  min-height:230px!important;
+}
+#patternSheet .waveform-module,
+#patternSheet .tempo-module{
+  min-width:0!important;
+  height:100%!important;
+  align-self:stretch!important;
+  justify-content:center!important;
+}
+#patternSheet .tempo-module{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  gap:8px!important;
+  padding:18px 12px 14px!important;
+}
+#patternSheet .tempo-module #tempoKnob{display:flex!important;justify-content:center!important;align-items:center!important;min-height:78px!important}
+#patternSheet .tempo-module .random-patch-button{margin:4px auto 0!important}
+#patternSheet #knobGrid{
+  display:grid!important;
+  grid-template-columns:repeat(9,minmax(84px,1fr))!important;
+  align-items:start!important;
+  gap:0!important;
+  padding:0!important;
+  min-width:0!important;
+}
+#patternSheet #knobGrid .knob{
+  box-sizing:border-box!important;
+  min-width:0!important;
+  width:100%!important;
+  height:100%!important;
+  margin:0!important;
+  padding:18px 6px 12px!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  border-left:1px solid #303137!important;
+}
+#patternSheet #knobGrid .knob:first-child{border-left:0!important}
+#patternSheet #knobGrid .knob-title{
+  min-height:20px!important;
+  margin:0 0 8px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  text-align:center!important;
+  line-height:1.05!important;
+  white-space:nowrap!important;
+}
+#patternSheet #knobGrid .knob-control{margin:0 auto!important;flex:0 0 auto!important}
+#patternSheet #knobGrid .knob-value{margin-top:7px!important;min-height:16px!important}
+
+/* Creator follow: a compact desktop dock, an in-flow mobile card. */
+.creator-follow{
+  position:fixed;
+  right:20px;
+  bottom:20px;
+  z-index:42;
+  width:min(320px,calc(100vw - 40px));
+  padding:14px;
+  border:1px solid #34353b;
+  border-radius:16px;
+  background:rgba(22,23,27,.94);
+  box-shadow:0 18px 55px rgba(0,0,0,.28);
+  backdrop-filter:blur(14px);
+}
+.creator-follow-copy{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:10px}
+.creator-follow-copy strong{display:block;color:#f5f5f6;font:800 .78rem/1.25 Inter,sans-serif}
+.creator-follow-copy span{display:block;margin-top:4px;color:#8c8e96;font:600 .66rem/1.45 Inter,sans-serif}
+.creator-follow-close{border:0;background:transparent;color:#74767e;font:700 1rem/1 monospace;cursor:pointer;padding:1px 3px}
+.creator-follow-links{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.creator-follow-links a{
+  min-height:38px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  border:1px solid #36373d;
+  border-radius:10px;
+  background:#111214;
+  color:#e7e7e9;
+  text-decoration:none;
+  font:750 .69rem/1 JetBrains Mono,monospace;
+  transition:border-color .16s,background .16s,color .16s;
+}
+.creator-follow-links a:hover{border-color:#899d22;background:#171c09;color:#ddff37}
+.creator-follow-links svg{width:15px;height:15px;fill:currentColor;flex:none}
+
+@media(max-width:980px){
+  #patternSheet .hardware-strip{grid-template-columns:150px 180px minmax(810px,1fr)!important}
+  #patternSheet #knobGrid{grid-template-columns:repeat(9,minmax(90px,1fr))!important}
+}
+
+@media(max-width:760px){
+  body{background:#121316!important}
+  #patternSheet .sheet-header{min-height:72px!important}
+  #patternSheet .hardware-strip{grid-template-columns:136px 168px minmax(810px,1fr)!important;min-height:215px!important}
+  #patternSheet #knobGrid .knob{padding:14px 5px 10px!important}
+  #patternSheet #knobGrid .knob-title{font-size:.54rem!important}
+  .creator-follow{
+    position:relative;
+    right:auto;
+    bottom:auto;
+    z-index:1;
+    width:auto;
+    margin:26px 16px 0;
+    padding:14px;
+    border-radius:14px;
+    box-shadow:none;
+    backdrop-filter:none;
+    background:#17181c;
+  }
+}
