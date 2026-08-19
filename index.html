@@ -3,8 +3,22 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <script>try{document.documentElement.lang=localStorage.getItem('303-lang')==='tr'?'tr':'en'}catch(_){}</script>
-  <style id="bootStyle">html{background:#1f2126}html:not(.app-ready) body{visibility:hidden!important}html:not(.app-ready)::before{content:'303BOX / INITIALIZING';position:fixed;inset:0;z-index:2147483647;display:grid;place-items:center;background:#1f2126;color:#ddff37;font:800 11px/1 monospace;letter-spacing:.22em}html.app-ready::before{display:none!important}</style>
+  <script>
+    try{document.documentElement.lang=localStorage.getItem('303-lang')==='tr'?'tr':'en'}catch(_){}
+    document.documentElement.classList.add('js');
+    window.dataLayer=window.dataLayer||[];
+    function gtag(){dataLayer.push(arguments)}
+    gtag('consent','default',{ad_storage:'denied',analytics_storage:'denied',ad_user_data:'denied',ad_personalization:'denied',wait_for_update:500});
+    gtag('set','ads_data_redaction',true);
+  </script>
+  <style id="bootStyle">
+    html{background:#1f2126}
+    html.js:not(.app-ready) body{visibility:hidden!important}
+    html.js:not(.app-ready)::before{content:'303BOX / INITIALIZING…';position:fixed;inset:0;z-index:2147483647;display:grid;place-items:center;background:#1f2126;color:#ddff37;font:800 11px/1 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;letter-spacing:.19em}
+    html.js:not(.app-ready)::after{content:'';position:fixed;left:50%;top:calc(50% + 28px);z-index:2147483647;width:150px;height:2px;border-radius:999px;background:#475019;transform:translateX(-50%);animation:bootLine 1s ease-in-out infinite}
+    @keyframes bootLine{0%,100%{width:34px;opacity:.3}50%{width:150px;opacity:1}}
+    html.app-ready::before,html.app-ready::after{display:none!important}
+  </style>
   <title>303box — 303 Pattern Sketchpad for Hardware</title>
   <meta name="description" content="A browser sketchpad for writing, previewing and transferring 303 and rhythm patterns to hardware. Rule-based random starts, not AI composition and not a replacement for live performance.">
   <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
@@ -12,8 +26,8 @@
   <meta name="color-scheme" content="dark">
   <meta name="google-site-verification" content="uQ3Lw1MyKXpHzSP4Rwj1ijKvB229AUvrjWhwdEW6x1Y">
   <link rel="canonical" href="https://303box.com/">
-  <link rel="manifest" href="./site.webmanifest?v=20260819-2000">
-  <link rel="icon" type="image/svg+xml" href="./favicon.svg?v=20260819-2000">
+  <link rel="manifest" href="./site.webmanifest?v=20260819-2100">
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg?v=20260819-2100">
 
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="303box">
@@ -28,32 +42,30 @@
   <meta name="twitter:description" content="A browser pattern notebook with sound, MIDI and hardware workflow. The musical decisions and performance stay yours.">
   <meta name="twitter:image" content="https://303box.com/og-image.svg">
 
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-0419155924861622" crossorigin="anonymous"></script>
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-P89YNLFKQX"></script>
-  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','G-P89YNLFKQX');</script>
-
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./styles.css?v=20260819-2000">
-  <link rel="stylesheet" href="./studio.20260818-0912.css?v=20260819-2000">
-  <link rel="stylesheet" href="./studio-dark.20260818-0912.css?v=20260819-2000">
-  <link rel="stylesheet" href="./pattern-shell.20260818-1045.css?v=20260819-2000">
-  <link rel="stylesheet" href="./acid-console.20260818-1340.css?v=20260819-2000">
-  <link rel="stylesheet" href="./console-stable.20260818-1700.css?v=20260819-2000">
-  <link rel="stylesheet" href="./ui-fixes.20260819-1920.css?v=20260819-2000">
-  <link rel="stylesheet" href="./hardware-guide.20260819-0815.css?v=20260819-2000">
-  <style>.workspace-toolbar svg,.wave-button svg{width:18px;height:18px}button svg{max-width:100%;max-height:100%}</style>
+  <link rel="stylesheet" href="./styles.css?v=20260819-2100">
+  <link rel="stylesheet" href="./studio.20260818-0912.css?v=20260819-2100">
+  <link rel="stylesheet" href="./studio-dark.20260818-0912.css?v=20260819-2100">
+  <link rel="stylesheet" href="./pattern-shell.20260818-1045.css?v=20260819-2100">
+  <link rel="stylesheet" href="./acid-console.20260818-1340.css?v=20260819-2100">
+  <link rel="stylesheet" href="./console-stable.20260818-1700.css?v=20260819-2100">
+  <link rel="stylesheet" href="./ui-fixes.20260819-1920.css?v=20260819-2100">
+  <link rel="stylesheet" href="./hardware-guide.20260819-0815.css?v=20260819-2100">
+  <link rel="stylesheet" href="./consent.20260819-2100.css?v=20260819-2100">
+  <style>
+    :root{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+    .workspace-toolbar svg,.wave-button svg{width:18px;height:18px}button svg{max-width:100%;max-height:100%}
+  </style>
 
   <script defer src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-  <script defer src="./app.js?v=20260819-2000"></script>
-  <script defer src="./studio.20260818-0912.js?v=20260819-2000"></script>
-  <script defer src="./pattern-shell.20260818-1045.js?v=20260819-2000"></script>
-  <script defer src="./workstation-ui.20260818-1680.js?v=20260819-2000"></script>
-  <script defer src="./midi-mode-migration.20260818-1711.js?v=20260819-2000"></script>
-  <script defer src="./midi-router.20260818-1730.js?v=20260819-2000"></script>
-  <script defer src="./hardware-guide.20260819-0815.js?v=20260819-2000"></script>
-  <script defer src="./sequencer-engine.20260818-1740.js?v=20260819-2000"></script>
+  <script defer src="./consent.20260819-2100.js?v=20260819-2100"></script>
+  <script defer src="./app.js?v=20260819-2100"></script>
+  <script defer src="./studio.20260818-0912.js?v=20260819-2100"></script>
+  <script defer src="./pattern-shell.20260818-1045.js?v=20260819-2100"></script>
+  <script defer src="./workstation-ui.20260818-1680.js?v=20260819-2100"></script>
+  <script defer src="./midi-mode-migration.20260818-1711.js?v=20260819-2100"></script>
+  <script defer src="./midi-router.20260818-1730.js?v=20260819-2100"></script>
+  <script defer src="./hardware-guide.20260819-0815.js?v=20260819-2100"></script>
+  <script defer src="./sequencer-engine.20260818-1740.js?v=20260819-2100"></script>
 
   <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://303box.com/#website","url":"https://303box.com/","name":"303box","description":"Browser-based 303 pattern sketchpad for hardware workflows.","inLanguage":["en","tr"]},{"@type":"WebApplication","@id":"https://303box.com/#app","url":"https://303box.com/","name":"303box","applicationCategory":"MultimediaApplication","applicationSubCategory":"Music pattern editor","operatingSystem":"Any modern browser","browserRequirements":"JavaScript and Web Audio API","isAccessibleForFree":true,"featureList":["16-step 303 pattern editing","Rule-based random starting patterns","Accent and slide","Synchronized six-part rhythm sketching","Live oscilloscope and FFT","Browser MIDI output","Hardware MIDI profiles","Hardware transfer guide","JPG pattern export","Rhythm pattern export"]}]}</script>
 </head>
@@ -103,8 +115,8 @@
                 <label class="midi-field midi-playback"><span id="midiPlaybackLabel">PLAYBACK</span><select id="midiRouterMode"><option value="browser">BROWSER</option><option value="both" selected>BROWSER + MIDI</option><option value="midi">MIDI ONLY</option></select></label>
               </div>
               <div class="midi-router-secondary">
-                <label class="midi-field"><span id="midiBassLabel">BASS CH</span><select id="midiBassCh">${Array.from({length:16},(_,i)=>`<option${i===1?' selected':''}>${i+1}</option>`).join('')}</select></label>
-                <label class="midi-field" id="midiRhythmField"><span id="midiRhythmLabel">RHYTHM CH</span><select id="midiRhythmCh">${Array.from({length:16},(_,i)=>`<option${i===9?' selected':''}>${i+1}</option>`).join('')}</select></label>
+                <label class="midi-field"><span id="midiBassLabel">BASS CH</span><select id="midiBassCh"><option value="1">1</option><option value="2" selected>2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15">15</option><option value="16">16</option></select></label>
+                <label class="midi-field" id="midiRhythmField"><span id="midiRhythmLabel">RHYTHM CH</span><select id="midiRhythmCh"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10" selected>10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15">15</option><option value="16">16</option></select></label>
                 <label class="midi-toggle"><input id="midiRouterClock" type="checkbox"><span><b id="midiClockTitle">SEND CLOCK</b></span></label>
                 <label class="midi-toggle"><input id="midiRouterTransport" type="checkbox"><span><b id="midiTransportTitle">SEND START / STOP</b></span></label>
                 <button id="midiPanic" class="midi-panic" type="button">PANIC</button>
@@ -129,9 +141,15 @@
     <section class="content-section shell" id="workflow"><div class="section-intro"><div><p class="eyebrow">303 workflow</p><h2>How a 303 pattern moves.</h2></div></div></section>
     <section class="reference-section" id="reference"><div class="shell"><h2>303 reference</h2></div></section>
     <section class="content-section shell faq-section" id="faq" aria-labelledby="faqTitle"><div class="section-intro"><div><p class="eyebrow" data-i18n="faqEyebrow">FAQ</p><h2 id="faqTitle" data-i18n="faqTitle">Built to get out of the way.</h2></div><p data-i18n="faqLead">No account, no installation.</p></div><div class="faq-grid"></div></section>
+
+    <section class="site-disclaimer" id="disclaimer" aria-labelledby="disclaimerTitle"><div class="shell disclaimer-inner">
+      <strong id="disclaimerTitle"><span class="lang-en">Operational disclaimer</span><span class="lang-tr">Kullanım sorumluluğu</span></strong>
+      <p class="lang-en">303box is a sketching and preview tool. MIDI, SysEx, backup/restore and other hardware workflows can change device state or overwrite a target pattern. Back up important data, verify the selected device and slot, and test on non-critical patterns first. Browser audio/timing and third-party hardware behavior can vary between systems.</p>
+      <p class="lang-tr">303box bir pattern taslak ve önizleme aracıdır. MIDI, SysEx, yedekleme/geri yükleme ve diğer donanım akışları cihaz durumunu değiştirebilir veya hedef pattern’in üzerine yazabilir. Önemli verileri yedekleyin, seçili cihazı ve slotu doğrulayın, ilk denemeleri önemsiz pattern’lerde yapın. Tarayıcı ses/zamanlama davranışı ve üçüncü taraf donanımlar sistemler arasında farklılık gösterebilir.</p>
+    </div></section>
   </main>
 
-  <footer class="site-footer"><div class="shell footer-inner"><div><strong>303box</strong><p>A Z3Z project. Pattern sketchpad for hardware workflows.</p></div><div class="footer-links"><a href="./privacy.html">Privacy</a><a href="https://instagram.com/zafer.pro" rel="me noopener" target="_blank">Instagram</a><a href="https://youtube.com/@zaferlatif" rel="noopener" target="_blank">YouTube</a></div></div></footer>
+  <footer class="site-footer"><div class="shell footer-inner"><div><strong>303box</strong><p>A Z3Z project. Pattern sketchpad for hardware workflows.</p></div><div class="footer-links"><a href="#disclaimer" data-disclaimer-link="true">Disclaimer</a><a href="./privacy.html">Privacy</a><a href="https://instagram.com/zafer.pro" rel="me noopener" target="_blank">Instagram</a><a href="https://youtube.com/@zaferlatif" rel="noopener" target="_blank">YouTube</a></div></div></footer>
 
   <dialog class="hardware-guide-dialog" id="hardwareGuideDialog" aria-labelledby="hardwareGuideTitle"><div class="hardware-guide-shell">
     <header class="hardware-guide-head"><div><span class="hardware-guide-kicker"><span class="lang-en">HARDWARE TRANSFER / VERIFIED METHODS</span><span class="lang-tr">DONANIM AKTARIMI / DOĞRULANMIŞ YÖNTEMLER</span></span><h2 id="hardwareGuideTitle"><span class="lang-en">How 303box reaches each device</span><span class="lang-tr">303box her cihaza nasıl aktarım yapıyor?</span></h2></div><button class="hardware-guide-close" id="hardwareGuideClose" type="button" aria-label="Close">×</button></header>
