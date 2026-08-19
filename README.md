@@ -167,11 +167,13 @@ This is external synchronization. It does not rewrite the T-8's stored internal 
 
 The current pass uses a lighter **anthracite studio surface** instead of near-black page chrome, while the sequencer itself stays dark enough for the acid-green controls to retain contrast.
 
-The synth knob panel is deliberately compact. Reverb now uses the same knob face, pointer, tick and sizing rules as the other synth controls.
+The synth knob panel is deliberately compact. Reverb uses the same knob face, pointer, tick and sizing rules as the other synth controls.
 
-The MIDI header keeps `MIDI`, `HARDWARE GUIDE` and the detected-device badge separated, Playback is constrained to the panel width, and the T-8 REC label is centered over its REC controls.
+The Acid Console now reserves the oscilloscope's final geometry before the runtime analyzer mounts, so the legacy canvas and live canvas occupy the same fixed box instead of producing a load-time resize jump.
 
-`CLEAR` now clears both the underlying note state and the visible note pickers, together with U/D, A/S and Gate cells, so stale notes cannot remain on screen after the pattern has been cleared.
+The MIDI layout constrains Playback inside the console with a dedicated minimum-width column and safe select padding. The redundant floating `T-8 REC` caption is visually removed; the two self-explanatory REC actions remain side by side.
+
+`CLEAR` clears both the underlying note state and the visible note pickers, together with U/D, A/S and Gate cells, so stale notes cannot remain on screen after the pattern has been cleared.
 
 The Z3Z creator follow card appears on every fresh page load after roughly 5.2 seconds. It slides upward from below the viewport with a short acid-green arrival glow. Closing it dismisses only the current page instance; it is not stored as a permanent/session preference.
 
@@ -217,14 +219,14 @@ Then open `http://localhost:8080`.
 ├── scope-live.20260819-1830.js           # modeled synth + live USB audio scope/FFT
 ├── generator-router.20260818-1650.js     # 1920 acid random engine + fresh startup patterns
 ├── behavior-fixes.20260819-1920.js       # robust Clear + MIDI DOM normalization
-├── ui-fixes.20260819-1920.css            # unified knobs + MIDI alignment
+├── ui-fixes.20260819-1920.css            # 1930 stable scope + MIDI fit + REC layout
 ├── ui-refresh.20260819-1750.css           # anthracite + creator entrance
 ├── ui-refresh.20260819-1750.js            # creator reveal + scope placement + knob normalization
 ├── hardware-guide.20260819-0815.js
 ├── playhead-unified.20260818-1720.css
 ├── positioning.20260818-1740.css
 ├── seo.20260818-1740.js
-├── sequencer-engine.20260818-1740.js      # production runtime / hero lock / cache version 1920
+├── sequencer-engine.20260818-1740.js      # production runtime / hero lock / cache version 1930
 └── README.md
 ```
 
