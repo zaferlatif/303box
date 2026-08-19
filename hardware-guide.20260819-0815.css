@@ -69,7 +69,8 @@
 
 .hardware-guide-dialog .lang-tr{display:none}
 html[lang="tr"] .hardware-guide-dialog .lang-en{display:none}
-html[lang="tr"] .hardware-guide-dialog .lang-tr{display:initial}
+html[lang="tr"] .hardware-guide-dialog p.lang-tr{display:block}
+html[lang="tr"] .hardware-guide-dialog span.lang-tr{display:inline}
 html[lang="tr"] .midi-guide-button .lang-en{display:none}
 html:not([lang="tr"]) .midi-guide-button .lang-tr{display:none}
 
