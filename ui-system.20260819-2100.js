@@ -5,6 +5,110 @@
   const isTR=()=>document.documentElement.lang==='tr';
   let panicBound=false,scopeBound=false,suiteObserver=null,repairing=false;
 
+  function installMidiGridAuthority(){
+    let style=$('#midiGridAuthority2110');
+    if(style)return;
+    style=document.createElement('style');
+    style.id='midiGridAuthority2110';
+    style.textContent=`
+      /* MIDI layout authority 2110: primary + secondary share the same 8-column grid. */
+      .machine-suite #midiRouter{
+        min-width:0!important;width:100%!important;max-width:100%!important;
+        overflow:hidden!important;box-sizing:border-box!important;
+      }
+      .machine-suite #midiRouter,.machine-suite #midiRouter *{box-sizing:border-box!important}
+      .machine-suite #midiRouter .midi-compact-head,
+      .machine-suite #midiRouter .midi-router-primary,
+      .machine-suite #midiRouter .midi-router-secondary{
+        display:grid!important;
+        grid-template-columns:repeat(8,minmax(0,1fr))!important;
+        width:100%!important;max-width:100%!important;min-width:0!important;
+        column-gap:8px!important;
+      }
+      .machine-suite #midiRouter .midi-compact-head{
+        align-items:center!important;row-gap:0!important;margin:0 0 11px!important;
+      }
+      .machine-suite #midiRouter .midi-compact-head>strong{grid-column:1/5!important;min-width:0!important;margin:0!important}
+      .machine-suite #midiHardwareGuide{grid-column:5/8!important;width:100%!important;min-width:0!important;max-width:100%!important}
+      .machine-suite #midiRouter .midi-badge{grid-column:8/9!important;width:100%!important;min-width:0!important;max-width:100%!important}
+
+      .machine-suite #midiRouter .midi-router-primary{
+        align-items:end!important;row-gap:0!important;margin:0!important;
+      }
+      .machine-suite #midiRouter .midi-connect{grid-column:1/3!important;grid-row:1!important}
+      .machine-suite #midiRouter .midi-output{grid-column:3/5!important;grid-row:1!important}
+      .machine-suite #midiRouter .midi-profile{grid-column:5/7!important;grid-row:1!important}
+      .machine-suite #midiRouter .midi-playback{grid-column:7/9!important;grid-row:1!important}
+
+      .machine-suite #midiRouter .midi-router-secondary{
+        align-items:end!important;row-gap:0!important;margin:8px 0 0!important;
+      }
+      .machine-suite #midiRouter .midi-router-secondary>:nth-child(1){grid-column:1/2!important;grid-row:1!important}
+      .machine-suite #midiRouter .midi-router-secondary>:nth-child(2){grid-column:2/3!important;grid-row:1!important}
+      .machine-suite #midiRouter .midi-router-secondary>:nth-child(3){grid-column:3/5!important;grid-row:1!important}
+      .machine-suite #midiRouter .midi-router-secondary>:nth-child(4){grid-column:5/7!important;grid-row:1!important}
+      .machine-suite #midiRouter .midi-router-secondary>:nth-child(5){grid-column:7/9!important;grid-row:1!important}
+
+      .machine-suite #midiRouter .midi-router-primary>*,
+      .machine-suite #midiRouter .midi-router-secondary>*{
+        min-width:0!important;max-width:100%!important;width:100%!important;margin:0!important;
+      }
+      .machine-suite #midiRouter .midi-field{min-width:0!important;max-width:100%!important;width:100%!important}
+      .machine-suite #midiRouter select,
+      .machine-suite #midiRouter .midi-connect,
+      .machine-suite #midiRouter .midi-toggle,
+      .machine-suite #midiRouter .midi-panic{
+        min-width:0!important;max-width:100%!important;width:100%!important;
+        overflow:hidden!important;
+      }
+      .machine-suite #midiRouter select{
+        text-overflow:ellipsis!important;white-space:nowrap!important;
+      }
+      .machine-suite #midiRouter .midi-playback select{
+        font-size:.52rem!important;padding-left:10px!important;padding-right:28px!important;
+      }
+      .machine-suite #midiRouter .midi-panic{
+        justify-self:stretch!important;align-self:end!important;
+      }
+
+      @media(max-width:820px){
+        .machine-suite #midiRouter .midi-compact-head{
+          grid-template-columns:repeat(4,minmax(0,1fr))!important;
+        }
+        .machine-suite #midiRouter .midi-compact-head>strong{grid-column:1/3!important}
+        .machine-suite #midiHardwareGuide{grid-column:3/4!important}
+        .machine-suite #midiRouter .midi-badge{grid-column:4/5!important}
+
+        .machine-suite #midiRouter .midi-router-primary,
+        .machine-suite #midiRouter .midi-router-secondary{
+          grid-template-columns:repeat(2,minmax(0,1fr))!important;
+          column-gap:7px!important;row-gap:7px!important;
+        }
+        .machine-suite #midiRouter .midi-connect{grid-column:1!important;grid-row:1!important}
+        .machine-suite #midiRouter .midi-playback{grid-column:2!important;grid-row:1!important}
+        .machine-suite #midiRouter .midi-output{grid-column:1/-1!important;grid-row:2!important}
+        .machine-suite #midiRouter .midi-profile{grid-column:1/-1!important;grid-row:3!important}
+
+        .machine-suite #midiRouter .midi-router-secondary>:nth-child(1){grid-column:1!important;grid-row:1!important}
+        .machine-suite #midiRouter .midi-router-secondary>:nth-child(2){grid-column:2!important;grid-row:1!important}
+        .machine-suite #midiRouter .midi-router-secondary>:nth-child(3){grid-column:1!important;grid-row:2!important}
+        .machine-suite #midiRouter .midi-router-secondary>:nth-child(4){grid-column:2!important;grid-row:2!important}
+        .machine-suite #midiRouter .midi-router-secondary>:nth-child(5){grid-column:1/-1!important;grid-row:3!important}
+      }
+
+      @media(max-width:430px){
+        .machine-suite #midiRouter .midi-compact-head{
+          grid-template-columns:minmax(0,1fr) auto!important;
+          row-gap:7px!important;
+        }
+        .machine-suite #midiRouter .midi-compact-head>strong{grid-column:1!important;grid-row:1!important}
+        .machine-suite #midiRouter .midi-badge{grid-column:2!important;grid-row:1!important;width:auto!important;min-width:46px!important}
+        .machine-suite #midiHardwareGuide{grid-column:1/-1!important;grid-row:2!important;width:100%!important}
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
   function mountMachineSuite(){
     const workspace=$('.workspace.shell'),acid=$('#acidConsole'),card=$('.pattern-card-wrap'),controls=$('.pattern-control-panel'),drums=$('#drums');
     if(!workspace||!acid||!card||!controls||!drums)return false;
@@ -121,6 +225,7 @@
 
   function normalizeMidi(){
     const router=$('#midiRouter');if(!router)return;
+    installMidiGridAuthority();
     router.classList.add('midi-router-unified');
     const status=$('#midiRouterStatus');if(status){status.setAttribute('aria-live','polite');status.setAttribute('role','status')}
   }
@@ -135,6 +240,7 @@
   function syncLanguage(){normalizeHeads();installFooterDisclaimerLink()}
 
   function apply(){
+    installMidiGridAuthority();
     const ready=mountMachineSuite();
     installSuiteGuard();normalizeHeads();normalizeActions();normalizeMidi();syncScope();bindScope();bindPanic();installFooterDisclaimerLink();
     return ready;
@@ -142,5 +248,5 @@
 
   new MutationObserver(syncLanguage).observe(document.documentElement,{attributes:true,attributeFilter:['lang']});
   document.addEventListener('303box:ready',apply);
-  window.__303boxUiSystem={version:'2100',apply,syncScope};
+  window.__303boxUiSystem={version:'2110',apply,syncScope};
 })();
