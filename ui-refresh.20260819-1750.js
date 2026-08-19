@@ -21,9 +21,10 @@
   }
 
   function mount(){
-    if(card||document.querySelector('.creator-nudge'))return;
+    if(card||document.querySelector('#creatorFollow'))return;
     card=document.createElement('aside');
-    card.className='creator-nudge';
+    card.id='creatorFollow';
+    card.className='creator-nudge creator-follow';
     card.setAttribute('aria-live','polite');
     card.innerHTML=`
       <button class="creator-close" type="button" aria-label="Close">×</button>
@@ -37,9 +38,14 @@
     document.body.appendChild(card);
     card.querySelector('.creator-close').addEventListener('click',()=>{card.classList.remove('is-visible');setTimeout(()=>card?.remove(),260);card=null});
     render();
+    try{window.__303boxSocialTracking?.decorate?.()}catch(_){}
   }
 
   function reveal(){
+    if(document.documentElement.classList.contains('consent-pending')){
+      timer=setTimeout(reveal,1200);
+      return;
+    }
     mount();
     if(!card)return;
     if(document.hidden){
@@ -60,5 +66,5 @@
   document.addEventListener('303box:ready',start,{once:true});
   if(document.documentElement.classList.contains('app-ready'))start();
 
-  window.__303boxUiRefresh={version:'2000',apply:()=>{},mountCreator:mount};
+  window.__303boxUiRefresh={version:'2100',apply:()=>{},mountCreator:mount};
 })();
