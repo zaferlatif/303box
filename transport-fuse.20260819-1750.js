@@ -47,7 +47,9 @@
       if(ctx?.__303boxLegacyMuted && dest===ctx.destination){
         let sink=silentSinks.get(ctx);
         if(!sink){
-          sink=ctx.createGain(); sink.gain.value=0; silentSinks.set(ctx,sink);
+          sink=ctx.createGain();
+          sink.gain.value=0;
+          silentSinks.set(ctx,sink);
           try{nativeConnect.call(sink,dest)}catch(_){}
         }
         return nativeConnect.call(this,sink,...args);
@@ -59,14 +61,17 @@
   function closeSet(set){
     set.forEach(ctx=>{
       if(!ctx || ctx.state==='closed'){set.delete(ctx);return}
-      try{const p=ctx.close();p?.catch?.(()=>{try{ctx.suspend()}catch(_){}})}catch(_){try{ctx.suspend()}catch(__){}}
+      try{
+        const p=ctx.close();
+        p?.catch?.(()=>{try{ctx.suspend()}catch(_){}});
+      }catch(_){try{ctx.suspend()}catch(__){}}
     });
   }
   function closeLegacy(){closeSet(legacyContexts)}
   function closeUnified(){closeSet(unifiedContexts)}
   const engine=()=>window.__303boxUnifiedEngine;
 
-  function unlockSoon(){setTimeout(()=>{actionLocked=false},110)}
+  function unlockSoon(){setTimeout(()=>{actionLocked=false},90)}
   function run(action){
     if(actionLocked) return;
     actionLocked=true;
@@ -74,17 +79,19 @@
     const e=engine();
     if(!e){unlockSoon();return}
 
-    if(action==='bass') e.toggleBass?.();
-    else if(action==='drums') e.toggleDrums?.();
-    else if(action==='all'){
-      const both=e.state==='playing'&&e.bassOn&&e.drumsOn;
-      if(both) e.stopAll?.();
-      else if(e.state==='playing'){
-        if(!e.bassOn) e.toggleBass?.();
-        if(!e.drumsOn) e.toggleDrums?.();
-      }else e.toggleAll?.();
+    if(action==='bass'){
+      e.toggleBass?.();
+    }else if(action==='drums'){
+      e.toggleDrums?.();
+    }else if(action==='all'){
+      // Shared transport has one simple rule:
+      // if anything is sounding, stop everything; otherwise start both parts.
+      const any = e.state==='playing' && (e.bassOn || e.drumsOn);
+      if(any) e.stopAll?.();
+      else e.toggleAll?.();
+    }else if(action==='panic'){
+      e.stopAll?.();
     }
-    else if(action==='panic') e.stopAll?.();
     unlockSoon();
   }
 
@@ -95,20 +102,20 @@
 
   function neutralizeLegacySync(){
     const sync=document.querySelector('#drumSync');
-    if(sync){sync.checked=false;sync.disabled=true;sync.closest('label,.drum-switch')?.setAttribute('hidden','')}
+    if(sync){
+      sync.checked=false;
+      sync.disabled=true;
+      sync.closest('label,.drum-switch')?.setAttribute('hidden','');
+    }
   }
 
+  // Own all visible transport buttons in capture phase.
   window.addEventListener('click',event=>{
     const target=event.target;
     if(!target?.closest) return;
     let action='';
     if(target.closest('#acidPlayAll')) action='all';
-    else if(target.closest('#playButton')) {
-      // pattern-shell owns the earliest Space capture and calls playButton.click().
-      // Synthetic playButton clicks are therefore the Space shortcut and must
-      // mean ALL, while a real pointer click still means bass only.
-      action=event.isTrusted?'bass':'all';
-    }
+    else if(target.closest('#playButton')) action=event.isTrusted?'bass':'all';
     else if(target.closest('#drumPlay')) action='drums';
     if(!action) return;
     event.preventDefault();
@@ -116,9 +123,21 @@
     run(action);
   },true);
 
+  // Space always controls the shared transport. Shift+Space remains rhythm-only.
+  // The synthetic playButton click special-case above also catches older shortcut code
+  // that was registered before this module.
   window.addEventListener('keydown',event=>{
     if(event.code!=='Space'||typing()||event.ctrlKey||event.metaKey||event.altKey||event.repeat) return;
-    event.preventDefault();event.stopImmediatePropagation();run('all');
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    run(event.shiftKey?'drums':'all');
+  },true);
+
+  // Ctrl/Cmd+R must remain a browser refresh and must not reach old random handlers.
+  window.addEventListener('keydown',event=>{
+    if((event.key||'').toLowerCase()!=='r') return;
+    if(!(event.ctrlKey||event.metaKey||event.altKey)) return;
+    event.stopImmediatePropagation();
   },true);
 
   window.addEventListener('click',event=>{
@@ -127,8 +146,7 @@
 
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',neutralizeLegacySync,{once:true});
   else neutralizeLegacySync();
-  window.addEventListener('load',neutralizeLegacySync,{once:true});
   window.addEventListener('pagehide',()=>{closeLegacy();closeUnified()});
 
-  window.__303boxTransportFuse={version:'1950',run,closeLegacy,closeUnified};
+  window.__303boxTransportFuse={version:'2000',run,closeLegacy,closeUnified};
 })();
