@@ -1,0 +1,107 @@
+/* 303box 1940 — compact pattern actions + rhythm handoff */
+
+/* Make the 303 action strip a physical continuation of the pattern card. */
+.workspace.shell.acid-workstation .pattern-card-wrap{
+  margin-bottom:0!important;
+  padding-bottom:0!important;
+}
+.workspace.shell.acid-workstation #patternSheet{
+  border-radius:17px 17px 0 0!important;
+  border-bottom:0!important;
+}
+.workspace.shell.acid-workstation>.pattern-control-panel{
+  width:100%!important;
+  max-width:1080px!important;
+  margin:0 auto!important;
+  border:1px solid #303139!important;
+  border-top:1px solid #303139!important;
+  border-radius:0 0 17px 17px!important;
+  background:#141519!important;
+  overflow:hidden!important;
+  box-shadow:none!important;
+}
+.workspace.shell.acid-workstation>.pattern-control-panel .pattern-actions{
+  margin:0!important;
+  padding:8px 9px!important;
+  border:0!important;
+  background:#141519!important;
+}
+.workspace.shell.acid-workstation>.pattern-control-panel .pattern-actions .toolbar-group,
+.workspace.shell.acid-workstation>.pattern-control-panel .pattern-actions .pattern-action-grid{
+  display:grid!important;
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  grid-auto-rows:40px!important;
+  gap:7px!important;
+}
+.workspace.shell.acid-workstation>.pattern-control-panel .pattern-actions .tool-button,
+.workspace.shell.acid-workstation>.pattern-control-panel #generateButton,
+.workspace.shell.acid-workstation>.pattern-control-panel #playButton,
+.workspace.shell.acid-workstation>.pattern-control-panel #downloadButton,
+.workspace.shell.acid-workstation>.pattern-control-panel #clearButton{
+  min-height:40px!important;
+  height:40px!important;
+  padding:0 10px!important;
+  border-radius:8px!important;
+  font-size:.56rem!important;
+}
+
+/* No orphan HR / separator between the 303 actions and the rhythm machine. */
+.workspace.shell.acid-workstation>hr,
+.workspace.shell.acid-workstation>.workspace-divider,
+.workspace.shell.acid-workstation>.pattern-control-panel+hr{
+  display:none!important;
+}
+.workspace.shell.acid-workstation>.drum-machine.integrated-rhythm{
+  margin:8px 0 0!important;
+  padding:0!important;
+  border-top:0!important;
+}
+.workspace.shell.acid-workstation>.drum-machine.integrated-rhythm::before,
+.workspace.shell.acid-workstation>.drum-machine.integrated-rhythm::after{
+  content:none!important;
+  display:none!important;
+}
+.drum-machine.integrated-rhythm .integrated-rhythm-label{
+  min-height:40px!important;
+  margin:0!important;
+  padding:9px 14px!important;
+  border-radius:14px 14px 0 0!important;
+}
+.drum-machine.integrated-rhythm .drum-toolbar{
+  margin:0!important;
+  padding:8px 9px!important;
+}
+.drum-machine.integrated-rhythm .drum-actions{
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  gap:7px!important;
+}
+.drum-machine.integrated-rhythm .drum-actions button{
+  min-height:40px!important;
+  height:40px!important;
+  padding:0 10px!important;
+  border-radius:8px!important;
+}
+
+@media(max-width:760px){
+  .workspace.shell.acid-workstation #patternSheet{border-radius:15px 15px 0 0!important}
+  .workspace.shell.acid-workstation>.pattern-control-panel{border-radius:0 0 15px 15px!important}
+  .workspace.shell.acid-workstation>.pattern-control-panel .pattern-actions{padding:7px!important}
+  .workspace.shell.acid-workstation>.pattern-control-panel .pattern-actions .toolbar-group,
+  .workspace.shell.acid-workstation>.pattern-control-panel .pattern-actions .pattern-action-grid,
+  .drum-machine.integrated-rhythm .drum-actions{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    grid-auto-rows:42px!important;
+    gap:7px!important;
+  }
+  .workspace.shell.acid-workstation>.pattern-control-panel .pattern-actions .tool-button,
+  .workspace.shell.acid-workstation>.pattern-control-panel #generateButton,
+  .workspace.shell.acid-workstation>.pattern-control-panel #playButton,
+  .workspace.shell.acid-workstation>.pattern-control-panel #downloadButton,
+  .workspace.shell.acid-workstation>.pattern-control-panel #clearButton,
+  .drum-machine.integrated-rhythm .drum-actions button{
+    height:42px!important;
+    min-height:42px!important;
+  }
+  .workspace.shell.acid-workstation>.drum-machine.integrated-rhythm{margin-top:7px!important}
+  .drum-machine.integrated-rhythm .integrated-rhythm-label{min-height:38px!important;padding:8px 11px!important}
+}
