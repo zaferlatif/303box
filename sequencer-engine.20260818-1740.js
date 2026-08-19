@@ -45,6 +45,7 @@
   load('./cache-reset.20260818-1740.js')
     .then(()=>load('./seo.20260818-1740.js'))
     .then(()=>load('./transport-fuse.20260819-1750.js'))
+    .then(()=>load('./shortcut-sync.20260819-1950.js'))
     .then(()=>load('./audio-mode-gate.20260818-1530.js'))
     .then(()=>load('./stable-audio-timer.20260818-1600.js'))
     .then(()=>load('./master-reverb.20260818-1510.js'))
