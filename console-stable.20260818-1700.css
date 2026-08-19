@@ -1,242 +1,201 @@
-/* 303box 1930 — fixed Acid Console / Scope / MIDI layout */
+/* 303box 2000 — first-paint contract + stable workstation geometry */
+:root{
+  --site-bg:#1f2126;
+  --site-bg-2:#24272d;
+  --machine:#181a1e;
+  --machine-2:#1d1f24;
+  --machine-3:#23262c;
+  --line:#41444d;
+  --line-soft:#343740;
+  --acid:#ddff37;
+}
+
+/* Never show the intermediate legacy DOM. The runtime reveals the page only
+   after all controls, copy, scope and layout modules have reached final state. */
+html:not(.app-ready){background:var(--site-bg)!important}
+html:not(.app-ready) body{visibility:hidden!important}
+html:not(.app-ready)::before{
+  content:'303BOX / INITIALIZING';
+  position:fixed;inset:0;z-index:2147483647;
+  display:grid;place-items:center;
+  background:var(--site-bg);
+  color:var(--acid);
+  font:800 11px/1 JetBrains Mono,monospace;
+  letter-spacing:.22em;
+}
+html.app-ready::before{display:none!important}
+html.app-ready body{visibility:visible!important}
+
 html[lang="tr"] .lang-en{display:none!important}
 html:not([lang="tr"]) .lang-tr{display:none!important}
 html[lang="tr"] .lang-tr{display:inline}
+html,body{background:var(--site-bg)!important}
+.site-header,.site-footer{background:rgba(28,30,35,.98)!important}
+.product-band,.sequencer-section,.reference-section,.content-section{background:var(--site-bg)!important}
+.intent-band{background:var(--site-bg-2)!important}
 
-.acid-console.static-console{margin:0 0 14px!important}
+/* ACID CONSOLE */
+.acid-console.static-console{margin:0 0 14px!important;border-color:var(--line)!important;background:var(--machine)!important}
 .acid-console.static-console .acid-console-grid{
   display:grid!important;
   grid-template-columns:148px repeat(5,minmax(0,1fr))!important;
   gap:1px!important;
-  background:#29292e!important;
+  background:#2b2e34!important;
 }
 .acid-console.static-console .acid-console-play-cell,
-.acid-console.static-console .acid-console-cell{min-width:0!important}
+.acid-console.static-console .acid-console-cell{min-width:0!important;box-sizing:border-box!important}
 
 .acid-console.static-console .acid-console-scope-cell{
   grid-column:1 / span 2!important;
   min-width:0!important;
-  padding:11px 13px!important;
-  background:linear-gradient(180deg,#0d0e0c,#090a09)!important;
+  min-height:184px!important;
+  padding:12px 14px!important;
+  background:linear-gradient(180deg,#151914,#111410)!important;
   justify-content:stretch!important;
+  align-self:stretch!important;
 }
-
 #acidConsole #midiRouter{
   grid-column:3 / -1!important;
   min-width:0!important;
-  padding:11px 18px 11px 13px!important;
-  background:#0d0d10!important;
+  padding:12px 18px 12px 14px!important;
+  background:#111216!important;
   overflow:hidden!important;
   box-sizing:border-box!important;
 }
 
-.scope-panel{min-width:0!important;width:100%!important;box-sizing:border-box!important}
+/* Scope has one geometry before and after the live analyzer replaces its canvas. */
+.scope-panel{min-width:0!important;width:100%!important;box-sizing:border-box!important;margin:0!important;padding:0!important;background:transparent!important;border:0!important}
 .scope-panel .mini-analyzer-head{
-  display:grid!important;
-  grid-template-columns:1fr auto auto!important;
-  align-items:center!important;
-  gap:8px!important;
-  min-height:20px!important;
-  margin-bottom:6px!important;
+  display:grid!important;grid-template-columns:1fr auto auto!important;align-items:center!important;
+  gap:8px!important;min-height:20px!important;margin:0 0 7px!important;
 }
-.scope-panel .mini-analyzer-head>span{color:#d9ff2f!important;font:800 .62rem/1 JetBrains Mono,monospace!important;letter-spacing:.13em!important}
-.scope-panel .mini-analyzer-head strong,.scope-panel .mini-analyzer-head b{color:#9b9ba4!important;font:800 .54rem/1 JetBrains Mono,monospace!important}
-.scope-panel #bassOnlyScope,
-.scope-panel #bassLiveScope{
-  display:block!important;
-  width:100%!important;
-  height:112px!important;
-  min-height:112px!important;
-  max-height:112px!important;
-  box-sizing:border-box!important;
-  border:1px solid #2b2f24!important;
-  border-radius:9px!important;
-  background:#050705!important;
-  box-shadow:inset 0 0 22px rgba(0,0,0,.75)!important;
+.scope-panel .mini-analyzer-head>span{color:var(--acid)!important;font:800 .62rem/1 JetBrains Mono,monospace!important;letter-spacing:.13em!important}
+.scope-panel .mini-analyzer-head strong,.scope-panel .mini-analyzer-head b{color:#a0a3ac!important;font:800 .54rem/1 JetBrains Mono,monospace!important}
+.scope-panel #bassOnlyScope,.scope-panel #bassLiveScope{
+  display:block!important;width:100%!important;height:112px!important;min-height:112px!important;max-height:112px!important;
+  box-sizing:border-box!important;border:1px solid #4b5b2a!important;border-radius:10px!important;background:#060906!important;
+  box-shadow:inset 0 0 28px rgba(0,0,0,.6),0 0 18px rgba(217,255,47,.035)!important;
 }
-.scope-panel .mini-tabs{display:flex!important;gap:6px!important;margin-top:6px!important}
-.scope-panel .analyzer-tab{
-  min-height:26px!important;
-  padding:0 10px!important;
-  border:1px solid #303036!important;
-  border-radius:7px!important;
-  background:#141418!important;
-  color:#777780!important;
-  font:800 .5rem/1 JetBrains Mono,monospace!important;
+.scope-panel .mini-tabs{display:flex!important;gap:6px!important;margin:7px 0 0!important;align-items:center!important;flex-wrap:wrap!important}
+.scope-panel .analyzer-tab,.scope-source-button{
+  min-height:28px!important;padding:0 10px!important;border:1px solid #41444c!important;border-radius:7px!important;
+  background:#1d1f24!important;color:#92959e!important;font:800 .49rem/1 JetBrains Mono,monospace!important;
 }
-.scope-panel .analyzer-tab.active{border-color:#65751a!important;background:#151b08!important;color:#d9ff2f!important}
+.scope-panel .analyzer-tab.active,.scope-source-button.active{border-color:#839622!important;background:#1b220c!important;color:var(--acid)!important}
+.scope-source-controls{display:flex!important;gap:6px!important;align-items:center!important;flex-wrap:wrap!important;min-width:0!important;margin-top:7px!important}
+.scope-source-buttons{display:flex!important;gap:6px!important;flex:0 0 auto!important}
+#scopeAudioInput{flex:1 1 180px!important;min-width:0!important;height:28px!important;border:1px solid #41444c!important;border-radius:7px!important;background:#1d1f24!important;color:#e3e4e7!important;font:700 .47rem/1 JetBrains Mono,monospace!important}
+#scopeSourceState{color:var(--acid)!important;font:800 .45rem/1 JetBrains Mono,monospace!important;white-space:nowrap!important}
+#scopeInputStatus{flex:1 0 100%!important;min-height:12px!important;color:#8f929b!important;font:600 .44rem/1.25 Inter,sans-serif!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
 
+/* MIDI: deterministic grid, no overflowing Playback column. */
 #midiRouter .midi-compact-head{
-  display:grid!important;
-  grid-template-columns:minmax(0,1fr) auto auto!important;
-  align-items:center!important;
-  gap:14px!important;
-  min-height:20px!important;
-  margin-bottom:12px!important;
+  display:grid!important;grid-template-columns:minmax(0,1fr) auto auto!important;align-items:center!important;
+  gap:12px!important;min-height:28px!important;margin:0 0 12px!important;min-width:0!important;
 }
-#midiRouter .midi-compact-head strong{font:850 .62rem/1 JetBrains Mono,monospace!important;letter-spacing:.13em!important;color:#f1f1f3!important}
-#midiRouter .midi-badge{
-  display:inline-flex!important;
-  align-items:center!important;
-  justify-content:center!important;
-  height:24px!important;
-  min-width:48px!important;
-  padding:0 9px!important;
-  border:1px solid #3a3a42!important;
-  border-radius:7px!important;
-  color:#85858e!important;
-  font:800 .48rem/1 JetBrains Mono,monospace!important;
-  letter-spacing:.08em!important;
+#midiRouter .midi-compact-head strong{font:850 .62rem/1 JetBrains Mono,monospace!important;letter-spacing:.13em!important;color:#f1f1f3!important;margin:0!important}
+#midiRouter .midi-badge,#midiHardwareGuide{
+  position:static!important;transform:none!important;margin:0!important;box-sizing:border-box!important;
+  min-height:28px!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;
+  border:1px solid #3f424a!important;border-radius:7px!important;background:#17191d!important;
+  color:#8f929b!important;font:800 .48rem/1 JetBrains Mono,monospace!important;letter-spacing:.06em!important;
 }
-#midiRouter .midi-badge.ready{border-color:#65751a!important;color:#d9ff2f!important;background:#111507!important}
+#midiHardwareGuide{padding:0 13px!important;color:var(--acid)!important;border-color:#637019!important;background:#151a0b!important;white-space:nowrap!important}
+#midiRouter .midi-badge{min-width:48px!important;padding:0 9px!important}
+#midiRouter .midi-badge.ready{border-color:#637019!important;color:var(--acid)!important;background:#151a0b!important}
 
 #midiRouter .midi-router-primary,
-#midiRouter .midi-router-secondary{
-  display:grid!important;
-  gap:8px!important;
-  align-items:end!important;
-  min-width:0!important;
-  width:100%!important;
-  box-sizing:border-box!important;
-}
-#midiRouter .midi-router-primary{grid-template-columns:150px minmax(0,1.32fr) minmax(170px,.82fr) minmax(210px,.96fr)!important;gap:10px!important}
-#midiRouter .midi-router-secondary{grid-template-columns:110px 110px minmax(160px,1fr) minmax(180px,1.12fr) 100px!important;margin-top:8px!important}
-
+#midiRouter .midi-router-secondary{display:grid!important;gap:9px!important;align-items:end!important;min-width:0!important;width:100%!important;box-sizing:border-box!important}
+#midiRouter .midi-router-primary{grid-template-columns:150px minmax(190px,1.25fr) minmax(155px,.8fr) minmax(190px,.9fr)!important}
+#midiRouter .midi-router-secondary{grid-template-columns:110px 110px minmax(155px,1fr) minmax(175px,1.05fr) 100px!important;margin-top:9px!important}
 #midiRouter .midi-field{display:grid!important;gap:5px!important;min-width:0!important;width:100%!important;max-width:100%!important;box-sizing:border-box!important}
-#midiRouter .midi-field>span{color:#777780!important;font:800 .47rem/1 JetBrains Mono,monospace!important;letter-spacing:.09em!important;text-transform:uppercase!important}
-#midiRouter .midi-field.disabled{opacity:.4!important}
-
-#midiRouter select,
-#midiRouter .midi-connect,
-#midiRouter .midi-panic,
-#midiRouter .midi-rec-button{
-  box-sizing:border-box!important;
-  width:100%!important;
-  max-width:100%!important;
-  height:38px!important;
-  min-height:38px!important;
-  border:1px solid #34343b!important;
-  border-radius:8px!important;
-  background:#17171b!important;
-  color:#e7e7e9!important;
+#midiRouter .midi-field>span{color:#838690!important;font:800 .47rem/1 JetBrains Mono,monospace!important;letter-spacing:.09em!important;text-transform:uppercase!important}
+#midiRouter select,#midiRouter .midi-connect,#midiRouter .midi-panic,#midiRouter .midi-rec-button{
+  width:100%!important;max-width:100%!important;min-width:0!important;height:38px!important;min-height:38px!important;
+  box-sizing:border-box!important;border:1px solid #3b3e46!important;border-radius:8px!important;background:#1b1d22!important;color:#e7e7e9!important;
   font:750 .58rem/1 Inter,sans-serif!important;
-  min-width:0!important;
 }
-#midiRouter select{padding:0 30px 0 11px!important;text-overflow:ellipsis!important;white-space:nowrap!important;overflow:hidden!important}
-#midiRouter .midi-playback select{font-size:.55rem!important}
-#midiRouter .midi-connect{font-family:JetBrains Mono,monospace!important;font-weight:850!important;letter-spacing:.02em!important}
-
+#midiRouter select{display:block!important;padding:0 34px 0 11px!important;text-overflow:ellipsis!important;white-space:nowrap!important;overflow:hidden!important}
+#midiRouter .midi-playback select{font-size:.54rem!important}
+#midiRouter .midi-connect{font-family:JetBrains Mono,monospace!important;font-weight:850!important}
 #midiRouter .midi-toggle{
-  box-sizing:border-box!important;
-  height:38px!important;
-  display:flex!important;
-  align-items:center!important;
-  gap:9px!important;
-  padding:0 10px!important;
-  border:1px solid #34343b!important;
-  border-radius:8px!important;
-  background:#151518!important;
-  min-width:0!important;
-  cursor:pointer!important;
-  overflow:hidden!important;
+  box-sizing:border-box!important;height:38px!important;display:flex!important;align-items:center!important;gap:9px!important;
+  padding:0 10px!important;border:1px solid #3b3e46!important;border-radius:8px!important;background:#181a1f!important;min-width:0!important;overflow:hidden!important;
 }
-#midiRouter .midi-toggle input{
-  appearance:none!important;
-  -webkit-appearance:none!important;
-  width:18px!important;
-  height:18px!important;
-  flex:0 0 18px!important;
-  margin:0!important;
-  border:1px solid #66666e!important;
-  border-radius:4px!important;
-  background:#26262a!important;
-  display:grid!important;
-  place-items:center!important;
-}
-#midiRouter .midi-toggle input:checked{background:#d9ff2f!important;border-color:#d9ff2f!important}
+#midiRouter .midi-toggle input{appearance:none!important;-webkit-appearance:none!important;width:18px!important;height:18px!important;flex:0 0 18px!important;margin:0!important;border:1px solid #666a74!important;border-radius:4px!important;background:#292c32!important;display:grid!important;place-items:center!important}
+#midiRouter .midi-toggle input:checked{background:var(--acid)!important;border-color:var(--acid)!important}
 #midiRouter .midi-toggle input:checked::after{content:'✓';color:#080808;font:900 12px/1 Inter,sans-serif!important}
-#midiRouter .midi-toggle>span{display:block!important;min-width:0!important}
 #midiRouter .midi-toggle b{display:block!important;color:#e7e7e9!important;font:800 .45rem/1 JetBrains Mono,monospace!important;white-space:nowrap!important}
-
-#midiRouter .midi-panic{border-color:#6c2d29!important;background:#211011!important;color:#ff6d67!important;font:900 .54rem/1 JetBrains Mono,monospace!important;letter-spacing:.06em!important}
-
-#midiRouter .midi-rec-assist{
-  display:grid!important;
-  grid-template-columns:1fr 1fr!important;
-  gap:10px!important;
-  align-items:center!important;
-  margin-top:12px!important;
-}
+#midiRouter .midi-panic{border-color:#72332f!important;background:#261415!important;color:#ff746e!important;font:900 .54rem/1 JetBrains Mono,monospace!important;letter-spacing:.06em!important}
+#midiRouter .midi-rec-assist{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;gap:9px!important;align-items:center!important;margin-top:11px!important;width:100%!important}
+#midiRouter .midi-rec-assist[hidden]{display:none!important}
 #midiRouter .midi-rec-title{display:none!important}
-#midiRouter .midi-rec-button{
-  height:34px!important;
-  min-height:34px!important;
-  border-color:#4d5919!important;
-  background:#121708!important;
-  color:#d9ff2f!important;
-  font:850 .48rem/1 JetBrains Mono,monospace!important;
-}
+#midiRouter .midi-rec-button{height:34px!important;min-height:34px!important;border-color:#4d5919!important;background:#121708!important;color:var(--acid)!important;font:850 .48rem/1 JetBrains Mono,monospace!important}
 #midiRouter .midi-rec-button:disabled{opacity:.28!important;cursor:not-allowed!important}
+#midiRouter .midi-capability,#midiRouter .midi-rec-hint{display:none!important}
+#midiRouter .midi-router-status{position:absolute!important;width:1px!important;height:1px!important;overflow:hidden!important;clip:rect(0 0 0 0)!important;clip-path:inset(50%)!important;white-space:nowrap!important}
 
-#midiRouter .midi-capability,
-#midiRouter .midi-rec-hint{display:none!important}
-#midiRouter .midi-router-status{
-  position:absolute!important;
-  width:1px!important;
-  height:1px!important;
-  overflow:hidden!important;
-  clip:rect(0 0 0 0)!important;
-  clip-path:inset(50%)!important;
-  white-space:nowrap!important;
+/* Pattern hardware strip already occupies its final size before late control modules run. */
+#patternSheet{background:var(--machine)!important}
+#patternSheet .sheet-meta{display:none!important}
+#patternSheet .hardware-strip{
+  display:grid!important;grid-template-columns:148px 178px minmax(580px,1fr)!important;align-items:stretch!important;
+  min-height:258px!important;background:var(--machine-2)!important;border-color:var(--line)!important;
 }
-
-.sheet-io{display:none!important}
+#patternSheet .waveform-module,#patternSheet .tempo-module{min-width:0!important;height:100%!important;align-self:stretch!important}
+#patternSheet .tempo-module{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:6px!important;padding:13px 10px!important}
+#patternSheet #knobGrid{
+  display:grid!important;grid-template-columns:repeat(5,minmax(112px,1fr))!important;grid-template-rows:repeat(2,129px)!important;
+  grid-auto-flow:row!important;align-items:stretch!important;gap:0!important;padding:0!important;min-width:580px!important;min-height:258px!important;background:#1b1d22!important;
+}
+#patternSheet #knobGrid .knob{box-sizing:border-box!important;min-width:0!important;width:100%!important;min-height:129px!important;height:129px!important;margin:0!important;padding:10px 5px 7px!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:flex-start!important;border-left:1px solid var(--line)!important;border-bottom:1px solid #373a42!important;background:#1b1d22!important}
+#patternSheet #knobGrid .knob-control{width:66px!important;height:66px!important;min-width:66px!important;min-height:66px!important;margin:0 auto!important;padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important;flex:0 0 66px!important}
+#patternSheet #knobGrid .knob-control svg{width:66px!important;height:66px!important;display:block!important;overflow:visible!important}
+#patternSheet #knobGrid .knob-title,#patternSheet #knobGrid .knob-value{width:100%!important;text-align:center!important}
+#patternSheet #knobGrid .knob-title{min-height:15px!important;margin:0 0 3px!important;font-size:.52rem!important;line-height:1!important;white-space:nowrap!important}
+#patternSheet #knobGrid .knob-value{margin-top:3px!important;min-height:12px!important;font-size:.49rem!important}
+#hardwareScopeSlot,.hardware-scope-slot,.sheet-io{display:none!important}
 
 @media(max-width:1180px){
   .acid-console.static-console .acid-console-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}
   .acid-console.static-console .acid-console-play-cell{grid-column:1!important}
-  .acid-console.static-console .acid-console-scope-cell{grid-column:1!important}
+  .acid-console.static-console .acid-console-scope-cell{grid-column:1!important;min-height:172px!important}
   #acidConsole #midiRouter{grid-column:2 / -1!important}
   .scope-panel #bassOnlyScope,.scope-panel #bassLiveScope{height:104px!important;min-height:104px!important;max-height:104px!important}
-  #midiRouter .midi-router-primary{grid-template-columns:130px minmax(0,1.25fr) minmax(160px,.9fr)!important}
+  #midiRouter .midi-router-primary{grid-template-columns:130px minmax(0,1fr) minmax(150px,.85fr)!important}
   #midiRouter .midi-playback{grid-column:2/4!important}
   #midiRouter .midi-router-secondary{grid-template-columns:repeat(2,minmax(0,1fr))!important}
   #midiRouter .midi-panic{grid-column:span 2!important}
 }
-
-@media(max-width:1040px){
-  #midiRouter .midi-router-primary{grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important}
-  #midiRouter .midi-connect{grid-column:1!important}
-  #midiRouter .midi-playback{grid-column:2!important}
-  #midiRouter .midi-output,#midiRouter .midi-profile{grid-column:1/-1!important}
+@media(max-width:980px){
+  #patternSheet .hardware-strip{grid-template-columns:138px 164px minmax(560px,1fr)!important}
+  #patternSheet #knobGrid{min-width:560px!important}
 }
-
 @media(max-width:760px){
   .pattern-actions,.drum-machine.integrated-rhythm .drum-actions{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}
   .pattern-actions>*,.drum-machine.integrated-rhythm .drum-actions>*{grid-column:auto!important;grid-row:auto!important;width:100%!important;min-width:0!important;min-height:42px!important;margin:0!important}
-
   .acid-console.static-console .acid-console-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
-  .acid-console.static-console .acid-console-play-cell{grid-column:1/-1!important}
-  .acid-console.static-console .acid-console-scope-cell{grid-column:1/-1!important;padding:10px!important}
-  #acidConsole #midiRouter{grid-column:1/-1!important;padding:10px!important}
-
-  #midiRouter .midi-router-primary,
-  #midiRouter .midi-router-secondary{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important}
+  .acid-console.static-console .acid-console-play-cell,.acid-console.static-console .acid-console-scope-cell,#acidConsole #midiRouter{grid-column:1/-1!important}
+  .acid-console.static-console .acid-console-scope-cell,#acidConsole #midiRouter{padding:10px!important}
+  #midiRouter .midi-router-primary,#midiRouter .midi-router-secondary{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important}
   #midiRouter .midi-output,#midiRouter .midi-profile{grid-column:1/-1!important}
   #midiRouter .midi-connect{grid-column:1!important}
   #midiRouter .midi-playback{grid-column:2!important}
-  #midiRouter select,#midiRouter .midi-connect,#midiRouter .midi-toggle,#midiRouter .midi-panic{height:40px!important;min-height:40px!important}
   #midiRouter .midi-panic{grid-column:1/-1!important}
-  #midiRouter .midi-rec-assist{grid-template-columns:1fr 1fr!important}
+  #patternSheet .hardware-strip{grid-template-columns:128px 156px minmax(550px,1fr)!important;min-height:246px!important}
+  #patternSheet #knobGrid{grid-template-columns:repeat(5,minmax(108px,1fr))!important;grid-template-rows:repeat(2,123px)!important;min-width:550px!important;min-height:246px!important}
+  #patternSheet #knobGrid .knob{height:123px!important;min-height:123px!important;padding:8px 4px 6px!important}
+  #patternSheet #knobGrid .knob-control,#patternSheet #knobGrid .knob-control svg{width:62px!important;height:62px!important;min-width:62px!important;min-height:62px!important}
 }
-
 @media(max-width:600px){
   .scope-panel #bassOnlyScope,.scope-panel #bassLiveScope{height:96px!important;min-height:96px!important;max-height:96px!important}
+  #midiRouter .midi-compact-head{grid-template-columns:minmax(0,1fr) auto auto!important;gap:7px!important;margin-bottom:9px!important}
+  #midiHardwareGuide{padding-inline:9px!important;font-size:.45rem!important}
+  #midiRouter .midi-badge{min-width:40px!important;font-size:.44rem!important}
   #midiRouter .midi-playback select{font-size:.5rem!important;padding-left:9px!important;padding-right:25px!important}
+  #midiRouter .midi-rec-assist{gap:7px!important;margin-top:9px!important}
 }
-
 @media(max-width:430px){
-  .acid-console.static-console .acid-console-cell{padding:10px!important}
   #midiRouter .midi-router-primary,#midiRouter .midi-router-secondary{grid-template-columns:1fr!important}
   #midiRouter .midi-output,#midiRouter .midi-profile,#midiRouter .midi-playback,#midiRouter .midi-connect,#midiRouter .midi-panic{grid-column:auto!important}
   #midiRouter .midi-rec-assist{grid-template-columns:1fr 1fr!important}
