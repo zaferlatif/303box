@@ -137,11 +137,16 @@
   function startup(){
     if(startupDone)return;startupDone=true;
     const run=()=>{
-      if(!$$('.note-input').length||!$('#drums')){startupDone=false;setTimeout(startup,180);return}
+      if(!$$('.note-input').length||!$('#drums')){startupDone=false;setTimeout(startup,90);return}
       const bass=generateBass(false);generateDrums(bass.profile);
       try{localStorage.removeItem('303-session')}catch(_){}
+      setTimeout(()=>{
+        const notes=$$('.note-input').map(x=>x.value.trim().toUpperCase());
+        const legacy=notes.slice(0,4).every(n=>n==='G')&&notes.slice(4).every(n=>n==='A#');
+        if(legacy){const fresh=generateBass(false);generateDrums(fresh.profile)}
+      },980);
     };
-    setTimeout(run,1280);
+    setTimeout(run,70);
   }
 
   window.addEventListener('click',e=>{
