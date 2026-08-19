@@ -4,7 +4,7 @@
 
 <p align="center">
   <a href="https://303box.com"><img alt="OPEN 303BOX" src="https://img.shields.io/badge/OPEN_303BOX-LIVE-ddff37?style=for-the-badge&labelColor=080809"></a>
-  <img alt="T-8 and TD-3 focus" src="https://img.shields.io/badge/HARDWARE-T--8_%2F_TD--3-ddff37?style=for-the-badge&labelColor=080809">
+  <img alt="Hardware workflow" src="https://img.shields.io/badge/HARDWARE-T--8_%2F_TD--3-ddff37?style=for-the-badge&labelColor=080809">
   <img alt="Pattern sketchpad" src="https://img.shields.io/badge/PATTERN-SKETCHPAD-f4f4ef?style=for-the-badge&labelColor=080809">
   <img alt="Web MIDI" src="https://img.shields.io/badge/WEB_MIDI-HARDWARE-ddff37?style=for-the-badge&labelColor=080809">
   <img alt="No AI composition" src="https://img.shields.io/badge/AI_COMPOSITION-NO-f4f4ef?style=for-the-badge&labelColor=080809">
@@ -22,43 +22,24 @@
 
 It is closer to a notebook with sound:
 
-- write a 16-step idea on a large, readable screen;
+- write a readable 16-step idea;
 - audition it before committing it to hardware;
 - use rule-based Random as a starting sketch, then edit it by hand;
 - export the pattern as a visual reference;
-- route notes/clock to supported MIDI hardware;
-- where a transfer workflow is verified, move the pattern into the device without pretending the browser replaces the instrument.
+- route notes and clock to supported MIDI hardware;
+- finish the sound, performance and final save on the instrument itself.
 
-The musical decisions remain with the musician. Notes can be changed, random results can be rejected, knobs still need to be performed, and the final recording/performance is not automated by 303box.
+Random generation is **rule-based pattern randomization**, not an AI composition model.
 
-> Random generation is **rule-based pattern randomization**, not an AI composition model.
+## Core workspace
 
-## Why it exists
-
-Programming a hardware sequencer one tiny step at a time can be slow when you are still exploring an idea. 303box makes that drafting stage easier without pretending to replace the instrument.
-
-| WRITE | AUDITION | TRANSFER | PERFORM |
-|---|---|---|---|
-| Readable 16-step grid | Browser Web Audio preview | MIDI notes + clock | Hardware knobs remain yours |
-| Note / rest / tie | Bass + rhythm together | Device profiles | Final sound decisions remain yours |
-| Accent / slide / octave | Scope + FFT | REC / guarded device transfer | Final performance remains yours |
-| Rule-based Random | Shared BPM / Swing | Pattern image export | Live performance remains live |
-
-Playback position uses the same small red transport LED across the 303 and rhythm sequencers; pattern content keeps its authored colors.
-
-## 303 editor
-
-The bass sketchpad supports:
+The 303 sketchpad supports:
 
 `NOTE` · `REST` · `TIE` · `U/D` · `ACCENT` · `SLIDE` · `SAW/SQR` · `BPM`
 
-The browser preview also exposes the familiar performance controls:
+Browser preview controls:
 
 `TUNE` · `CUTOFF` · `RESONANCE` · `ENV MOD` · `DECAY` · `ACCENT` · `DELAY` · `DISTORTION` · `REVERB`
-
-These controls make the sketch easier to evaluate. They do not claim to reproduce or replace the final performance on a physical instrument.
-
-## Rhythm
 
 The six-part rhythm sketchpad shares the same clock:
 
@@ -71,7 +52,7 @@ The six-part rhythm sketchpad shares the same clock:
 | CH | 606-inspired closed hat |
 | OH | 606-inspired open hat |
 
-Every part has an independent level. Random rhythm generation is independent from bass generation.
+Playback position uses the same small red playhead LED across the 303 and rhythm sequencers.
 
 ## MIDI / hardware
 
@@ -81,67 +62,17 @@ Playback modes:
 - `BROWSER + MIDI` — browser + connected hardware
 - `MIDI ONLY` — hardware output only
 
-The MIDI panel includes a **HARDWARE GUIDE / CİHAZ REHBERİ** button. It separates live MIDI, sequencer capture and direct device-memory writes instead of calling all three things “MIDI support.”
-
 ### Hardware transfer matrix
 
-| Device | Live MIDI | Sequencer transfer path | Direct browser memory write | Final save |
-|---|---|---|---|---|
-| **Roland T-8** | Bass + Rhythm, velocity, clock, transport | **REC capture** — Bass hardware-tested; Rhythm beta | **No** — T-8 does not receive SysEx | Physical T-8 WRITE |
-| **Behringer TD-3** | Bass + clock/transport workflow | Live MIDI or direct pattern transfer | **Experimental USB SysEx** — read/backup/write/read-back verification | SysEx write saves target pattern slot |
-| **Behringer TD-3-MO** | Bass + clock/transport; MIDI-controllable filter capability | Same family, but compatibility is probed at runtime | **Only after compatible read probe** — never blind-written | Only if TD-3 pattern protocol is positively detected |
-| Korg volca bass | 303box: notes, velocity, clock; device also documents synthesis CCs | External-MIDI recording is plausible and has community reports, but needs 303box hardware verification | **No** — official MIDI chart marks System Exclusive TX/RX off | Physical device memory workflow; 8 recording patterns |
-| Korg volca nubass | 303box: notes, velocity, clock; device also documents parameter CCs | Realtime REC exists; external MIDI capture still needs 303box hardware verification | **No** — official MIDI chart marks System Exclusive TX/RX off | Physical device memory workflow; 16 patterns |
+| Device | Live MIDI | Sequencer transfer | Direct memory write |
+|---|---|---|---|
+| **Roland T-8** | Bass + rhythm + velocity + clock/transport | Bass REC hardware-tested; Rhythm REC beta | No SysEx memory write |
+| **Behringer TD-3** | Bass + clock/transport | Live MIDI / experimental direct pattern path | Experimental USB SysEx with verification |
+| **Behringer TD-3-MO** | Bass + clock/transport | Compatibility probed at runtime | Only after positive read probe |
+| Korg volca bass | Notes + velocity + clock | Research / hardware verification target | No SysEx |
+| Korg volca nubass | Notes + velocity + clock | Research / hardware verification target | No SysEx |
 
-**303box policy:** live MIDI, REC capture and direct non-volatile memory WRITE are separate capabilities. A memory write is never sent blindly.
-
-Primary hardware focus is currently **Roland T-8 + Behringer TD-3/TD-3-MO**. Korg volca bass and volca nubass remain first-class live-MIDI profiles and capture-workflow research targets.
-
-### Behringer TD-3 direct write — experimental / USB only
-
-A reverse-engineered TD-3 MIDI implementation documents a complete pattern read/write exchange. It is **not manufacturer-published documentation**, so 303box treats it as an experimental hardware workflow rather than an official feature claim.
-
-The documented TD-3 pattern protocol uses USB MIDI SysEx. A pattern is requested from the device first; the returned pattern packet uses command `0x78`, and replaying a pattern-response packet back to the TD-3 stores that pattern.
-
-303box adds several guards around that mechanism:
-
-1. SysEx permission is requested separately from normal live MIDI.
-2. A TD-3-family USB MIDI input and output must both be present.
-3. The device must answer the product-name query as TD-3 / TD-3-MO.
-4. The selected target pattern must successfully return a structurally valid pattern packet before WRITE is enabled.
-5. The original raw target pattern is stored in browser local storage before modification.
-6. The user must explicitly confirm the exact target group / section / pattern.
-7. After WRITE, 303box requests the same target again and compares the pattern payload.
-8. `RESTORE LAST BACKUP` can replay the pre-write raw packet and verify it by read-back.
-
-The UI is inside **HARDWARE GUIDE → TD-3 DIRECT WRITE** and exposes Group I–IV, Section A/B and Pattern 1–8.
-
-For **TD-3-MO**, 303box does not assume that the original TD-3 reverse-engineered protocol is identical. It first performs a non-destructive product + pattern-read compatibility probe. If that probe fails, direct WRITE remains unavailable.
-
-### Hardware references
-
-- Roland T-8: [Realtime rhythm recording](https://static.roland.com/manuals/T-8_manual_v102/eng/28312384.html) · [MIDI implementation](https://static.roland.com/manuals/T-8_manual_v102/ptb/31849756.html)
-- Behringer TD-3: [Official product / sequencer information](https://www.behringer.com/en/products/0718-ABP)
-- Behringer TD-3-MO: [Official product / MIDI-controllable VCF information](https://www.behringer.com/en/products/0718-ACF)
-- TD-3 reverse-engineered SysEx reference: [303patterns.com TD-3 MIDI implementation](https://303patterns.com/td3-midi.html) — unofficial, use at your own risk
-- Korg volca bass: [Official downloads / MIDI documentation](https://www.korg.com/us/support/download/product/0/140/) · [Specifications](https://www.korg.com/us/products/dj/volca_bass/page_2.php)
-- Korg volca nubass: [Official downloads / MIDI documentation](https://www.korg.com/us/support/download/product/0/820/) · [Specifications](https://www.korg.com/us/products/dj/volca_nubass/specifications.php)
-
-### Korg transfer position
-
-Both Korg MIDI implementation charts mark **System Exclusive = No**, so 303box does not offer direct browser memory WRITE for volca bass or volca nubass.
-
-The right research path for these devices is REC capture, not SysEx. volca bass has long-standing user reports of notes entered from an external MIDI keyboard being stored by its sequencer, including velocity differences, but 303box will label that workflow experimental until it is tested directly with the application. volca nubass officially provides realtime recording and MIDI IN, but its documentation does not explicitly promise that an external MIDI stream is captured into the sequencer; that also remains a hardware test item.
-
-### Clock and tempo
-
-When `SEND CLOCK` is enabled, 303box sends continuous 24 PPQN MIDI clock so compatible hardware can follow the current browser BPM even while the web transport is stopped.
-
-This is external synchronization, not necessarily a rewrite of the hardware's stored tempo value. For example, a T-8 can return to its internal tempo when external clock disappears.
-
-### T-8 rhythm velocity
-
-T-8 rhythm notes respond to MIDI velocity. The T-8 profile uses a moderate outgoing velocity curve so live browser-driven drums sit closer to the device sequencer instead of overpowering it.
+303box treats **live MIDI**, **REC capture** and **direct non-volatile memory write** as separate capabilities.
 
 ## Roland T-8 REC helper
 
@@ -152,38 +83,82 @@ The MIDI panel exposes:
 - `BASS → REC`
 - `RHYTHM → REC`
 
-Bass REC uses a single 16-step pass because it has tested reliably.
+### Bass REC
 
-Rhythm REC is still being tuned with real hardware. The current flow avoids sending MIDI Stop after hardware REC has been armed, sends clock-only lock-in first, then MIDI Start and two identical rhythm loops so a missed hit can be reinforced on the same step.
+Bass note transfer is the reliable reference workflow.
 
-Recommended test flow:
+Important limitation: the T-8 MIDI implementation accepts bass notes and velocity, but it does **not** expose sequencer Accent or Slide flags through CC or SysEx. Therefore a bass line played live from 303box can sound more expressive than the same notes after they have been recorded into the T-8 sequencer.
 
-1. Connect the T-8 and enable MIDI.
-2. Use AUTO or select `Roland T-8`.
-3. Stop the web transport.
-4. Select a disposable/empty 16-step pattern on the T-8.
-5. Arm REC on the T-8.
-6. Press `BASS → REC` or `RHYTHM → REC`.
-7. Inspect the captured steps.
-8. Use WRITE on the physical device only after confirming the result.
+303box live MIDI intentionally performs expression:
+
+- `A` raises MIDI velocity;
+- `S` / legato conditions extend note overlap so the synth responds with a stronger glide.
+
+After `BASS → REC`, 303box reports the **ACCENT** and **SLIDE** step numbers that still need to be enabled on the T-8 itself before the physical WRITE operation.
+
+This is a hardware-protocol limitation, not an attempt to fake a complete transfer.
+
+### Rhythm REC
+
+Rhythm capture is still beta and is being tuned against physical T-8 hardware.
+
+The current fallback deliberately mirrors the live MIDI path that already triggers the T-8 reliably:
+
+1. Stop 303box playback first.
+2. Select a disposable/empty 16-step pattern on the T-8.
+3. Arm REC on the T-8.
+4. Press `RHYTHM → REC` in 303box.
+5. 303box sends MIDI Start just before step 1.
+6. The same rhythm note/velocity path used by live playback is sent for two identical 16-step loops.
+7. Inspect the T-8 pattern before using physical WRITE.
+
+The older long clock-only pre-roll was removed because real hardware testing regressed from partial capture to no capture.
+
+### T-8 rhythm velocity
+
+The T-8 rhythm engine responds to incoming MIDI velocity. 303box uses a moderate T-8-specific velocity curve so live browser-driven drums sit closer to the device sequencer instead of overpowering it.
+
+### Clock and tempo
+
+When `SEND CLOCK` is enabled, 303box sends 24 PPQN MIDI clock so compatible hardware can follow the current browser BPM.
+
+This is external synchronization. It does not rewrite the T-8's stored internal tempo value. If external clock disappears, the device may return to its own internal tempo.
+
+## Why live MIDI can sound different from a recorded T-8 pattern
+
+This distinction is important:
+
+**Live MIDI performance data is not the same thing as T-8 sequencer step metadata.**
+
+303box can send expressive note timing and velocity in real time. The T-8 can respond musically to that immediately. But its stored bass pattern has dedicated Accent and Slide flags that are edited from the T-8 sequencer interface and are not exposed as incoming MIDI CC/SysEx parameters.
+
+So:
+
+`303box live MIDI` → can sound strongly accented / legato
+
+`notes captured into T-8` → pitches are present, but Accent / Slide may still need manual step finishing
+
+That is why 303box remains a **hardware sketchpad and transfer helper**, not a claim that every internal sequencer parameter can be cloned over MIDI.
+
+## Hardware references
+
+- Roland T-8: [Bass sequencer](https://static.roland.com/manuals/T-8_manual_v102/eng/28312362.html) · [Rhythm sequencer](https://static.roland.com/manuals/T-8_manual_v102/eng/28312384.html) · [MIDI implementation](https://static.roland.com/manuals/T-8_manual_v102/ptb/31849756.html)
+- Behringer TD-3: [Official product information](https://www.behringer.com/en/products/0718-ABP)
+- Behringer TD-3-MO: [Official product information](https://www.behringer.com/en/products/0718-ACF)
+- Korg volca bass: [Official MIDI/downloads](https://www.korg.com/us/support/download/product/0/140/)
+- Korg volca nubass: [Official MIDI/downloads](https://www.korg.com/us/support/download/product/0/820/)
 
 ## MIDI safety
 
 `PANIC` is the emergency stop. It clears queued MIDI where possible, sends All Sound Off / All Notes Off, sends MIDI Stop and stops the 303box transport.
 
-Changing browser tabs does not trigger PANIC. Real page exit still performs MIDI cleanup so the device is not intentionally left running after the page is gone.
-
-The TD-3 experimental direct writer never sends a pattern before it has successfully read the target slot and stored a backup.
-
-## Scope / FFT
-
-The analyzer follows the 303 signal rather than the full drum mix. It is a visual aid for the browser sketch, not a measurement claim about connected analog hardware.
+Changing browser tabs does not intentionally trigger PANIC. Real page exit still performs MIDI cleanup.
 
 ## Development note
 
 The **software development process** has included AI-assisted coding with ChatGPT alongside direct design decisions and physical hardware testing.
 
-That is separate from the musical behavior of the application: **303box does not use an AI composition model to make the user's music.** Pattern Random uses explicit musical/randomization rules, and the user remains responsible for the musical choices and performance.
+That is separate from the musical behavior of the application: **303box does not use an AI composition model to make the user's music.**
 
 ## Run locally
 
@@ -195,33 +170,27 @@ python3 -m http.server 8080
 
 Then open `http://localhost:8080`.
 
-For Web MIDI hardware testing, the live HTTPS deployment is usually the easiest path because Web MIDI requires a secure browser context. SysEx additionally requires explicit browser permission.
-
 ## Current production map
 
 ```text
 303box/
-├── index.html                             # static workstation shell + hardware guide dialog
-├── app.js                                 # core sequencer foundation
-├── acid-console.20260818-1340.js          # unified Web Audio engine
-├── midi-router.20260818-1730.js           # MIDI routing + T-8 REC flow
-├── hardware-guide.20260819-0815.js        # transfer guide + guarded TD-3 direct writer
-├── hardware-guide.20260819-0815.css       # transfer matrix dialog UI
-├── bass-scope.20260818-1680.js            # 303-only Scope / FFT
-├── generator-router.20260818-1650.js      # independent rule-based generators
-├── playhead-unified.20260818-1720.css     # shared red transport LED
-├── positioning.20260818-1740.css          # sketchpad / musician-owned positioning UI
-├── seo.20260818-1740.js                   # matching EN/TR product + SEO copy
-├── sequencer-engine.20260818-1740.js      # production compatibility loader
-├── cache-reset.20260818-1740.js           # compatibility cache epoch
+├── index.html
+├── app.js
+├── acid-console.20260818-1340.js
+├── midi-router.20260818-1730.js          # MIDI routing + T-8 REC / expression guide
+├── hardware-guide.20260819-0815.js       # hardware transfer guide
+├── bass-scope.20260818-1680.js
+├── generator-router.20260818-1650.js
+├── playhead-unified.20260818-1720.css
+├── positioning.20260818-1740.css
+├── seo.20260818-1740.js
+├── sequencer-engine.20260818-1740.js
 └── README.md
 ```
 
 ## Philosophy
 
 **Make the drafting easier. Keep the music human.**
-
-No account. No installer. No fake promise that a browser replaces the musician.
 
 Write the idea, hear it, change it, take it to the machine — then perform it.
 
