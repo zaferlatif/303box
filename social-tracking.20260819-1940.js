@@ -2,14 +2,8 @@
   'use strict';
 
   const SOCIAL = {
-    instagram: {
-      match: /instagram\.com\/zafer\.pro/i,
-      base: 'https://instagram.com/zafer.pro'
-    },
-    youtube: {
-      match: /youtube\.com\/@zaferlatif/i,
-      base: 'https://youtube.com/@zaferlatif'
-    }
+    instagram: { match: /instagram\.com\/zafer\.pro/i, base: 'https://instagram.com/zafer.pro' },
+    youtube: { match: /youtube\.com\/@zaferlatif/i, base: 'https://youtube.com/@zaferlatif' }
   };
 
   function trackedUrl(platform, placement) {
@@ -48,7 +42,7 @@
     const anchor = event.target.closest?.('a[data-social-platform][data-social-placement]');
     if (!anchor) return;
     try {
-      if (typeof window.gtag === 'function') {
+      if (window.__303boxConsent?.analytics === true && typeof window.gtag === 'function') {
         window.gtag('event', 'social_click', {
           social_platform: anchor.dataset.socialPlatform,
           social_placement: anchor.dataset.socialPlacement,
@@ -59,14 +53,11 @@
     } catch (_) {}
   }, true);
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', decorate, { once: true });
-  } else {
-    decorate();
-  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', decorate, { once: true });
+  else decorate();
 
   const observer = new MutationObserver(decorate);
   observer.observe(document.documentElement, { childList: true, subtree: true });
 
-  window.__303boxSocialTracking = { version: '1940', decorate };
+  window.__303boxSocialTracking = { version: '2100', decorate };
 })();
