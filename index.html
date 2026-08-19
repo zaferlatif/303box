@@ -45,6 +45,7 @@
   <link rel="stylesheet" href="./pattern-shell.20260818-1045.css?v=20260818-1740">
   <link rel="stylesheet" href="./acid-console.20260818-1340.css?v=20260818-1740">
   <link rel="stylesheet" href="./console-stable.20260818-1700.css?v=20260818-1740">
+  <link rel="stylesheet" href="./hardware-guide.20260819-0815.css?v=20260819-0815">
   <style>.workspace-toolbar svg,.wave-button svg{width:18px;height:18px}button svg{max-width:100%;max-height:100%}</style>
 
   <script defer src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -55,6 +56,7 @@
   <script defer src="./workstation-ui.20260818-1680.js?v=20260818-1740"></script>
   <script defer src="./midi-mode-migration.20260818-1711.js?v=20260818-1740"></script>
   <script defer src="./midi-router.20260818-1730.js?v=20260818-1740"></script>
+  <script defer src="./hardware-guide.20260819-0815.js?v=20260819-0815"></script>
   <script defer src="./bass-scope.20260818-1680.js?v=20260818-1740"></script>
   <script defer src="./sequencer-engine.20260818-1740.js?v=20260818-1740"></script>
 
@@ -63,7 +65,7 @@
     "@context":"https://schema.org",
     "@graph":[
       {"@type":"WebSite","@id":"https://303box.com/#website","url":"https://303box.com/","name":"303box","description":"Browser-based 303 pattern sketchpad for hardware workflows.","inLanguage":["en","tr"]},
-      {"@type":"WebApplication","@id":"https://303box.com/#app","url":"https://303box.com/","name":"303box","applicationCategory":"MultimediaApplication","applicationSubCategory":"Music pattern editor","operatingSystem":"Any modern browser","browserRequirements":"JavaScript and Web Audio API","isAccessibleForFree":true,"featureList":["16-step 303 pattern editing","Rule-based random starting patterns","Accent and slide","Synchronized six-part rhythm sketching","Live oscilloscope and FFT","Browser MIDI output","Hardware MIDI profiles","T-8 REC assist","JPG pattern export","Rhythm pattern export"]},
+      {"@type":"WebApplication","@id":"https://303box.com/#app","url":"https://303box.com/","name":"303box","applicationCategory":"MultimediaApplication","applicationSubCategory":"Music pattern editor","operatingSystem":"Any modern browser","browserRequirements":"JavaScript and Web Audio API","isAccessibleForFree":true,"featureList":["16-step 303 pattern editing","Rule-based random starting patterns","Accent and slide","Synchronized six-part rhythm sketching","Live oscilloscope and FFT","Browser MIDI output","Hardware MIDI profiles","T-8 REC assist","Hardware transfer guide","JPG pattern export","Rhythm pattern export"]},
       {"@type":"FAQPage","@id":"https://303box.com/#faq","mainEntity":[{"@type":"Question","name":"What is 303box?","acceptedAnswer":{"@type":"Answer","text":"303box is a browser-based 16-step pattern sketchpad for writing, previewing and transferring acid bass and rhythm ideas to hardware."}},{"@type":"Question","name":"Does 303box make music for me?","acceptedAnswer":{"@type":"Answer","text":"No. Random generation is rule-based and only supplies a starting point. Musical choices and performance remain with the user."}},{"@type":"Question","name":"Can 303box send MIDI?","acceptedAnswer":{"@type":"Answer","text":"Yes, in browsers with Web MIDI support and when a MIDI output device is available."}}]}
     ]
   }
@@ -122,11 +124,11 @@
             </div>
 
             <div class="midi-router-v10" id="midiRouter">
-              <div class="midi-compact-head"><strong>MIDI</strong><span class="midi-badge" id="midiRouterBadge">MIDI</span></div>
+              <div class="midi-compact-head"><strong>MIDI</strong><button id="midiHardwareGuide" class="midi-guide-button" type="button"><span class="lang-en">HARDWARE GUIDE</span><span class="lang-tr">CİHAZ REHBERİ</span></button><span class="midi-badge" id="midiRouterBadge">MIDI</span></div>
               <div class="midi-router-primary">
                 <button id="midiRouterConnect" class="midi-connect" type="button"><span id="midiConnectCopy">ENABLE MIDI</span></button>
                 <label class="midi-field midi-output"><span id="midiOutputLabel">OUTPUT</span><select id="midiRouterOut" disabled><option value="">—</option></select></label>
-                <label class="midi-field midi-profile"><span id="midiDeviceLabel">DEVICE</span><select id="midiDeviceProfile"><option value="auto">AUTO</option><option value="generic">Generic MIDI</option><option value="t8">Roland T-8</option><option value="td3">Behringer TD-3</option><option value="td3mo">Behringer TD-3-MO</option><option value="volcabass">Korg volca bass</option><option value="volcanubass">Korg volca nubass</option></select></label>
+                <label class="midi-field midi-profile"><span id="midiDeviceLabel">DEVICE</span><select id="midiDeviceProfile"><option value="auto">AUTO</option><option value="t8">Roland T-8</option><option value="td3">Behringer TD-3</option><option value="td3mo">Behringer TD-3-MO</option><option value="volcabass">Korg volca bass</option><option value="volcanubass">Korg volca nubass</option><option value="generic">Generic MIDI</option></select></label>
                 <label class="midi-field midi-playback"><span id="midiPlaybackLabel">PLAYBACK</span><select id="midiRouterMode"><option value="browser">BROWSER</option><option value="both" selected>BROWSER + MIDI</option><option value="midi">MIDI ONLY</option></select></label>
               </div>
               <div class="midi-router-secondary">
@@ -163,6 +165,94 @@
   </main>
 
   <footer class="site-footer"><div class="shell footer-inner"><div><strong>303box</strong><p>A Z3Z project. Pattern sketchpad for hardware workflows.</p></div><div class="footer-links"><a href="./privacy.html">Privacy</a><a href="https://instagram.com/zafer.pro" rel="me noopener" target="_blank">Instagram</a><a href="https://youtube.com/@zaferlatif" rel="noopener" target="_blank">YouTube</a></div></div></footer>
+
+  <dialog class="hardware-guide-dialog" id="hardwareGuideDialog" aria-labelledby="hardwareGuideTitle">
+    <div class="hardware-guide-shell">
+      <header class="hardware-guide-head">
+        <div>
+          <span class="hardware-guide-kicker"><span class="lang-en">HARDWARE TRANSFER / VERIFIED METHODS</span><span class="lang-tr">DONANIM AKTARIMI / DOĞRULANMIŞ YÖNTEMLER</span></span>
+          <h2 id="hardwareGuideTitle"><span class="lang-en">How 303box reaches each device</span><span class="lang-tr">303box her cihaza nasıl aktarım yapıyor?</span></h2>
+          <p class="lang-en">Live MIDI support and writing a pattern into device memory are different capabilities. This guide separates what is tested, documented, still experimental, or deliberately unavailable.</p>
+          <p class="lang-tr">Canlı MIDI desteği ile pattern’i cihaz hafızasına yazmak farklı yeteneklerdir. Bu rehber test edilmiş, belgelenmiş, deneysel ve bilinçli olarak kapalı yöntemleri birbirinden ayırır.</p>
+        </div>
+        <button class="hardware-guide-close" id="hardwareGuideClose" type="button" aria-label="Close">×</button>
+      </header>
+
+      <div class="hardware-guide-legend">
+        <span class="hardware-status tested"><span class="lang-en">TESTED</span><span class="lang-tr">TEST EDİLDİ</span></span>
+        <span class="hardware-status documented"><span class="lang-en">DOCUMENTED</span><span class="lang-tr">BELGELİ</span></span>
+        <span class="hardware-status beta">BETA</span>
+        <span class="hardware-status test"><span class="lang-en">TEST REQUIRED</span><span class="lang-tr">TEST GEREKLİ</span></span>
+        <span class="hardware-status no"><span class="lang-en">NO DIRECT WRITE</span><span class="lang-tr">DİREKT WRITE YOK</span></span>
+      </div>
+
+      <div class="hardware-guide-grid">
+        <article class="hardware-device-card primary" data-device="t8">
+          <div class="hardware-device-title"><h3>Roland T-8</h3><small>PRIMARY / BASS + RHYTHM</small></div>
+          <p class="hardware-device-summary lang-en">The most deeply tested 303box hardware workflow. The browser performs the pattern over MIDI while the T-8 recorder captures it; final storage is done with WRITE on the T-8.</p>
+          <p class="hardware-device-summary lang-tr">303box ile en çok test edilen donanım akışı. Tarayıcı pattern’i MIDI üzerinden çalar, T-8 REC bunu yakalar; kalıcı kayıt T-8 üzerindeki WRITE ile yapılır.</p>
+          <div class="hardware-capabilities">
+            <div class="hardware-capability"><span>LIVE MIDI</span><strong class="good"><span class="lang-en">YES — notes, velocity, clock, transport</span><span class="lang-tr">EVET — nota, velocity, clock, transport</span></strong></div>
+            <div class="hardware-capability"><span>BASS TRANSFER</span><strong class="good"><span class="lang-en">REC capture — hardware tested</span><span class="lang-tr">REC ile yakalama — donanımda test edildi</span></strong></div>
+            <div class="hardware-capability"><span>RHYTHM TRANSFER</span><strong class="warn"><span class="lang-en">REC capture — BETA / timing test in progress</span><span class="lang-tr">REC ile yakalama — BETA / timing testi sürüyor</span></strong></div>
+            <div class="hardware-capability"><span>DIRECT MEMORY</span><strong class="bad"><span class="lang-en">NO — T-8 does not receive SysEx</span><span class="lang-tr">YOK — T-8 SysEx almıyor</span></strong></div>
+            <div class="hardware-capability"><span>FINAL SAVE</span><strong><span class="lang-en">Physical T-8 WRITE</span><span class="lang-tr">Fiziksel T-8 WRITE</span></strong></div>
+          </div>
+          <p class="hardware-device-note lang-en">Stored tempo and SAW/SQR are not rewritten by 303box MIDI. External clock can keep the T-8 synchronized while connected.</p>
+          <p class="hardware-device-note lang-tr">Kayıtlı tempo ve SAW/SQR seçimi 303box MIDI ile yeniden yazılmaz. Bağlantı sırasında harici clock T-8’i senkron tutabilir.</p>
+          <div class="hardware-source-row"><a href="https://static.roland.com/manuals/T-8_manual_v102/eng/28312384.html" target="_blank" rel="noopener">Roland REC manual</a><a href="https://static.roland.com/manuals/T-8_manual_v102/ptb/31849756.html" target="_blank" rel="noopener">Roland MIDI chart</a></div>
+        </article>
+
+        <article class="hardware-device-card primary" data-device="td3 td3mo">
+          <div class="hardware-device-title"><h3>Behringer TD-3 / TD-3-MO</h3><small>PRIMARY / BASS</small></div>
+          <p class="hardware-device-summary lang-en">303box supports live bass routing to the TD-3 family. The instruments have onboard 16-step sequencers and up to 250 stored patterns, but 303box does not currently perform a direct pattern-memory write.</p>
+          <p class="hardware-device-summary lang-tr">303box TD-3 ailesine canlı bass MIDI yönlendirmesi yapar. Cihazlarda 16-step sequencer ve 250’ye kadar pattern hafızası vardır; ancak 303box şu anda doğrudan pattern hafızasına yazmaz.</p>
+          <div class="hardware-capabilities">
+            <div class="hardware-capability"><span>LIVE MIDI</span><strong class="good"><span class="lang-en">YES — bass routing + clock/transport workflow</span><span class="lang-tr">EVET — bass routing + clock/transport akışı</span></strong></div>
+            <div class="hardware-capability"><span>MEMORY</span><strong><span class="lang-en">Up to 250 onboard patterns</span><span class="lang-tr">250’ye kadar cihaz içi pattern</span></strong></div>
+            <div class="hardware-capability"><span>DIRECT SYSEX</span><strong class="bad"><span class="lang-en">NOT ENABLED — no public official pattern-write SysEx specification found</span><span class="lang-tr">KAPALI — resmi kaynaklarda açık pattern-write SysEx protokolü bulunmadı</span></strong></div>
+            <div class="hardware-capability"><span>TRANSFER TODAY</span><strong class="warn"><span class="lang-en">Live MIDI / manual device sequencing; capture-to-sequencer needs verified hardware testing</span><span class="lang-tr">Canlı MIDI / cihazda manuel sequencer; sequencer’a kayıt yöntemi donanım testi gerektiriyor</span></strong></div>
+            <div class="hardware-capability"><span>TD-3-MO</span><strong><span class="lang-en">Adds MIDI-controllable filter capability</span><span class="lang-tr">MIDI kontrollü filtre yeteneği ekler</span></strong></div>
+          </div>
+          <p class="hardware-device-note warn lang-en">303box will not guess or reverse-engineer a memory-write command and expose it as safe WRITE. Direct write can be added later only with a verified protocol.</p>
+          <p class="hardware-device-note warn lang-tr">303box tahmin edilen veya tersine mühendislikten gelen bir hafıza komutunu güvenli WRITE gibi sunmayacak. Doğrudan yazma ancak doğrulanmış protokolle eklenebilir.</p>
+          <div class="hardware-source-row"><a href="https://www.behringer.com/en/products/0718-ABP" target="_blank" rel="noopener">Behringer TD-3</a><a href="https://www.behringer.com/en/products/0718-ACF" target="_blank" rel="noopener">Behringer TD-3-MO</a></div>
+        </article>
+
+        <article class="hardware-device-card" data-device="volcabass">
+          <div class="hardware-device-title"><h3>Korg volca bass</h3><small>LIVE MIDI / 8 PATTERNS</small></div>
+          <p class="hardware-device-summary lang-en">A strong live-control target: note/velocity, MIDI clock and multiple synthesis CC messages are documented. Its official MIDI chart does not support System Exclusive.</p>
+          <p class="hardware-device-summary lang-tr">Canlı kontrol için güçlü bir hedef: nota/velocity, MIDI clock ve birçok synth CC mesajı belgeli. Resmi MIDI tablosunda System Exclusive desteği yok.</p>
+          <div class="hardware-capabilities">
+            <div class="hardware-capability"><span>LIVE MIDI</span><strong class="good"><span class="lang-en">YES — notes + velocity + clock + synthesis CCs</span><span class="lang-tr">EVET — nota + velocity + clock + synth CC’leri</span></strong></div>
+            <div class="hardware-capability"><span>MEMORY</span><strong><span class="lang-en">8 recording patterns</span><span class="lang-tr">8 kayıt pattern’i</span></strong></div>
+            <div class="hardware-capability"><span>DIRECT SYSEX</span><strong class="bad"><span class="lang-en">NO — official MIDI chart: SysEx transmit/receive off</span><span class="lang-tr">YOK — resmi MIDI tablosunda SysEx TX/RX kapalı</span></strong></div>
+            <div class="hardware-capability"><span>REC FROM MIDI</span><strong class="warn"><span class="lang-en">TEST REQUIRED — official manual documents REC, but not external-MIDI sequence capture</span><span class="lang-tr">TEST GEREKLİ — REC belgeli, fakat harici MIDI’nin sequencer’a kaydı açıkça belgeli değil</span></strong></div>
+            <div class="hardware-capability"><span>FINAL SAVE</span><strong><span class="lang-en">Device memory workflow</span><span class="lang-tr">Cihazın kendi hafıza akışı</span></strong></div>
+          </div>
+          <div class="hardware-source-row"><a href="https://www.korg.com/us/support/download/product/0/140/" target="_blank" rel="noopener">Korg volca bass docs</a><a href="https://www.korg.com/us/products/dj/volca_bass/page_2.php" target="_blank" rel="noopener">Korg specifications</a></div>
+        </article>
+
+        <article class="hardware-device-card" data-device="volcanubass">
+          <div class="hardware-device-title"><h3>Korg volca nubass</h3><small>LIVE MIDI / 16 PATTERNS</small></div>
+          <p class="hardware-device-summary lang-en">The nubass has a 16-step sequencer, 16 pattern memories, realtime recording and MIDI IN with documented parameter CCs. We found no public direct pattern-memory write workflow for browser MIDI.</p>
+          <p class="hardware-device-summary lang-tr">nubass; 16-step sequencer, 16 pattern hafızası, realtime recording ve belgeli parametre CC’lerine sahip MIDI IN sunar. Browser MIDI için açık bir doğrudan pattern-memory write yöntemi bulunmuyor.</p>
+          <div class="hardware-capabilities">
+            <div class="hardware-capability"><span>LIVE MIDI</span><strong class="good"><span class="lang-en">YES — notes + velocity + clock + documented CCs</span><span class="lang-tr">EVET — nota + velocity + clock + belgeli CC’ler</span></strong></div>
+            <div class="hardware-capability"><span>MEMORY</span><strong><span class="lang-en">16 sequence patterns</span><span class="lang-tr">16 sequence pattern’i</span></strong></div>
+            <div class="hardware-capability"><span>DIRECT MEMORY</span><strong class="bad"><span class="lang-en">NO DOCUMENTED BROWSER WRITE WORKFLOW</span><span class="lang-tr">BELGELİ BROWSER WRITE AKIŞI YOK</span></strong></div>
+            <div class="hardware-capability"><span>REC FROM MIDI</span><strong class="warn"><span class="lang-en">TEST REQUIRED — realtime REC is documented, external-MIDI capture is not explicitly documented</span><span class="lang-tr">TEST GEREKLİ — realtime REC belgeli, harici MIDI capture açıkça belgeli değil</span></strong></div>
+            <div class="hardware-capability"><span>FINAL SAVE</span><strong><span class="lang-en">Physical device WRITE / memory operation</span><span class="lang-tr">Fiziksel cihaz WRITE / hafıza işlemi</span></strong></div>
+          </div>
+          <div class="hardware-source-row"><a href="https://www.korg.com/us/support/download/product/0/820/" target="_blank" rel="noopener">Korg nubass docs</a><a href="https://www.korg.com/us/products/dj/volca_nubass/specifications.php" target="_blank" rel="noopener">Korg specifications</a></div>
+        </article>
+      </div>
+
+      <p class="hardware-guide-foot lang-en"><b>303box rule:</b> live MIDI can be enabled from documented messages; device-memory WRITE is enabled only when a safe protocol is documented or verified on real hardware. No undocumented non-volatile memory command is sent.</p>
+      <p class="hardware-guide-foot lang-tr"><b>303box kuralı:</b> canlı MIDI belgelenmiş mesajlarla açılabilir; cihaz hafızasına WRITE ise yalnız güvenli protokol belgeli veya gerçek donanımda doğrulanmışsa açılır. Belgelenmemiş kalıcı hafıza komutu gönderilmez.</p>
+    </div>
+  </dialog>
+
   <dialog class="tempo-dialog" id="tempoDialog"><form method="dialog" class="dialog-card" id="tempoForm"><p class="eyebrow" data-i18n="tempoDialogEyebrow">Tempo</p><h2 data-i18n="tempoDialogTitle">Set BPM</h2><input id="tempoInput" type="number" min="50" max="250" inputmode="numeric" value="140" aria-label="BPM"><div class="dialog-actions"><button value="cancel" class="dialog-secondary" data-i18n="cancel">Cancel</button><button value="default" id="tempoApply" class="dialog-primary" data-i18n="apply">Apply</button></div></form></dialog>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 </body>
