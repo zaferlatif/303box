@@ -5,10 +5,14 @@
   let changing=false;
 
   function ensureLayoutRepair(){
-    const href='./midi-layout-fix.20260819-2150.css?v=20260819-2150';
-    if([...document.querySelectorAll('link[rel="stylesheet"]')].some(x=>(x.getAttribute('href')||'').includes('midi-layout-fix.20260819-2150.css')))return;
+    const href='./midi-layout-fix.20260819-2150.css?v=20260820-2200';
+    const existing=[...document.querySelectorAll('link[rel="stylesheet"]')].find(x=>(x.getAttribute('href')||'').includes('midi-layout-fix.20260819-2150.css'));
+    if(existing){
+      if(!(existing.getAttribute('href')||'').includes('20260820-2200'))existing.href=href;
+      return;
+    }
     const link=document.createElement('link');
-    link.rel='stylesheet';link.href=href;link.dataset.midiLayoutAuthority='2150';
+    link.rel='stylesheet';link.href=href;link.dataset.midiLayoutAuthority='2200';
     document.head.appendChild(link);
   }
 
@@ -57,7 +61,7 @@
     root.addEventListener('change',()=>queueMicrotask(neutralizeDisconnectedHardware));
     root.addEventListener('click',()=>setTimeout(neutralizeDisconnectedHardware,0));
     document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')neutralizeDisconnectedHardware()});
-    window.__303boxMidiConnectionState={version:'2150',refresh:neutralizeDisconnectedHardware};
+    window.__303boxMidiConnectionState={version:'2200',refresh:neutralizeDisconnectedHardware};
   }
 
   ensureLayoutRepair();
