@@ -10,15 +10,15 @@
 
   function ensureLayoutRepair(){
     removeLegacyGrid();
-    const href='./midi-layout-fix.20260819-2150.css?v=20260820-2201';
+    const href='./midi-layout-fix.20260819-2150.css?v=20260820-2202';
     const existing=[...document.querySelectorAll('link[rel="stylesheet"]')].find(x=>(x.getAttribute('href')||'').includes('midi-layout-fix.20260819-2150.css'));
     if(existing){
-      if(!(existing.getAttribute('href')||'').includes('20260820-2201'))existing.href=href;
-      existing.dataset.midiLayoutAuthority='2201';
+      if(!(existing.getAttribute('href')||'').includes('20260820-2202'))existing.href=href;
+      existing.dataset.midiLayoutAuthority='2202';
       return;
     }
     const link=document.createElement('link');
-    link.rel='stylesheet';link.href=href;link.dataset.midiLayoutAuthority='2201';
+    link.rel='stylesheet';link.href=href;link.dataset.midiLayoutAuthority='2202';
     document.head.appendChild(link);
   }
 
@@ -78,7 +78,7 @@
     root.addEventListener('change',()=>queueMicrotask(neutralizeDisconnectedHardware));
     root.addEventListener('click',()=>setTimeout(neutralizeDisconnectedHardware,0));
     document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){ensureLayoutRepair();neutralizeDisconnectedHardware()}});
-    window.__303boxMidiConnectionState={version:'2201',refresh(){ensureLayoutRepair();neutralizeDisconnectedHardware()}};
+    window.__303boxMidiConnectionState={version:'2202',refresh(){ensureLayoutRepair();neutralizeDisconnectedHardware()}};
   }
 
   ensureLayoutRepair();
