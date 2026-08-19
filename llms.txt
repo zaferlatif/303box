@@ -12,8 +12,19 @@ Turkish landing page: https://303box.com/tr/
 - The main purpose is convenience: make 16-step note/rhythm entry easier to read and edit than working only through a small hardware interface.
 - The user decides which notes, rests, accents, slides, rhythms and sound settings remain in the pattern.
 - Browser audio is an audition/preview surface for the sketch.
-- MIDI can help move the sketch to compatible hardware; final sound shaping, performance and hardware WRITE/save remain with the user/device.
+- MIDI can help move the sketch to compatible hardware; final sound shaping and performance remain with the user/device.
 - The software development process has included AI-assisted coding, but the musical pattern engine itself is not an AI composition model.
+
+## Hardware transfer model
+303box treats these as separate capabilities: live MIDI playback, sequencer REC/capture, and direct non-volatile pattern-memory write.
+
+- Roland T-8: live bass + rhythm MIDI; Bass REC capture has been hardware-tested; Rhythm REC capture remains beta; direct SysEx memory write is unavailable because the T-8 MIDI implementation does not receive SysEx. Final T-8 save is performed with physical WRITE.
+- Behringer TD-3: primary bass target. An experimental USB-only direct pattern writer is available using a reverse-engineered TD-3 SysEx pattern protocol. It identifies the USB device, reads the target slot, stores a raw browser backup, writes only after explicit confirmation, then reads the target back and verifies the pattern payload. The protocol is unofficial and not manufacturer-published.
+- Behringer TD-3-MO: primary bass target. Direct pattern write is never assumed; 303box first requires a compatible TD-3-family product response and a successful non-destructive pattern-read probe. If the probe fails, write stays disabled.
+- Korg volca bass: live note/velocity/clock routing. The official MIDI chart marks System Exclusive TX/RX as unsupported, so 303box does not expose direct memory write. External-MIDI sequencer capture is a hardware-test candidate.
+- Korg volca nubass: live note/velocity/clock routing. The official MIDI chart also marks System Exclusive TX/RX as unsupported. Realtime REC exists on the device, but external MIDI capture needs direct 303box hardware verification before a REC helper is enabled.
+
+The MIDI panel contains HARDWARE GUIDE / CİHAZ REHBERİ for the current transfer matrix and TD-3 experimental write controls.
 
 ## Core capabilities
 - Program 16-step 303 patterns with note, octave, accent, slide, trigger, tie and rest states.
@@ -25,7 +36,6 @@ Turkish landing page: https://303box.com/tr/
 - Inspect the browser bass signal with Scope and FFT views.
 - Connect compatible MIDI hardware through Web MIDI and send notes plus optional clock/transport.
 - Use device routing profiles for Roland T-8, Behringer TD-3 / TD-3-MO, Korg volca bass / nubass and Generic MIDI.
-- Use the T-8 REC helper to perform a live MIDI pass after REC is armed on the hardware; final WRITE/save remains on the physical device.
 - Program a synchronized six-part rhythm sketch: bass drum, snare, clap, tom, closed hi-hat and open hi-hat.
 - Generate rule-based acid and rhythm starting patterns that remain fully editable.
 - Export visible 303 and rhythm patterns as image references.
@@ -61,6 +71,7 @@ Turkish landing page: https://303box.com/tr/
 - acid house BPM and workflow
 - Web MIDI 303 hardware workflow
 - T-8 pattern REC workflow
+- TD-3 USB SysEx pattern workflow
 - online 303 pattern notepad
 - 303 pattern yazma aracı
 - donanım için 303 pattern editörü
