@@ -13,21 +13,26 @@
     return frag;
   }
 
+  function validChannel(value,fallback){
+    const n=Number(value);
+    return Number.isInteger(n)&&n>=1&&n<=16?n:fallback;
+  }
+
   function normalizeSelect(el,fallback){
     if(!el||el.dataset.channelsReady==='1')return;
-    const current=Number(el.value);
-    const keep=Number.isInteger(current)&&current>=1&&current<=16?current:fallback;
+    const current=validChannel(el.value,0);
+    const keep=current||validChannel(fallback,1);
     const validOptions=[...el.options].filter(o=>/^\d+$/.test(String(o.value)));
-    if(validOptions.length!==16){
-      el.replaceChildren(channelOptions(keep));
-    }
+    if(validOptions.length!==16)el.replaceChildren(channelOptions(keep));
     el.value=String(keep);
     el.dataset.channelsReady='1';
   }
 
   function apply(){
-    normalizeSelect(document.querySelector('#midiBassCh'),2);
-    normalizeSelect(document.querySelector('#midiRhythmCh'),10);
+    let router=null;
+    try{router=window.__303boxMidiRouter?.state||null}catch(_){}
+    normalizeSelect(document.querySelector('#midiBassCh'),router?.bass||2);
+    normalizeSelect(document.querySelector('#midiRhythmCh'),router?.rhythm||10);
   }
 
   apply();
