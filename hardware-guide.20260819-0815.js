@@ -12,7 +12,10 @@
 
   function markCurrent(){
     const id=selectedDevice();
-    $$('.hardware-device-card').forEach(card=>card.classList.toggle('current',card.dataset.device===id));
+    $$('.hardware-device-card').forEach(card=>{
+      const ids=(card.dataset.device||'').split(/\s+/).filter(Boolean);
+      card.classList.toggle('current',ids.includes(id));
+    });
   }
 
   function openGuide(){
