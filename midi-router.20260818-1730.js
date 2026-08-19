@@ -7,8 +7,8 @@
   const isTR=()=>document.documentElement.lang==='tr';
   const t=(en,tr)=>isTR()?tr:en;
 
-  const STORE='303box-midi-router-v14';
-  const LEGACY=['303box-midi-router-v13','303box-midi-router-v12','303box-midi-router-v11','303box-midi-router-v10','303box-midi-router-v9','303box-midi-router-v8'];
+  const STORE='303box-midi-router-v15';
+  const LEGACY=['303box-midi-router-v14','303box-midi-router-v13','303box-midi-router-v12','303box-midi-router-v11','303box-midi-router-v10','303box-midi-router-v9','303box-midi-router-v8'];
   const NOTE={C:60,'C#':61,D:62,'D#':63,E:64,F:65,'F#':66,G:67,'G#':68,A:69,'A#':70,B:71};
   const DRUM={bd:36,sd:38,cp:50,tm:47,ch:42,oh:46};
 
@@ -250,26 +250,6 @@
     }
   }
 
-  function expressionSteps(){
-    const accent=[],slide=[];
-    $$('#patternSheet .accentSlide-cell').forEach((cell,i)=>{
-      const value=cell.textContent.trim().toUpperCase();
-      if(value.includes('A'))accent.push(i+1);
-      if(value.includes('S'))slide.push(i+1);
-    });
-    return{accent,slide};
-  }
-
-  function bassFinishMessage(){
-    const {accent,slide}=expressionSteps();
-    const a=accent.length?accent.join(', '):'—';
-    const s=slide.length?slide.join(', '):'—';
-    return t(
-      `Bass notes transferred. T-8 MIDI cannot write sequencer Accent/Slide flags. Finish on the device: ACCENT ${a} · SLIDE ${s} · then WRITE.`,
-      `Bass notaları aktarıldı. T-8 MIDI sequencer Accent/Slide bayraklarını yazamıyor. Cihazda tamamla: ACCENT ${a} · SLIDE ${s} · sonra WRITE.`
-    );
-  }
-
   function signature(){const e=engine();return `${e?.state}|${e?.bassOn?'b':'-'}${e?.drumsOn?'d':'-'}|${bpm()}|${Math.round(swing()*100)}|${state.bass}|${state.rhythm}|${state.effective}`}
   function clockWanted(){return sendEnabled()&&state.clock&&profile().clock&&!state.rec}
 
@@ -393,7 +373,7 @@
       render();
       status(kind==='rhythm'
         ? t('Rhythm REC finished. Check the T-8 pattern, then WRITE on the device.','Ritim REC bitti. T-8 patternini kontrol et, sonra cihazda WRITE yap.')
-        : bassFinishMessage());
+        : t('Bass REC finished. Accent/Slide capture remains enabled; check the recorded T-8 pattern, then WRITE on the device.','Bass REC bitti. Accent/Slide aktarımı korunuyor; T-8 patternini kontrol et, sonra cihazda WRITE yap.'));
       pumpClock();
     },Math.max(300,end-performance.now()+180));
   }
@@ -433,7 +413,7 @@
     window.addEventListener('pagehide',()=>emergencyStop({block:true,stopSite:true,renderAfter:false}));
     window.addEventListener('beforeunload',()=>emergencyStop({block:true,stopSite:false,renderAfter:false}));
     document.addEventListener('freeze',()=>emergencyStop({block:true,stopSite:true,renderAfter:false}));
-    window.__303boxMidiRouter={version:'1750',panic:()=>emergencyStop({stopSite:true}),sendRecPass:recPass,get state(){return{...state}}};
+    window.__303boxMidiRouter={version:'1760',panic:()=>emergencyStop({stopSite:true}),sendRecPass:recPass,get state(){return{...state}}};
   }
 
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
