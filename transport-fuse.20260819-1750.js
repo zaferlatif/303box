@@ -81,8 +81,9 @@
         isBass ? e.toggleBass?.() : e.toggleDrums?.();
         return;
       }
-      // Dedicated section buttons are deliberately exclusive. This avoids hidden
-      // cross-part states; use the Acid Console master button to run both.
+      // Dedicated section buttons are deliberately exclusive on start. If the
+      // other part is already running, reset the shared clock and start only
+      // the requested section from step 1.
       if(e.state!=='stopped') e.stopAll?.();
       setTimeout(()=>{
         const fresh=engine();
@@ -94,8 +95,12 @@
     if(action==='bass') startSolo('bass');
     else if(action==='drums') startSolo('drums');
     else if(action==='all'){
-      if(e.state!=='stopped') e.stopAll?.();
-      else e.toggleAll?.();
+      const both=e.state==='playing'&&e.bassOn&&e.drumsOn;
+      if(both) e.stopAll?.();
+      else{
+        if(e.state!=='stopped') e.stopAll?.();
+        setTimeout(()=>engine()?.toggleAll?.(),0);
+      }
     }
     else if(action==='panic') e.stopAll?.();
     unlockSoon();
