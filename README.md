@@ -6,7 +6,7 @@
   <a href="https://303box.com"><img alt="OPEN 303BOX" src="https://img.shields.io/badge/OPEN_303BOX-LIVE-ddff37?style=for-the-badge&labelColor=1f2126"></a>
   <img alt="Pattern sketchpad" src="https://img.shields.io/badge/PATTERN-SKETCHPAD-f4f4ef?style=for-the-badge&labelColor=1f2126">
   <img alt="Web MIDI" src="https://img.shields.io/badge/WEB_MIDI-HARDWARE-ddff37?style=for-the-badge&labelColor=1f2126">
-  <img alt="Runtime" src="https://img.shields.io/badge/RUNTIME-2000-ddff37?style=for-the-badge&labelColor=1f2126">
+  <img alt="Runtime" src="https://img.shields.io/badge/RUNTIME-2120-ddff37?style=for-the-badge&labelColor=1f2126">
 </p>
 
 <h1 align="center">303box</h1>
@@ -31,53 +31,38 @@ Random generation is rule-based rather than model-generated composition.
 
 Browser synth controls:
 
-`TUNE` · `CUTOFF` · `RESONANCE` · `ENV MOD` · `DECAY` · `ACCENT` · `DELAY` · `DISTORTION` · `REVERB`
+`TUNE` · `CUTOFF` · `RESONANCE` · `ENV MOD` · `DECAY` · `ACCENT` · `DELAY` · `FEEDBACK` · `REVERB` · `DISTORTION`
+
+The final control bank is a 5 + 5 layout. `FEEDBACK` independently controls the delay regeneration path, while `DISTORTION` stays at the end of the signal-shaping control order.
 
 Rhythm voices:
 
-| Voice | Character |
-|---|---|
-| BD | 909 bass drum |
-| SD | 606 snare |
-| CP | 808 hand clap |
-| TM | 808 low tom |
-| CH | 606 closed hi-hat |
-| OH | 606 open hi-hat |
+| Voice | Character | T-8 PRM field |
+|---|---|---|
+| BD | 909 bass drum | `BD` |
+| SD | 606 snare | `SD` |
+| CP | 808 hand clap | `HT` |
+| TM | 808 low tom | `LT` |
+| CH | 606 closed hi-hat | `CH` |
+| OH | 606 open hi-hat | `OH` |
 
-## Runtime 2000
+## Runtime 2120
 
-The current production pass removes the old progressive-render behavior where multiple historical modules visibly rewrote the page after load.
-
-### Atomic first paint
-
-The document stays behind a small `303BOX / INITIALIZING` boot surface until the workstation reaches its final state. Before the page becomes visible, the runtime waits for:
-
-- final CSS cascade;
-- the full nine-knob synth panel;
-- the final scope canvas;
-- all 96 rhythm step buttons;
-- MIDI controls;
-- startup randomization;
-- font readiness;
-- legacy `window.load` settling that still exists inside the shared audio engine.
-
-The visible page should therefore appear once in its final geometry instead of showing one page and morphing into another.
+The current production pass keeps the workstation behind a small animated `303BOX / INITIALIZING` surface until the final UI is ready, instead of visibly rewriting text, knobs, scope and layout after first paint.
 
 ### Single ownership rules
 
-The 2000 cleanup establishes clear owners:
-
 - **Visible copy:** `content-stable.20260819-2000.js`
-- **SEO metadata/schema:** `seo.20260818-1740.js` — head only, never visible DOM
+- **SEO metadata/schema:** `seo.20260818-1740.js`
 - **Shared transport:** `transport-fuse.20260819-1750.js`
 - **Bass + rhythm browser audio:** `acid-console.20260818-1340.js`
 - **MIDI routing:** `midi-router.20260818-1730.js`
 - **Scope / USB audio analysis:** `scope-live.20260819-1830.js`
 - **Rule-based generation:** `generator-router.20260818-1650.js`
-- **Final visual cascade:** `ui-fixes.20260819-1920.css`
+- **Feedback control:** `fx-feedback.20260819-2120.js`
+- **T-8 PRM export:** `t8-prm-export.20260819-2120.js`
+- **Final workstation authority:** `ui-system.20260819-2100.js`
 - **Atomic boot:** `sequencer-engine.20260818-1740.js`
-
-Historical modules that used to rewrite layout or content seconds after load were reduced or removed from the production path. In particular, the old delayed Blade/Confusion reference seed, repeated tempo relocation, repeated FX/reverb mounting, saved hi-hat overlay reapplication, visible SEO rewriting and duplicate legacy rhythm/scope engines are no longer part of the visible production flow.
 
 ## Transport contract
 
@@ -92,32 +77,20 @@ There is one shared clock and two independent parts.
 - **Shift + Space** toggles rhythm only.
 - Ctrl/Cmd + R remains the browser refresh shortcut and is never repurposed as Random.
 
-Legacy browser audio contexts remain muted so old preview engines cannot stack on top of the shared engine.
-
 ## Random engine
 
 Each fresh page load starts with a new rule-based acid sketch rather than a fixed reference pattern.
 
-The generator varies:
-
-- note vocabulary and motif shape;
-- rests, ties, accent and slide pressure;
-- octave movement;
-- rhythm density and voice placement;
-- waveform;
-- BPM, typically in an energetic acid range;
-- synth patch controls.
-
-Recent result fingerprints are remembered locally to reduce exact repeats.
+The generator varies note vocabulary, motif shape, rests, ties, accent/slide pressure, octave movement, rhythm density, waveform, BPM and patch controls. Recent result fingerprints are remembered locally to reduce exact repeats. The independent delay feedback control also participates in patch variation.
 
 ## Scope / USB audio
 
 Two analysis sources are available:
 
 - **SYNTH** — modeled browser 303 signal;
-- **T-8 USB** — real PCM captured from the hardware USB Audio input when the browser and operating system expose it.
+- **T-8 USB** — real PCM captured from hardware USB Audio when the browser and operating system expose it.
 
-MIDI itself carries control data, not audio samples. Real hardware waveform/FFT display therefore uses USB Audio.
+MIDI carries control data, not audio samples. Real hardware waveform/FFT display therefore uses USB Audio.
 
 ## MIDI / hardware
 
@@ -127,9 +100,7 @@ Playback modes:
 - `BROWSER + MIDI`
 - `MIDI ONLY`
 
-A disconnected page does not pretend a previously used T-8 is still connected. T-8-specific REC controls are visible only when a real ready T-8 MIDI output is detected.
-
-`PANIC` clears queued MIDI where possible, sends sound/note-off cleanup and stops the site transport.
+A disconnected page does not intentionally present a previously used T-8 as connected. `PANIC` clears queued MIDI where possible, sends note-off cleanup and stops the site transport.
 
 ## Roland T-8 research
 
@@ -137,37 +108,57 @@ A disconnected page does not pretend a previously used T-8 is still connected. T
 
 Physical testing confirmed that bass notes can be captured by the T-8 after REC is armed. Accent and Slide information can also be captured during that workflow.
 
-A stored sequence can sound different from the same line performed live over MIDI because live velocity/legato timing and the T-8 internal sequencer playback are separate behaviors. The T-8 also exposes a bass Accent strength parameter.
-
 ### Rhythm REC
 
-A controlled hardware test armed the T-8 physically with `REC → PLAY`, disabled browser clock/transport output, and sent all sixteen BD steps over normal rhythm MIDI. Result: **0/16 rhythm steps were written.**
+Normal incoming rhythm MIDI triggers T-8 drum sounds but did not behave like front-panel rhythm-entry presses during controlled REC testing. The rhythm-write strategy therefore moved to the documented USB backup/restore file path.
 
-Incoming rhythm MIDI correctly triggers T-8 drum sounds, but the device recorder did not treat those MIDI note messages as front-panel rhythm-entry presses. Timing tweaks are therefore no longer the primary rhythm-write strategy.
+### Decoded Rhythm PRM format
 
-### USB backup / restore path
+Controlled one-change-at-a-time T-8 backups confirmed that Rhythm `.PRM` files are readable text. The current decoded core is:
 
-Roland officially exposes separate `BACKUP/BASS` and `BACKUP/RHYTHM` pattern files in USB backup mode. Initial controlled samples show readable `.PRM` text rather than opaque binary data.
+```text
+LENGTH = 16
+SCALE   = 1
+SHUFFLE = 0
+FLAM    = 36
+STEP n  = AC=..... BD=..... SD=..... LT=..... HT=..... CY=..... CH=..... OH=.....
+```
 
-Current rhythm findings from real T-8 backup files:
+Confirmed values and mappings:
 
-- empty step: first character `0` = voice inactive;
-- default BD on step 1: `BD=170AA`;
-- BD velocity `v10`: `BD=1A0AA`;
-- BD substep `1_2`: `BD=171AA`;
-- rhythm Accent uses the separate `AC` field;
-- Hand Clap maps to the `HT` field in the backup format;
-- inactive fields can retain parameter tails such as `070AA`, so nonzero text does not imply an active hit.
+- empty field: `00000`;
+- normal active hit: `170AA`;
+- BD velocity `v10`: `1A0AA`;
+- BD substep `1_2`: `171AA`;
+- Accent is stored in the separate `AC` field;
+- Bass Drum → `BD`;
+- Snare → `SD`;
+- Tom → `LT`;
+- Hand Clap → `HT`;
+- Closed Hi-Hat → `CH`;
+- Open Hi-Hat → `OH`;
+- inactive fields can retain tails such as `070AA`, so nonzero text does not by itself mean the voice is active.
 
-The intended safe workflow is:
+`R6_TOM` closed the remaining voice-mapping gap by confirming `LT=170AA` for a single default Tom hit on step 1.
 
-1. decode controlled one-change-at-a-time `.PRM` samples;
-2. generate valid T-8 BASS/RHYTHM PRM files in 303box;
-3. offer direct folder writing through the browser File System Access API where supported;
-4. otherwise download the PRM for manual placement in the T-8 RESTORE structure;
-5. keep the final restore/write action on the hardware.
+### PRM generator — first restore-test build
 
-No firmware image is modified.
+Runtime 2120 contains a first conservative T-8 Rhythm PRM writer. It intentionally exports only information that has been directly confirmed by controlled hardware backups:
+
+- the current 16-step six-voice rhythm grid;
+- default active-hit encoding `170AA`;
+- clean `00000` inactive fields;
+- 32 PRM step rows with steps 17–32 inactive;
+- the confirmed `BD / SD / LT / HT / CH / OH` mapping.
+
+The Hardware Guide exposes:
+
+- **DOWNLOAD PRM** — generate a `.PRM` file for manual restore placement;
+- **WRITE / REPLACE PRM** — where the File System Access API is available, explicitly choose the target PRM file/folder and write it from the browser.
+
+The first restore test must use a disposable/copied T-8 Rhythm pattern slot after making a full device backup. The browser never silently writes to hardware storage without an explicit user file/folder selection.
+
+Velocity, substeps, probability and rhythm Accent can be added to the exporter after their editor-side controls are intentionally exposed and tested; the first writer does not invent unverified values.
 
 ## Development
 
@@ -185,22 +176,21 @@ The development process includes AI-assisted coding with ChatGPT together with d
 
 ```text
 303box/
-├── index.html                              # 2000 entrypoint + critical boot curtain
-├── app.js                                 # base 303 grid / legacy browser preview kept muted
-├── studio.20260818-0912.js                # deterministic UI scaffold: notes, rhythm, guide/history/footer
-├── pattern-shell.20260818-1045.js          # stable pattern shell, tune and keyboard UI
-├── workstation-ui.20260818-1680.js         # one-shot knob/action normalization
-├── acid-console.20260818-1340.js           # shared audible bass + rhythm engine
-├── transport-fuse.20260819-1750.js         # single transport authority
-├── midi-router.20260818-1730.js            # Web MIDI router
-├── scope-live.20260819-1830.js             # synth + real USB Audio scope/FFT
-├── generator-router.20260818-1650.js        # rule-based startup/random engine
-├── content-stable.20260819-2000.js          # single visible-copy authority
-├── entry-normalize.20260819-2000.js         # safe initial control normalization
-├── behavior-fixes.20260819-1920.js          # deterministic Clear behavior
-├── console-stable.20260818-1700.css         # first-paint contract + console geometry
-├── ui-fixes.20260819-1920.css               # final cascade authority
-└── sequencer-engine.20260818-1740.js         # atomic 2000 boot coordinator
+├── index.html                               # consent-aware entrypoint + boot curtain
+├── app.js                                  # base 303 grid / legacy preview kept muted
+├── studio.20260818-0912.js                 # deterministic UI scaffold
+├── pattern-shell.20260818-1045.js           # pattern shell / tune / keyboard UI
+├── workstation-ui.20260818-1680.js          # ten-knob + action normalization
+├── acid-console.20260818-1340.js            # shared audible bass + rhythm engine
+├── transport-fuse.20260819-1750.js          # single transport authority
+├── midi-router.20260818-1730.js             # Web MIDI router
+├── scope-live.20260819-1830.js              # synth + real USB Audio scope/FFT
+├── generator-router.20260818-1650.js         # rule-based startup/random engine
+├── fx-feedback.20260819-2120.js             # independent delay feedback control
+├── t8-prm-export.20260819-2120.js           # decoded T-8 Rhythm PRM generator
+├── content-stable.20260819-2000.js           # visible-copy authority
+├── ui-system.20260819-2100.js                # final machine + MIDI layout authority
+└── sequencer-engine.20260818-1740.js         # Runtime 2120 boot coordinator
 ```
 
 ## Philosophy
