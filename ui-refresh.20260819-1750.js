@@ -2,6 +2,7 @@
   'use strict';
   const $=(s,r=document)=>r.querySelector(s);
   const isTR=()=>document.documentElement.lang==='tr';
+  let creatorTimer=0;
 
   const ICONS={
     instagram:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5Zm0 2a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3H7Zm5 3a5 5 0 1 1 0 10 5 5 0 0 1 0-10Zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6Zm5.4-3.2a1.2 1.2 0 1 1 0 2.4 1.2 1.2 0 0 1 0-2.4Z"/></svg>',
@@ -26,8 +27,17 @@
     if(close)close.setAttribute('aria-label',c.close);
   }
 
+  function scheduleCreatorReveal(dock){
+    window.clearTimeout(creatorTimer);
+    creatorTimer=window.setTimeout(()=>{
+      if(!dock?.isConnected)return;
+      dock.classList.add('is-visible');
+    },5200);
+  }
+
   function mountCreator(){
-    if($('#creatorFollow'))return renderCreator();
+    const existing=$('#creatorFollow');
+    if(existing)return renderCreator();
     try{if(sessionStorage.getItem('303box-creator-follow-hidden')==='1')return}catch(_){}
     const dock=document.createElement('aside');
     dock.id='creatorFollow';
@@ -37,10 +47,13 @@
     const footer=$('.site-footer');
     if(footer)footer.before(dock);else document.body.appendChild(dock);
     dock.querySelector('.creator-follow-close')?.addEventListener('click',()=>{
+      window.clearTimeout(creatorTimer);
       try{sessionStorage.setItem('303box-creator-follow-hidden','1')}catch(_){}
-      dock.remove();
+      dock.classList.remove('is-visible');
+      window.setTimeout(()=>dock.remove(),220);
     });
     renderCreator();
+    scheduleCreatorReveal(dock);
   }
 
   function normalizeKnobs(){
@@ -51,9 +64,13 @@
     });
   }
 
-  function apply(){mountCreator();normalizeKnobs()}
+  function apply(){
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content','#181a1e');
+    mountCreator();
+    normalizeKnobs();
+  }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',apply,{once:true});else apply();
-  window.addEventListener('load',()=>setTimeout(apply,80),{once:true});
+  window.addEventListener('load',()=>setTimeout(()=>normalizeKnobs(),80),{once:true});
   new MutationObserver(()=>{renderCreator();normalizeKnobs()}).observe(document.documentElement,{attributes:true,attributeFilter:['lang']});
-  window.__303boxUiRefresh={version:'1750',apply};
+  window.__303boxUiRefresh={version:'1815',apply};
 })();
