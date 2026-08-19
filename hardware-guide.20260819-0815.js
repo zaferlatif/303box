@@ -18,6 +18,24 @@
     });
   }
 
+  function setCopy(selector,en,tr){
+    const root=$(selector);if(!root)return;
+    const a=$('.lang-en',root),b=$('.lang-tr',root);
+    if(a)a.textContent=en;if(b)b.textContent=tr;
+  }
+
+  function refineCapabilityCopy(){
+    setCopy('[data-device="td3 td3mo"] .hardware-capability:nth-child(5) strong',
+      'Device capability: MIDI-controllable filter on TD-3-MO; not mapped by 303box yet',
+      'Cihaz yeteneği: TD-3-MO MIDI kontrollü filtre sunar; 303box henüz bunu eşlemiyor');
+    setCopy('[data-device="volcabass"] .hardware-capability:first-child strong',
+      '303box now: notes + velocity + clock. Device also documents synthesis CCs for future mapping',
+      '303box bugün: nota + velocity + clock. Cihaz ayrıca ileride eşlenebilecek synth CC’leri belgeliyor');
+    setCopy('[data-device="volcanubass"] .hardware-capability:first-child strong',
+      '303box now: notes + velocity + clock. Device also documents parameter CCs for future mapping',
+      '303box bugün: nota + velocity + clock. Cihaz ayrıca ileride eşlenebilecek parametre CC’leri belgeliyor');
+  }
+
   function openGuide(){
     const d=$('#hardwareGuideDialog');
     if(!d)return;
@@ -32,6 +50,7 @@
   }
 
   function init(){
+    refineCapabilityCopy();
     $('#midiHardwareGuide')?.addEventListener('click',openGuide);
     $('#hardwareGuideClose')?.addEventListener('click',closeGuide);
     $('#hardwareGuideDialog')?.addEventListener('click',e=>{if(e.target===e.currentTarget)closeGuide()});
