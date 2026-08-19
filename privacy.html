@@ -3,113 +3,106 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
+  <script>
+    try{document.documentElement.lang=localStorage.getItem('303-lang')==='tr'?'tr':'en'}catch(_){}
+    window.dataLayer=window.dataLayer||[];
+    function gtag(){dataLayer.push(arguments)}
+    gtag('consent','default',{ad_storage:'denied',analytics_storage:'denied',ad_user_data:'denied',ad_personalization:'denied',wait_for_update:500});
+    gtag('set','ads_data_redaction',true);
+  </script>
   <title>Privacy Policy — 303box</title>
-  <meta name="description" content="Privacy policy for 303box, including local browser storage, Google Analytics, Google AdSense, consent management and Web MIDI.">
+  <meta name="description" content="Privacy and cookie policy for 303box, including local browser storage, consent choices, Google Analytics, non-personalized AdSense, Search Console verification and Web MIDI.">
   <meta name="robots" content="index,follow">
-  <meta name="theme-color" content="#070708">
+  <meta name="theme-color" content="#1f2126">
   <meta name="color-scheme" content="dark">
   <meta name="google-site-verification" content="uQ3Lw1MyKXpHzSP4Rwj1ijKvB229AUvrjWhwdEW6x1Y">
   <link rel="canonical" href="https://303box.com/privacy.html">
-  <link rel="icon" type="image/svg+xml" href="./favicon.svg?v=3">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./styles.css?v=20260818-0318">
-  <link rel="stylesheet" href="./studio.20260818-0912.css?v=20260818-1005">
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg?v=20260819-2100">
+  <link rel="stylesheet" href="./styles.css?v=20260819-2100">
+  <link rel="stylesheet" href="./studio.20260818-0912.css?v=20260819-2100">
+  <link rel="stylesheet" href="./consent.20260819-2100.css?v=20260819-2100">
   <style>
+    :root{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+    body{background:#1f2126;color:#eee}
     .privacy-main{width:min(calc(100% - 40px),1080px);margin:0 auto;padding:92px 0 110px}
-    .privacy-hero{max-width:820px;margin-bottom:46px}
-    .privacy-kicker{margin:0 0 14px;color:#ddff37;font:800 .65rem/1 'JetBrains Mono',monospace;letter-spacing:.14em;text-transform:uppercase}
+    .privacy-hero{max-width:840px;margin-bottom:46px}
+    .privacy-kicker{margin:0 0 14px;color:#ddff37;font:800 .65rem/1 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;letter-spacing:.14em;text-transform:uppercase}
     .privacy-main h1{margin:0 0 20px;max-width:900px;font-size:clamp(3rem,7vw,5.8rem);line-height:.94;letter-spacing:-.065em}
-    .privacy-lead{margin:0;max-width:760px;color:#9a9aa1;font-size:1rem;line-height:1.75}
-    .privacy-updated{margin:20px 0 0;color:#696970;font-size:.76rem}
+    .privacy-lead{margin:0;max-width:790px;color:#a2a4ac;font-size:1rem;line-height:1.75}
+    .privacy-updated{margin:20px 0 0;color:#777a82;font-size:.76rem}
     .privacy-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
-    .privacy-card{min-width:0;padding:25px;border:1px solid #29292f;border-radius:15px;background:#111114}
+    .privacy-card{min-width:0;padding:25px;border:1px solid #3b3e46;border-radius:15px;background:#181a1e}
     .privacy-card.wide{grid-column:1/-1}
     .privacy-card h2{margin:0 0 11px;font-size:1rem;letter-spacing:-.015em}
-    .privacy-card p,.privacy-card li{margin:0;color:#8f8f97;font-size:.82rem;line-height:1.72}
+    .privacy-card p,.privacy-card li{margin:0;color:#9a9da5;font-size:.82rem;line-height:1.72}
     .privacy-card ul{margin:0;padding-left:19px}.privacy-card li+li{margin-top:7px}
     .privacy-card a{color:#ddff37}
+    .privacy-callout{border-color:#67751c;background:#1a1f11}
+    .privacy-callout strong{color:#ddff37}
     [data-privacy-lang]{display:none}[data-privacy-lang].active{display:block}
-    .privacy-lang-note{margin:0 0 18px;color:#707078;font-size:.74rem}
-    .privacy-lang-note button{padding:0;border:0;background:transparent;color:#ddff37;cursor:pointer;font-weight:800}
+    .privacy-lang-note{margin:0 0 18px;color:#777a82;font-size:.74rem}.privacy-lang-note button{padding:0;border:0;background:transparent;color:#ddff37;cursor:pointer;font-weight:800}
     .site-footer .footer-inner{width:min(calc(100% - 40px),1080px)!important;max-width:1080px!important}
-    @media(max-width:760px){
-      .privacy-main{width:calc(100% - 28px);padding:64px 0 80px}
-      .privacy-grid{grid-template-columns:1fr}.privacy-card.wide{grid-column:auto}.privacy-card{padding:20px}
-      .site-footer .footer-inner{width:calc(100% - 28px)!important}
-    }
+    @media(max-width:760px){.privacy-main{width:calc(100% - 28px);padding:64px 0 80px}.privacy-grid{grid-template-columns:1fr}.privacy-card.wide{grid-column:auto}.privacy-card{padding:20px}.site-footer .footer-inner{width:calc(100% - 28px)!important}}
   </style>
+  <script defer src="./consent.20260819-2100.js?v=20260819-2100"></script>
 </head>
-<body>
-  <header class="site-header">
-    <div class="shell header-inner">
-      <a class="brand" href="./" aria-label="303box home"><span class="brand-glyph" aria-hidden="true">303</span><span class="brand-copy"><strong>303box</strong><small>Acid pattern laboratory</small></span></a>
-      <nav class="nav" aria-label="Primary navigation"><a href="./#sequencer">303</a><a href="./#drums">Rhythm</a><a href="./#guide">Guide</a><a href="./#history">History</a><a href="./#faq">FAQ</a></nav>
-      <div class="header-actions"><button class="language-switch" id="privacyLanguageButton" type="button" aria-label="Change language"><span id="privacyLanguageCurrent">EN</span><span class="language-separator">/</span><span id="privacyLanguageNext">TR</span></button><a class="mini-cta" href="./#sequencer">Open sequencer</a></div>
-    </div>
-  </header>
+<body data-consent-no-ads="true">
+  <header class="site-header"><div class="shell header-inner">
+    <a class="brand" href="./" aria-label="303box home"><span class="brand-glyph" aria-hidden="true">303</span><span class="brand-copy"><strong>303box</strong><small>Pattern sketchpad</small></span></a>
+    <nav class="nav" aria-label="Primary navigation"><a href="./#sequencer">303</a><a href="./#drums">Rhythm</a><a href="./#guide">Guide</a><a href="./#history">History</a><a href="./#faq">FAQ</a></nav>
+    <div class="header-actions"><button class="language-switch" id="privacyLanguageButton" type="button" aria-label="Change language"><span id="privacyLanguageCurrent">EN</span><span class="language-separator">/</span><span id="privacyLanguageNext">TR</span></button><a class="mini-cta" href="./#sequencer">Open sequencer</a></div>
+  </div></header>
 
   <main class="privacy-main">
     <article data-privacy-lang="en">
-      <div class="privacy-hero">
-        <p class="privacy-kicker">303BOX / PRIVACY</p>
-        <h1>Privacy Policy</h1>
-        <p class="privacy-lead">303box is a browser-based music tool. This policy explains what stays in your browser, when Google services may process data and how optional browser permissions such as MIDI are used.</p>
-        <p class="privacy-updated">Last updated: 18 August 2026</p>
-      </div>
+      <div class="privacy-hero"><p class="privacy-kicker">303BOX / PRIVACY & COOKIES</p><h1>Privacy & Cookie Policy</h1><p class="privacy-lead">303box is a browser-based music tool. This page describes essential local browser data, optional analytics and advertising storage, connected-hardware permissions and how you can change your choices.</p><p class="privacy-updated">Last updated: 19 August 2026</p></div>
       <p class="privacy-lang-note">Türkçe okumak için <button type="button" data-switch-lang="tr">buraya tıklayın.</button></p>
       <div class="privacy-grid">
-        <section class="privacy-card"><h2>1. Local browser storage</h2><p>303box stores pattern data, rhythm settings, interface preferences, language and similar session information in local storage so your setup can survive a refresh. Drum channel level sliders reset to their default level when a new session starts; the main mixer preference may remain local to your browser.</p></section>
-        <section class="privacy-card"><h2>2. Google Analytics</h2><p>303box uses Google Analytics to understand aggregate site usage and technical performance. Depending on your location and consent choices, Google may process browser/device information, approximate location derived from IP, page views and interaction events.</p></section>
-        <section class="privacy-card"><h2>3. Google AdSense</h2><p>303box uses Google AdSense. Google and its advertising partners may use cookies, local storage or similar technologies to deliver, measure and personalize advertising where permitted.</p></section>
-        <section class="privacy-card"><h2>4. Consent choices</h2><p>In regions where consent is required, a Google-certified Consent Management Platform may ask you to accept, reject or manage advertising and analytics choices. Those choices can affect personalized advertising and analytics storage.</p></section>
-        <section class="privacy-card"><h2>5. Web MIDI</h2><p>MIDI permission is requested only after you choose to enable MIDI. Your browser controls access. Selected MIDI outputs are used to send notes and timing to connected hardware; 303box does not upload your MIDI performance to a user account.</p></section>
-        <section class="privacy-card"><h2>6. External services</h2><p>Google services are governed by Google’s own privacy terms. External Instagram and YouTube links are governed by those services when you visit them.</p></section>
-        <section class="privacy-card wide"><h2>7. Your controls</h2><ul><li>Clear 303box local data through your browser’s site-data/storage controls.</li><li>Deny or revoke MIDI access from browser permissions.</li><li>Manage advertising and analytics consent through the consent interface when it is available.</li><li>Block or delete cookies using browser controls, noting that some advertising functions may then behave differently.</li></ul></section>
-        <section class="privacy-card wide"><h2>8. Contact</h2><p>For questions about 303box and this policy, contact the project through <a href="https://instagram.com/zafer.pro" target="_blank" rel="noopener">@zafer.pro</a>.</p></section>
+        <section class="privacy-card"><h2>1. Essential local browser data</h2><p>303box uses first-party local storage for functional preferences such as language, pattern/rhythm state, MIDI routing choices, interface settings and consent choices. This data stays in your browser unless you clear site data. These functional values are not used to build an advertising profile.</p></section>
+        <section class="privacy-card"><h2>2. Consent before optional storage</h2><p>Analytics and advertising storage start in a denied state. On first visit, the privacy controls let you reject optional storage, enable Analytics, enable non-personalized advertising storage, or choose both. Your choice is stored locally and can be reopened from Cookie settings in the footer.</p></section>
+        <section class="privacy-card"><h2>3. Google Analytics</h2><p>Google Analytics is loaded only when you enable Analytics in the site privacy choices. It may then process page views, interaction events, technical/browser information and approximate location derived from network information for usage and performance measurement.</p></section>
+        <section class="privacy-card"><h2>4. Google AdSense</h2><p>AdSense is loaded only when you enable Advertising. The site-side chooser requests non-personalized ads and keeps ad personalization and ad-user-data consent signals denied. Non-personalized ads can still use storage for purposes such as frequency capping, fraud prevention and aggregated ad reporting where permitted.</p></section>
+        <section class="privacy-card privacy-callout wide"><h2>5. Personalized ads and certified CMPs</h2><p><strong>303box’s own chooser does not enable personalized advertising.</strong> If personalized AdSense is enabled in the future for visitors in the EEA, UK or Switzerland, the publisher must configure a Google-certified CMP integrated with the IAB TCF through the relevant AdSense privacy controls. A custom banner by itself should not be treated as that certification.</p></section>
+        <section class="privacy-card"><h2>6. Search Console</h2><p>The Google Search Console verification value in the page metadata proves site ownership to Google. That verification meta element itself is not an analytics or advertising script and does not create a 303box tracking cookie.</p></section>
+        <section class="privacy-card"><h2>7. Web MIDI and audio input</h2><p>MIDI or audio-input permission is requested only after you activate the relevant feature. Browser permissions control access. MIDI output can send notes, clock, transport and device-specific messages to hardware; optional scope audio input is processed locally in the browser for visualization.</p></section>
+        <section class="privacy-card"><h2>8. External links</h2><p>Instagram, YouTube and other external hardware/documentation links are governed by those third parties after you open them. 303box does not control their cookies, accounts or privacy practices.</p></section>
+        <section class="privacy-card"><h2>9. Global Privacy Control</h2><p>If the browser exposes a Global Privacy Control signal, the 303box privacy chooser keeps advertising storage disabled. Analytics remains a separate choice.</p></section>
+        <section class="privacy-card wide"><h2>10. Change or withdraw your choice</h2><ul><li>Open <strong>Cookie settings</strong> in the footer at any time.</li><li>Reject or disable Analytics and/or Advertising. When a previously granted category is revoked, the page reloads so the corresponding optional script is no longer loaded.</li><li>Clear 303box local data from your browser’s site-data controls.</li><li>Revoke MIDI or microphone/audio permission from browser permissions.</li></ul></section>
+        <section class="privacy-card wide"><h2>11. Scope and legal note</h2><p>The privacy controls are designed to make optional Google storage prior-consent based and reversible. Privacy, advertising and cookie obligations can vary by visitor location, configuration and future product changes; the site operator remains responsible for maintaining the AdSense/CMP configuration and policy text when those conditions change.</p></section>
+        <section class="privacy-card wide"><h2>12. Contact</h2><p>For questions about 303box and this policy, contact the project through <a href="https://instagram.com/zafer.pro" target="_blank" rel="noopener">@zafer.pro</a>.</p></section>
       </div>
     </article>
 
     <article data-privacy-lang="tr">
-      <div class="privacy-hero">
-        <p class="privacy-kicker">303BOX / GİZLİLİK</p>
-        <h1>Gizlilik Politikası</h1>
-        <p class="privacy-lead">303box tarayıcı üzerinde çalışan bir müzik aracıdır. Bu politika, hangi bilgilerin tarayıcınızda kaldığını, Google servislerinin ne zaman veri işleyebileceğini ve MIDI gibi isteğe bağlı tarayıcı izinlerinin nasıl kullanıldığını açıklar.</p>
-        <p class="privacy-updated">Son güncelleme: 18 Ağustos 2026</p>
-      </div>
+      <div class="privacy-hero"><p class="privacy-kicker">303BOX / GİZLİLİK & ÇEREZLER</p><h1>Gizlilik & Çerez Politikası</h1><p class="privacy-lead">303box tarayıcı üzerinde çalışan bir müzik aracıdır. Bu sayfa zorunlu yerel tarayıcı verilerini, isteğe bağlı analiz ve reklam depolamasını, bağlı donanım izinlerini ve tercihlerinizi nasıl değiştirebileceğinizi açıklar.</p><p class="privacy-updated">Son güncelleme: 19 Ağustos 2026</p></div>
       <p class="privacy-lang-note">Read in English: <button type="button" data-switch-lang="en">English.</button></p>
       <div class="privacy-grid">
-        <section class="privacy-card"><h2>1. Tarayıcıda yerel saklama</h2><p>303box pattern verilerini, ritim ayarlarını, arayüz tercihlerini, dili ve benzeri oturum bilgilerini local storage içinde saklayabilir. Böylece çalışma sayfa yenilendiğinde korunabilir. Davul kanal seviye sürgüleri yeni oturumda varsayılan değerine döner; ana mikser tercihi tarayıcıda yerel olarak kalabilir.</p></section>
-        <section class="privacy-card"><h2>2. Google Analytics</h2><p>303box, genel site kullanımını ve teknik performansı anlamak için Google Analytics kullanır. Konumunuza ve rıza tercihinize göre Google cihaz/tarayıcı bilgileri, IP’den türetilen yaklaşık konum, sayfa görüntülemeleri ve etkileşim olaylarını işleyebilir.</p></section>
-        <section class="privacy-card"><h2>3. Google AdSense</h2><p>303box Google AdSense kullanır. Google ve reklam ortakları, izin verilen durumlarda reklam sunmak, ölçmek ve kişiselleştirmek için çerezler, local storage veya benzeri teknolojiler kullanabilir.</p></section>
-        <section class="privacy-card"><h2>4. Rıza tercihleri</h2><p>Rızanın gerekli olduğu bölgelerde Google sertifikalı bir CMP reklam ve analiz tercihlerini kabul etmenizi, reddetmenizi veya yönetmenizi isteyebilir. Bu tercihler kişiselleştirilmiş reklamları ve analiz depolamasını etkileyebilir.</p></section>
-        <section class="privacy-card"><h2>5. Web MIDI</h2><p>MIDI izni yalnızca MIDI’yi etkinleştirdiğinizde istenir. Erişimi tarayıcınız yönetir. Seçilen MIDI çıkışları bağlı donanıma nota ve zamanlama göndermek için kullanılır; MIDI performansınız bir 303box kullanıcı hesabına yüklenmez.</p></section>
-        <section class="privacy-card"><h2>6. Dış servisler</h2><p>Google servisleri Google’ın kendi gizlilik şartlarına tabidir. Instagram ve YouTube bağlantılarını ziyaret ettiğinizde ilgili servislerin kendi politikaları geçerlidir.</p></section>
-        <section class="privacy-card wide"><h2>7. Kontrolleriniz</h2><ul><li>303box yerel verilerini tarayıcının site verileri/depolama ayarlarından silebilirsiniz.</li><li>MIDI iznini tarayıcı izinlerinden reddedebilir veya geri alabilirsiniz.</li><li>Sunulduğu bölgelerde reklam ve analiz tercihlerini rıza arayüzünden yönetebilirsiniz.</li><li>Çerezleri tarayıcı kontrolleriyle engelleyebilir veya silebilirsiniz; bazı reklam özellikleri farklı davranabilir.</li></ul></section>
-        <section class="privacy-card wide"><h2>8. İletişim</h2><p>303box ve bu politika hakkındaki sorular için <a href="https://instagram.com/zafer.pro" target="_blank" rel="noopener">@zafer.pro</a> üzerinden iletişime geçebilirsiniz.</p></section>
+        <section class="privacy-card"><h2>1. Gerekli yerel tarayıcı verileri</h2><p>303box dil, pattern/ritim durumu, MIDI yönlendirme tercihleri, arayüz ayarları ve rıza seçimi gibi işlevsel bilgiler için birinci taraf local storage kullanır. Tarayıcı site verilerini silmediğiniz sürece bunlar tarayıcınızda kalır. Bu işlevsel değerler reklam profili oluşturmak amacıyla kullanılmaz.</p></section>
+        <section class="privacy-card"><h2>2. İsteğe bağlı depolamadan önce rıza</h2><p>Analytics ve reklam depolaması varsayılan olarak reddedilmiş durumda başlar. İlk ziyarette isteğe bağlı depolamayı reddedebilir, Analytics’i, kişiselleştirilmemiş reklam depolamasını veya ikisini ayrı ayrı etkinleştirebilirsiniz. Tercih yerel olarak kaydedilir ve footer’daki Çerez ayarlarından yeniden açılabilir.</p></section>
+        <section class="privacy-card"><h2>3. Google Analytics</h2><p>Google Analytics yalnız gizlilik seçimlerinde Analytics’i etkinleştirirseniz yüklenir. Bu durumda kullanım ve performans ölçümü için sayfa görüntülemeleri, etkileşim olayları, teknik/tarayıcı bilgileri ve ağ bilgisinden türetilen yaklaşık konum gibi verileri işleyebilir.</p></section>
+        <section class="privacy-card"><h2>4. Google AdSense</h2><p>AdSense yalnız Reklam seçimini etkinleştirirseniz yüklenir. Site içi seçim aracı kişiselleştirilmemiş reklam ister; reklam kişiselleştirme ve reklam kullanıcı verisi sinyallerini reddedilmiş tutar. Kişiselleştirilmemiş reklamlar da izin verilen durumlarda frekans sınırlama, dolandırıcılık önleme ve toplu reklam raporlaması gibi amaçlarla depolama kullanabilir.</p></section>
+        <section class="privacy-card privacy-callout wide"><h2>5. Kişiselleştirilmiş reklam ve sertifikalı CMP</h2><p><strong>303box’ın kendi seçim ekranı kişiselleştirilmiş reklamı etkinleştirmez.</strong> Gelecekte AEA, Birleşik Krallık veya İsviçre ziyaretçileri için kişiselleştirilmiş AdSense açılırsa yayıncının AdSense gizlilik ayarlarında IAB TCF ile entegre Google sertifikalı bir CMP yapılandırması gerekir. Sadece özel bir banner kullanmak bu sertifikanın yerine geçmez.</p></section>
+        <section class="privacy-card"><h2>6. Search Console</h2><p>Sayfa metadatasındaki Google Search Console doğrulama değeri site sahipliğini Google’a kanıtlar. Bu meta etiketi tek başına Analytics veya reklam scripti değildir ve 303box takip çerezi oluşturmaz.</p></section>
+        <section class="privacy-card"><h2>7. Web MIDI ve ses girişi</h2><p>MIDI veya ses girişi izni yalnız ilgili özelliği etkinleştirdiğinizde istenir. Erişimi tarayıcı izinleri yönetir. MIDI çıkışı donanıma nota, clock, transport ve cihaza özel mesajlar gönderebilir; isteğe bağlı scope ses girişi görselleştirme için tarayıcı içinde yerel olarak işlenir.</p></section>
+        <section class="privacy-card"><h2>8. Dış bağlantılar</h2><p>Instagram, YouTube ve diğer harici donanım/dokümantasyon bağlantıları açıldıktan sonra ilgili üçüncü tarafların koşullarına tabidir. 303box bu servislerin çerezlerini, hesaplarını veya gizlilik uygulamalarını kontrol etmez.</p></section>
+        <section class="privacy-card"><h2>9. Global Privacy Control</h2><p>Tarayıcı Global Privacy Control sinyali sağlıyorsa 303box gizlilik seçimi reklam depolamasını kapalı tutar. Analytics ayrı bir tercihtir.</p></section>
+        <section class="privacy-card wide"><h2>10. Tercihi değiştirme veya geri çekme</h2><ul><li>Footer’daki <strong>Çerez ayarları</strong> bağlantısını istediğiniz zaman açabilirsiniz.</li><li>Analytics ve/veya Reklam seçimini kapatabilirsiniz. Daha önce izin verilmiş bir kategori geri çekildiğinde ilgili isteğe bağlı scriptin artık yüklenmemesi için sayfa yeniden yüklenir.</li><li>303box yerel verilerini tarayıcının site verileri bölümünden silebilirsiniz.</li><li>MIDI veya mikrofon/ses iznini tarayıcı izinlerinden geri alabilirsiniz.</li></ul></section>
+        <section class="privacy-card wide"><h2>11. Kapsam ve hukuki not</h2><p>Gizlilik kontrolleri, isteğe bağlı Google depolamasını ön-rızaya bağlı ve geri alınabilir yapmak üzere tasarlanmıştır. Gizlilik, reklam ve çerez yükümlülükleri ziyaretçi konumuna, yapılandırmaya ve gelecekteki ürün değişikliklerine göre farklılaşabilir; AdSense/CMP yapılandırmasını ve politika metnini güncel tutma sorumluluğu site işletmecisindedir.</p></section>
+        <section class="privacy-card wide"><h2>12. İletişim</h2><p>303box ve bu politika hakkındaki sorular için <a href="https://instagram.com/zafer.pro" target="_blank" rel="noopener">@zafer.pro</a> üzerinden iletişime geçebilirsiniz.</p></section>
       </div>
     </article>
   </main>
 
-  <footer class="site-footer">
-    <div class="shell footer-inner">
-      <div class="z3z-credit"><span id="privacyFooterText">303box is a Z3Z project.</span><a href="https://instagram.com/zafer.pro" target="_blank" rel="me noopener">Z3Z / @zafer.pro</a></div>
-      <div class="footer-links"><a href="./privacy.html" aria-current="page">Privacy</a><a href="https://instagram.com/zafer.pro" target="_blank" rel="me noopener">Instagram</a><a href="https://youtube.com/@zaferlatif" target="_blank" rel="noopener">YouTube</a></div>
-    </div>
-  </footer>
+  <footer class="site-footer"><div class="shell footer-inner"><div><strong>303box</strong><p id="privacyFooterText">303box is a Z3Z project.</p></div><div class="footer-links"><a href="./privacy.html" aria-current="page">Privacy</a><a href="https://instagram.com/zafer.pro" target="_blank" rel="me noopener">Instagram</a><a href="https://youtube.com/@zaferlatif" target="_blank" rel="noopener">YouTube</a></div></div></footer>
 
   <script>
     (()=>{
       const saved=localStorage.getItem('303-lang');
       let current=saved==='tr'||(!saved&&navigator.language?.toLowerCase().startsWith('tr'))?'tr':'en';
       const apply=lang=>{
-        current=lang==='tr'?'tr':'en';
-        document.documentElement.lang=current;
-        localStorage.setItem('303-lang',current);
+        current=lang==='tr'?'tr':'en';document.documentElement.lang=current;localStorage.setItem('303-lang',current);
         document.querySelectorAll('[data-privacy-lang]').forEach(x=>x.classList.toggle('active',x.dataset.privacyLang===current));
-        document.getElementById('privacyLanguageCurrent').textContent=current.toUpperCase();
-        document.getElementById('privacyLanguageNext').textContent=current==='en'?'TR':'EN';
+        document.getElementById('privacyLanguageCurrent').textContent=current.toUpperCase();document.getElementById('privacyLanguageNext').textContent=current==='en'?'TR':'EN';
         document.getElementById('privacyFooterText').textContent=current==='tr'?'303box bir Z3Z projesidir.':'303box is a Z3Z project.';
       };
       document.getElementById('privacyLanguageButton').addEventListener('click',()=>apply(current==='en'?'tr':'en'));
