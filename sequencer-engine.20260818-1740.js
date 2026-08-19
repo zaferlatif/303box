@@ -1,6 +1,6 @@
 (() => {
   'use strict';
-  const version='20260819-1930';
+  const version='20260819-1940';
 
   const HERO={
     en:{
@@ -39,6 +39,7 @@
   addCss('ui-refresh','./ui-refresh.20260819-1750.css');
   addCss('compact-controls','./compact-controls.20260819-1910.css');
   addCss('ui-fixes','./ui-fixes.20260819-1920.css');
+  addCss('compact-sequencer','./layout-compact.20260819-1940.css');
 
   const load=src=>new Promise((resolve,reject)=>{const s=document.createElement('script');s.src=`${src}?v=${version}`;s.async=false;s.onload=resolve;s.onerror=reject;document.head.appendChild(s)});
   load('./cache-reset.20260818-1740.js')
@@ -55,6 +56,7 @@
     .then(()=>load('./drum-hat-grid.20260818-1530.js'))
     .then(()=>load('./generator-router.20260818-1650.js'))
     .then(()=>load('./ui-refresh.20260819-1750.js'))
+    .then(()=>load('./social-tracking.20260819-1940.js'))
     .then(()=>load('./scope-live.20260819-1830.js'))
     .then(()=>load('./t8-rhythm-rec-status.20260819-1830.js'))
     .then(()=>load('./midi-connection-state.20260819-1910.js'))
