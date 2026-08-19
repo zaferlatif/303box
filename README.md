@@ -3,10 +3,10 @@
 </p>
 
 <p align="center">
-  <a href="https://303box.com"><img alt="OPEN 303BOX" src="https://img.shields.io/badge/OPEN_303BOX-LIVE-ddff37?style=for-the-badge&labelColor=101114"></a>
-  <img alt="Hardware workflow" src="https://img.shields.io/badge/HARDWARE-T--8_%2F_TD--3-ddff37?style=for-the-badge&labelColor=101114">
-  <img alt="Pattern sketchpad" src="https://img.shields.io/badge/PATTERN-SKETCHPAD-f4f4ef?style=for-the-badge&labelColor=101114">
-  <img alt="Web MIDI" src="https://img.shields.io/badge/WEB_MIDI-HARDWARE-ddff37?style=for-the-badge&labelColor=101114">
+  <a href="https://303box.com"><img alt="OPEN 303BOX" src="https://img.shields.io/badge/OPEN_303BOX-LIVE-ddff37?style=for-the-badge&labelColor=181a1e"></a>
+  <img alt="Hardware workflow" src="https://img.shields.io/badge/HARDWARE-T--8_%2F_TD--3-ddff37?style=for-the-badge&labelColor=181a1e">
+  <img alt="Pattern sketchpad" src="https://img.shields.io/badge/PATTERN-SKETCHPAD-f4f4ef?style=for-the-badge&labelColor=181a1e">
+  <img alt="Web MIDI" src="https://img.shields.io/badge/WEB_MIDI-HARDWARE-ddff37?style=for-the-badge&labelColor=181a1e">
 </p>
 
 <h1 align="center">303box</h1>
@@ -55,7 +55,7 @@ Playback position uses the same small red playhead LED across the 303 and rhythm
 
 ## Transport model
 
-The transport was deliberately simplified in the 1750 UI pass:
+The transport is deliberately deterministic:
 
 - **303 PLAY** starts/stops the bass section only.
 - **RHYTHM PLAY** starts/stops the rhythm section only.
@@ -77,22 +77,17 @@ Playback modes:
 
 | Device | Live MIDI | Sequencer transfer | Direct memory write |
 |---|---|---|---|
-| **Roland T-8** | Bass + rhythm + velocity + clock/transport | Bass REC hardware-tested; Rhythm REC beta | No SysEx memory write |
+| **Roland T-8** | Bass + rhythm + velocity + clock/transport | Bass REC hardware-tested; external Rhythm Note capture tested at **0/16** | No documented SysEx write; official USB backup/restore route under research |
 | **Behringer TD-3** | Bass + clock/transport | Live MIDI / experimental direct pattern path | Experimental USB SysEx with verification |
 | **Behringer TD-3-MO** | Bass + clock/transport | Compatibility probed at runtime | Only after positive read probe |
 | Korg volca bass | Notes + velocity + clock | Research / hardware verification target | No SysEx |
 | Korg volca nubass | Notes + velocity + clock | Research / hardware verification target | No SysEx |
 
-303box treats **live MIDI**, **REC capture** and **direct non-volatile memory write** as separate capabilities.
+303box treats **live MIDI**, **REC capture**, **backup/restore data** and **direct non-volatile memory write** as separate capabilities.
 
 ## Roland T-8 REC helper
 
 Real hardware testing confirmed that a 303box bass pattern can be captured after REC is armed on the T-8.
-
-The MIDI panel exposes:
-
-- `BASS → REC`
-- `RHYTHM → REC`
 
 ### Bass REC
 
@@ -105,20 +100,37 @@ Physical T-8 testing also shows that **Accent and Slide can be captured during t
 
 A captured T-8 pattern can still sound less dramatic than the same line played live from 303box. This does **not** mean A/S failed to record. Live MIDI uses explicit velocity and note-overlap timing while the T-8 internal sequencer uses its own stored playback behavior. The T-8 also has a separate Bass Accent strength setting (`b.ACC`, 1–255).
 
-### Rhythm REC
+### Rhythm REC: hardware result
 
-Rhythm capture remains beta and is being tuned against physical T-8 hardware.
+The live rhythm MIDI path is working: incoming rhythm Note On messages trigger the T-8 drum voices correctly.
 
-Current hardware testing is intentionally separating two questions:
+However, a controlled hardware test used a disposable rhythm pattern with all 16 steps filled with BD in 303box. The T-8 was armed manually with physical `REC → PLAY`, while 303box sent normal rhythm playback on the rhythm MIDI channel with browser clock/transport sending disabled. Result: **0/16 BD steps were written into the T-8 rhythm sequencer**.
 
-1. Does the T-8 rhythm recorder capture incoming live MIDI notes while its own REC/PLAY transport is armed manually?
-2. If yes, what MIDI Clock / Start timing makes automated `RHYTHM → REC` deterministic?
+This matches the distinction visible in Roland's documentation: rhythm Note On/Off is recognized for MIDI playback, while rhythm real-time recording is documented as physical instrument-button input. The T-8 MIDI chart also documents no received Control Change or System Exclusive path that could act as a virtual front-panel instrument press.
 
-The site keeps live rhythm MIDI and automated Rhythm REC as separate code paths so failed REC experiments do not degrade normal performance playback.
+For that reason, continued MIDI timing tweaks are no longer the primary Rhythm REC strategy. Normal live rhythm MIDI remains supported and should not be degraded by recording experiments.
+
+## T-8 backup-file research
+
+There is a more promising official path that does not depend on pretending MIDI notes are front-panel button presses.
+
+The T-8 exposes a USB mass-storage **Backup / Restore** mode. Roland's documented backup structure contains separate `BACKUP/BASS` and `BACKUP/RHYTHM` folders, and the device can restore corresponding data through its `RESTORE` workflow.
+
+The research plan is conservative and read-first:
+
+1. Make a full untouched T-8 backup.
+2. Use a disposable rhythm pattern as a controlled baseline.
+3. Back up the pattern with all rhythm steps off.
+4. Change exactly one step — for example BD on step 1 — WRITE it on the T-8 and back up again.
+5. Binary-diff the two `RHYTHM` backups.
+6. Repeat with BD step 5 and then another instrument to identify step and instrument fields.
+7. Only after the file structure is understood, prototype a 303box **restore-export** file generator.
+
+No firmware/update image is modified in this research path. Restore tests should only be attempted after keeping an untouched full backup.
 
 ### T-8 rhythm velocity
 
-The T-8 rhythm engine responds to incoming MIDI velocity. 303box uses a moderate T-8-specific velocity curve so browser-driven drums sit closer to the device sequencer instead of overpowering it.
+The T-8 rhythm engine responds to incoming MIDI velocity during live playback. 303box uses a moderate T-8-specific velocity curve so browser-driven drums sit closer to the device sequencer instead of overpowering it.
 
 ### Clock and tempo
 
@@ -128,11 +140,13 @@ This is external synchronization. It does not rewrite the T-8's stored internal 
 
 ## UI direction
 
-The 1750 pass moves the site away from pure black toward a softer **anthracite studio surface**, keeps the 303 control strip on one consistent knob baseline, removes the decorative Author/Title/Memory block from the visible sequencer sheet, and adds a compact Z3Z creator follow surface for Instagram + YouTube.
+The current pass uses a visibly lighter **anthracite studio surface** instead of near-black page chrome, while the sequencer itself stays dark enough for the acid-green controls to retain contrast.
+
+The Z3Z creator follow surface no longer appears immediately. It waits briefly after page entry, then slides upward from the bottom with a short acid-green arrival glow. Desktop and mobile both use the same attention cue without blocking the initial workspace.
 
 ## Hardware references
 
-- Roland T-8: [Bass sequencer](https://static.roland.com/manuals/T-8_manual_v102/eng/28312362.html) · [Rhythm sequencer](https://static.roland.com/manuals/T-8_manual_v102/eng/28312384.html) · [MIDI implementation](https://static.roland.com/manuals/T-8_manual_v102/ptb/31849756.html)
+- Roland T-8: [Bass sequencer](https://static.roland.com/manuals/T-8_manual_v102/eng/28312362.html) · [Rhythm sequencer](https://static.roland.com/manuals/T-8_manual_v102/eng/28312384.html) · [MIDI implementation](https://static.roland.com/manuals/T-8_manual_v102/ptb/31849756.html) · [Backup / Restore](https://static.roland.com/manuals/T-8_manual_v102/eng/28312320.html)
 - Behringer TD-3: [Official product information](https://www.behringer.com/en/products/0718-ABP)
 - Behringer TD-3-MO: [Official product information](https://www.behringer.com/en/products/0718-ACF)
 - Korg volca bass: [Official MIDI/downloads](https://www.korg.com/us/support/download/product/0/140/)
@@ -169,15 +183,15 @@ Then open `http://localhost:8080`.
 ├── acid-console.20260818-1340.js
 ├── midi-router.20260818-1730.js
 ├── transport-fuse.20260819-1750.js       # deterministic bass/rhythm/master transport
-├── ui-refresh.20260819-1750.css           # anthracite + knob-grid + creator surface
-├── ui-refresh.20260819-1750.js            # creator follow + knob normalization
+├── ui-refresh.20260819-1750.css           # lighter anthracite + delayed creator entrance
+├── ui-refresh.20260819-1750.js            # delayed creator follow + knob normalization
 ├── hardware-guide.20260819-0815.js
 ├── bass-scope.20260818-1680.js
 ├── generator-router.20260818-1650.js
 ├── playhead-unified.20260818-1720.css
 ├── positioning.20260818-1740.css
 ├── seo.20260818-1740.js
-├── sequencer-engine.20260818-1740.js       # loads 1750 runtime assets
+├── sequencer-engine.20260818-1740.js       # loads runtime assets with 1815 cache version
 └── README.md
 ```
 
