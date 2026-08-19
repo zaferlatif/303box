@@ -27,5 +27,6 @@
     .then(()=>load('./generator-router.20260818-1650.js'))
     .then(()=>load('./ui-refresh.20260819-1750.js'))
     .then(()=>load('./scope-live.20260819-1830.js'))
+    .then(()=>load('./t8-rhythm-rec-status.20260819-1830.js'))
     .catch(error=>console.error('303box production loader',error));
 })();
