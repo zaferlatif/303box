@@ -3,6 +3,7 @@
   const $=(s,r=document)=>r.querySelector(s);
   const isTR=()=>document.documentElement.lang==='tr';
   let creatorTimer=0;
+  let creatorReady=false;
 
   const ICONS={
     instagram:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5Zm0 2a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3H7Zm5 3a5 5 0 1 1 0 10 5 5 0 0 1 0-10Zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6Zm5.4-3.2a1.2 1.2 0 1 1 0 2.4 1.2 1.2 0 0 1 0-2.4Z"/></svg>',
@@ -14,36 +15,68 @@
       ? {title:'303box hoşuna gittiyse Z3Z’yi takip et.',sub:'Yeni denemeler, donanım ve acid çalışmalarını Instagram ve YouTube’da paylaşıyorum.',close:'Kapat'}
       : {title:'Like 303box? Follow Z3Z.',sub:'I share new experiments, hardware and acid work on Instagram and YouTube.',close:'Close'};
   }
+
   function renderCreator(){
     const dock=$('#creatorFollow');if(!dock)return;const c=copy();
     const strong=dock.querySelector('.creator-follow-copy strong'),sub=dock.querySelector('.creator-follow-copy span'),close=dock.querySelector('.creator-follow-close');
     if(strong)strong.textContent=c.title;if(sub)sub.textContent=c.sub;if(close)close.setAttribute('aria-label',c.close);
   }
-  function scheduleCreatorReveal(dock){window.clearTimeout(creatorTimer);creatorTimer=window.setTimeout(()=>{if(dock?.isConnected)dock.classList.add('is-visible')},5200)}
-  function mountCreator(){
-    const existing=$('#creatorFollow');if(existing)return renderCreator();
-    try{if(sessionStorage.getItem('303box-creator-follow-hidden')==='1')return}catch(_){}
-    const dock=document.createElement('aside');dock.id='creatorFollow';dock.className='creator-follow';dock.setAttribute('aria-label','Z3Z social links');
-    dock.innerHTML=`<div class="creator-follow-copy"><div><strong></strong><span></span></div><button class="creator-follow-close" type="button" aria-label="Close">×</button></div><div class="creator-follow-links"><a href="https://instagram.com/zafer.pro" target="_blank" rel="me noopener">${ICONS.instagram}<span>Instagram</span></a><a href="https://youtube.com/@zaferlatif" target="_blank" rel="noopener">${ICONS.youtube}<span>YouTube</span></a></div>`;
-    const footer=$('.site-footer');if(footer)footer.before(dock);else document.body.appendChild(dock);
-    dock.querySelector('.creator-follow-close')?.addEventListener('click',()=>{window.clearTimeout(creatorTimer);try{sessionStorage.setItem('303box-creator-follow-hidden','1')}catch(_){}dock.classList.remove('is-visible');window.setTimeout(()=>dock.remove(),220)});
-    renderCreator();scheduleCreatorReveal(dock);
+
+  function revealCreator(){
+    const dock=$('#creatorFollow');if(!dock)return;
+    creatorReady=true;
+    if(document.visibilityState==='visible'){
+      requestAnimationFrame(()=>dock.classList.add('is-visible'));
+    }
   }
+
+  function scheduleCreatorReveal(){
+    window.clearTimeout(creatorTimer);
+    creatorTimer=window.setTimeout(revealCreator,5200);
+  }
+
+  function mountCreator(){
+    const existing=$('#creatorFollow');if(existing){renderCreator();return}
+    const dock=document.createElement('aside');
+    dock.id='creatorFollow';dock.className='creator-follow';dock.setAttribute('aria-label','Z3Z social links');
+    dock.innerHTML=`<div class="creator-follow-copy"><div><strong></strong><span></span></div><button class="creator-follow-close" type="button" aria-label="Close">×</button></div><div class="creator-follow-links"><a href="https://instagram.com/zafer.pro" target="_blank" rel="me noopener">${ICONS.instagram}<span>Instagram</span></a><a href="https://youtube.com/@zaferlatif" target="_blank" rel="noopener">${ICONS.youtube}<span>YouTube</span></a></div>`;
+    document.body.appendChild(dock);
+    dock.querySelector('.creator-follow-close')?.addEventListener('click',()=>{
+      window.clearTimeout(creatorTimer);
+      dock.classList.remove('is-visible');
+      window.setTimeout(()=>dock.remove(),320);
+    });
+    renderCreator();
+    scheduleCreatorReveal();
+  }
+
   function normalizeKnobs(){
     const grid=$('#knobGrid');if(!grid)return;
     ['tune','cutoff','resonance','envMod','decay','accent','delay','distortion','reverb'].forEach(id=>{
-      const node=grid.querySelector(`[data-knob="${id}"]`) || grid.querySelector(`[data-knob-id="${id}"]`)?.closest('.knob');if(node)grid.appendChild(node);
+      const node=grid.querySelector(`[data-knob="${id}"]`) || grid.querySelector(`[data-knob-id="${id}"]`)?.closest('.knob');
+      if(node)grid.appendChild(node);
     });
   }
-  function mountScope(){
-    const grid=$('#knobGrid'),panel=$('.scope-panel');if(!grid||!panel)return;
-    let slot=$('#hardwareScopeSlot');if(!slot){slot=document.createElement('div');slot.id='hardwareScopeSlot';slot.className='hardware-scope-slot';}
-    if(panel.parentElement!==slot)slot.appendChild(panel);grid.appendChild(slot);
-    const oldCell=$('.acid-console-scope-cell');if(oldCell&&!oldCell.contains(panel))oldCell.hidden=true;
+
+  function restoreScope(){
+    const cell=$('.acid-console-scope-cell'),panel=$('.scope-panel');
+    if(!cell||!panel)return;
+    const slot=$('#hardwareScopeSlot');
+    cell.hidden=false;
+    if(panel.parentElement!==cell)cell.appendChild(panel);
+    slot?.remove();
   }
-  function apply(){document.querySelector('meta[name="theme-color"]')?.setAttribute('content','#181a1e');mountCreator();normalizeKnobs();mountScope()}
+
+  function apply(){
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content','#1c1e22');
+    mountCreator();normalizeKnobs();restoreScope();
+  }
+
+  document.addEventListener('visibilitychange',()=>{
+    if(document.visibilityState==='visible'&&creatorReady)$('#creatorFollow')?.classList.add('is-visible');
+  });
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',apply,{once:true});else apply();
-  window.addEventListener('load',()=>setTimeout(()=>{normalizeKnobs();mountScope()},80),{once:true});
-  new MutationObserver(()=>{renderCreator();normalizeKnobs();mountScope()}).observe(document.documentElement,{attributes:true,attributeFilter:['lang']});
-  window.__303boxUiRefresh={version:'1830',apply};
+  window.addEventListener('load',()=>setTimeout(()=>{normalizeKnobs();restoreScope()},80),{once:true});
+  new MutationObserver(()=>{renderCreator();normalizeKnobs();restoreScope()}).observe(document.documentElement,{attributes:true,attributeFilter:['lang']});
+  window.__303boxUiRefresh={version:'1845',apply};
 })();
