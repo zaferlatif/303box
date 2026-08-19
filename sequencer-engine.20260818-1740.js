@@ -1,6 +1,6 @@
 (() => {
   'use strict';
-  const version='20260819-1910';
+  const version='20260819-1920';
 
   const HERO={
     en:{
@@ -38,6 +38,7 @@
   addCss('positioning','./positioning.20260818-1740.css');
   addCss('ui-refresh','./ui-refresh.20260819-1750.css');
   addCss('compact-controls','./compact-controls.20260819-1910.css');
+  addCss('ui-fixes','./ui-fixes.20260819-1920.css');
 
   const load=src=>new Promise((resolve,reject)=>{const s=document.createElement('script');s.src=`${src}?v=${version}`;s.async=false;s.onload=resolve;s.onerror=reject;document.head.appendChild(s)});
   load('./cache-reset.20260818-1740.js')
@@ -57,5 +58,6 @@
     .then(()=>load('./scope-live.20260819-1830.js'))
     .then(()=>load('./t8-rhythm-rec-status.20260819-1830.js'))
     .then(()=>load('./midi-connection-state.20260819-1910.js'))
+    .then(()=>load('./behavior-fixes.20260819-1920.js'))
     .catch(error=>console.error('303box production loader',error));
 })();
