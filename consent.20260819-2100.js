@@ -129,9 +129,12 @@
 
   function installSettingsLink(){
     document.querySelectorAll('.footer-links').forEach(links=>{
-      if(links.querySelector('[data-cookie-settings]'))return;
-      const a=document.createElement('a');a.href='#cookie-settings';a.dataset.cookieSettings='true';a.className='cookie-settings-link';a.textContent=t('settings');
-      a.addEventListener('click',e=>{e.preventDefault();show()});links.prepend(a);
+      let a=links.querySelector('[data-cookie-settings]');
+      if(!a){
+        a=document.createElement('a');a.href='#cookie-settings';a.dataset.cookieSettings='true';a.className='cookie-settings-link';
+        a.addEventListener('click',e=>{e.preventDefault();show()});links.prepend(a);
+      }
+      a.textContent=t('settings');
     });
   }
 
@@ -144,6 +147,7 @@
 
   const onReady=()=>{init();};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',onReady,{once:true});else onReady();
+  document.addEventListener('303box:ready',installSettingsLink);
   new MutationObserver(()=>{render();installSettingsLink()}).observe(document.documentElement,{attributes:true,attributeFilter:['lang']});
 
   window.__303boxConsent={
