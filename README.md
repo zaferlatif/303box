@@ -6,7 +6,7 @@
   <a href="https://303box.com"><img alt="OPEN 303BOX" src="https://img.shields.io/badge/OPEN_303BOX-LIVE-ddff37?style=for-the-badge&labelColor=1f2126"></a>
   <img alt="Pattern sketchpad" src="https://img.shields.io/badge/PATTERN-SKETCHPAD-f4f4ef?style=for-the-badge&labelColor=1f2126">
   <img alt="Web MIDI" src="https://img.shields.io/badge/WEB_MIDI-HARDWARE-ddff37?style=for-the-badge&labelColor=1f2126">
-  <img alt="Runtime" src="https://img.shields.io/badge/RUNTIME-2200-ddff37?style=for-the-badge&labelColor=1f2126">
+  <img alt="Runtime" src="https://img.shields.io/badge/RUNTIME-2201-ddff37?style=for-the-badge&labelColor=1f2126">
 </p>
 
 <h1 align="center">303box</h1>
@@ -46,11 +46,13 @@ Rhythm voices:
 | CH | 606 closed hi-hat | `CH` |
 | OH | 606 open hi-hat | `OH` |
 
-## Runtime 2200
+## Runtime 2201
 
 The workstation stays behind a small animated `303BOX / INITIALIZING` surface until the final UI is ready, instead of visibly rewriting text, knobs, scope and layout after first paint.
 
-Runtime 2200 also adds a final narrow-screen authority. The 303 control strip no longer inherits the old 550 px minimum-width desktop grid on phones. Waveform + tempo remain together, the ten synth controls reflow inside the viewport, and MIDI uses an explicit mobile order rather than desktop columns leaking off-screen.
+Runtime 2201 keeps the narrow-screen workstation authority from Runtime 2200 and removes the remaining MIDI header collision. A legacy `.midi-compact-head{height:22px}` rule from the studio layer was clipping the two-row mobile header, causing Hardware Guide to sit underneath the Enable MIDI / Playback row. The final layout now explicitly resets that header to natural height and JavaScript no longer injects the obsolete 2110 MIDI grid after CSS has loaded.
+
+The MIDI connection state also removes any stale `#midiGridAuthority2110` style tag if an older cached UI script attempts to recreate it, then reasserts the 2201 layout stylesheet.
 
 ### Single ownership rules
 
@@ -63,8 +65,9 @@ Runtime 2200 also adds a final narrow-screen authority. The 303 control strip no
 - **Rule-based generation:** `generator-router.20260818-1650.js`
 - **Feedback control:** `fx-feedback.20260819-2120.js`
 - **T-8 PRM export:** `t8-prm-export.20260819-2120.js`
-- **Final workstation authority:** `ui-system.20260819-2100.js`
-- **Final desktop/mobile MIDI + narrow workstation layout:** `midi-layout-fix.20260819-2150.css` (`v=20260820-2200`)
+- **Final workstation ownership:** `ui-system.20260819-2100.js` (`2201`, no MIDI geometry injection)
+- **Final desktop/mobile MIDI + narrow workstation layout:** `midi-layout-fix.20260819-2150.css` (`v=20260820-2201`)
+- **MIDI connection/cache guard:** `midi-connection-state.20260819-1910.js` (`2201`)
 - **Atomic boot:** `sequencer-engine.20260818-1740.js`
 
 ## Transport contract
@@ -107,12 +110,14 @@ A disconnected page does not intentionally present a previously used T-8 as conn
 
 On mobile the MIDI control order is explicit:
 
-1. Enable MIDI + Playback;
-2. Output;
-3. Device;
-4. Bass channel + Rhythm channel;
-5. Send Clock + Send Start/Stop;
-6. Panic.
+1. MIDI title + status badge;
+2. Hardware Guide;
+3. Enable MIDI + Playback;
+4. Output;
+5. Device;
+6. Bass channel + Rhythm channel;
+7. Send Clock + Send Start/Stop;
+8. Panic.
 
 ## Roland T-8 research
 
@@ -155,7 +160,7 @@ Confirmed values and mappings:
 
 ### PRM generator — first restore-test build
 
-Runtime 2200 contains a conservative T-8 Rhythm PRM writer. It intentionally exports only information that has been directly confirmed by controlled hardware backups:
+Runtime 2201 contains a conservative T-8 Rhythm PRM writer. It intentionally exports only information that has been directly confirmed by controlled hardware backups:
 
 - the current 16-step six-voice rhythm grid;
 - default active-hit encoding `170AA`;
@@ -196,14 +201,15 @@ The development process includes AI-assisted coding with ChatGPT together with d
 ├── acid-console.20260818-1340.js             # shared audible bass + rhythm engine
 ├── transport-fuse.20260819-1750.js           # single transport authority
 ├── midi-router.20260818-1730.js              # Web MIDI router
+├── midi-connection-state.20260819-1910.js    # 2201 layout/cache guard
 ├── scope-live.20260819-1830.js               # synth + real USB Audio scope/FFT
 ├── generator-router.20260818-1650.js          # rule-based startup/random engine
 ├── fx-feedback.20260819-2120.js              # independent delay feedback control
 ├── t8-prm-export.20260819-2120.js             # decoded T-8 Rhythm PRM generator
 ├── content-stable.20260819-2000.js            # visible-copy authority
-├── ui-system.20260819-2100.js                 # final machine ownership
-├── midi-layout-fix.20260819-2150.css          # Runtime 2200 responsive final authority
-└── sequencer-engine.20260818-1740.js          # boot coordinator
+├── ui-system.20260819-2100.js                 # machine ownership; no runtime MIDI grid injection
+├── midi-layout-fix.20260819-2150.css          # Runtime 2201 responsive final authority
+└── sequencer-engine.20260818-1740.js          # Runtime 2201 boot coordinator
 ```
 
 ## Philosophy
