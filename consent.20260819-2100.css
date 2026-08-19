@@ -1,4 +1,9 @@
 /* 303box 2100 — privacy/consent controls. */
+/* The legacy atomic-boot stylesheet hides body until JS says ready. A crawler,
+   reader or browser with JavaScript disabled must never be trapped there. */
+html:not(.js):not(.app-ready) body{visibility:visible!important}
+html:not(.js)::before,html:not(.js)::after{display:none!important}
+
 .consent-banner{
   position:fixed;left:50%;bottom:18px;z-index:2147482500;
   width:min(760px,calc(100vw - 32px));transform:translate(-50%,24px);
