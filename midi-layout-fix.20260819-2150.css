@@ -1,6 +1,6 @@
-/* 303box 2200 — final workstation layout authority.
+/* 303box 2201 — final workstation layout authority.
    Desktop MIDI remains bounded; mobile becomes a deliberate compact layout.
-   This file loads after legacy runtime-injected rules and therefore owns the last word. */
+   MIDI geometry is CSS-owned; JS must never inject competing grids. */
 
 html,body{max-width:100%;overflow-x:hidden}
 html body .machine-suite,html body .machine-suite *{box-sizing:border-box}
@@ -14,8 +14,10 @@ html body .machine-suite #midiRouter{
 }
 html body .machine-suite #midiRouter .midi-compact-head{
   display:grid!important;grid-template-columns:minmax(0,1fr) minmax(170px,.72fr) 96px!important;
-  gap:8px!important;align-items:center!important;width:100%!important;max-width:100%!important;
-  min-width:0!important;margin:0 0 11px!important
+  gap:8px!important;align-items:center!important;align-content:start!important;
+  width:100%!important;max-width:100%!important;min-width:0!important;
+  height:auto!important;min-height:0!important;overflow:visible!important;
+  margin:0 0 11px!important;position:relative!important
 }
 html body .machine-suite #midiRouter .midi-compact-head>strong,
 html body .machine-suite #midiHardwareGuide,
@@ -29,12 +31,12 @@ html body .machine-suite #midiRouter .midi-badge{overflow:hidden!important;text-
 html body .machine-suite #midiRouter .midi-router-primary{
   display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr) minmax(0,1fr) minmax(0,.9fr)!important;
   gap:8px!important;align-items:end!important;width:100%!important;max-width:100%!important;min-width:0!important;
-  margin:0!important;overflow:hidden!important
+  margin:0!important;overflow:hidden!important;position:relative!important
 }
 html body .machine-suite #midiRouter .midi-router-secondary{
   display:grid!important;grid-template-columns:minmax(0,.7fr) minmax(0,.7fr) minmax(0,1.08fr) minmax(0,1.18fr) minmax(0,.76fr)!important;
   gap:8px!important;align-items:end!important;width:100%!important;max-width:100%!important;min-width:0!important;
-  margin:8px 0 0!important;overflow:hidden!important
+  margin:8px 0 0!important;overflow:hidden!important;position:relative!important
 }
 html body .machine-suite #midiRouter .midi-connect,
 html body .machine-suite #midiRouter .midi-output,
@@ -94,19 +96,23 @@ html body .machine-suite #midiRouter .midi-toggle b{white-space:nowrap!important
   html body .machine-suite #scopeAudioInput:not([hidden]){grid-column:1!important;width:100%!important;max-width:100%!important;height:38px!important}
   html body .machine-suite #scopeInputStatus{grid-column:1!important;grid-row:5!important}
 
-  /* MIDI header: title/badge first row, guide second row. */
+  /* MIDI header: title/badge first row, guide second row. Legacy studio.css fixes this header to 22px;
+     reset that height here so row 2 participates in normal document flow. */
   html body .machine-suite #midiRouter .midi-compact-head{
-    display:grid!important;grid-template-columns:minmax(0,1fr) 92px!important;grid-template-rows:auto auto!important;
-    gap:8px!important;width:100%!important;min-width:0!important;margin:0 0 10px!important
+    display:grid!important;grid-template-columns:minmax(0,1fr) 92px!important;grid-template-rows:minmax(32px,auto) 40px!important;
+    gap:8px!important;width:100%!important;min-width:0!important;
+    height:auto!important;min-height:80px!important;max-height:none!important;overflow:visible!important;
+    margin:0 0 10px!important;padding:0!important;position:relative!important
   }
   html body .machine-suite #midiRouter .midi-compact-head>strong{grid-column:1!important;grid-row:1!important;align-self:center!important}
-  html body .machine-suite #midiRouter .midi-badge{grid-column:2!important;grid-row:1!important;width:92px!important;min-width:0!important}
-  html body .machine-suite #midiHardwareGuide{grid-column:1/-1!important;grid-row:2!important;width:100%!important;min-width:0!important;height:40px!important;margin:0!important}
+  html body .machine-suite #midiRouter .midi-badge{grid-column:2!important;grid-row:1!important;width:92px!important;min-width:0!important;height:32px!important;min-height:32px!important;align-self:center!important}
+  html body .machine-suite #midiHardwareGuide{grid-column:1/-1!important;grid-row:2!important;width:100%!important;min-width:0!important;height:40px!important;min-height:40px!important;margin:0!important;align-self:stretch!important;z-index:0!important}
 
   /* Primary mobile order: Enable + Playback, then Output, then Device. */
   html body .machine-suite #midiRouter .midi-router-primary{
     display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;grid-template-rows:auto auto auto!important;
-    gap:8px!important;width:100%!important;max-width:100%!important;min-width:0!important;overflow:hidden!important
+    gap:8px!important;width:100%!important;max-width:100%!important;min-width:0!important;
+    margin:0!important;padding:0!important;overflow:hidden!important;position:relative!important;z-index:1!important
   }
   html body .machine-suite #midiRouter .midi-connect{grid-column:1!important;grid-row:1!important;width:100%!important}
   html body .machine-suite #midiRouter .midi-playback{grid-column:2!important;grid-row:1!important;width:100%!important}
@@ -182,6 +188,6 @@ html body .machine-suite #midiRouter .midi-toggle b{white-space:nowrap!important
 @media(max-width:360px){
   html body .machine-suite #patternSheet #knobGrid,
   html body .machine-suite #patternSheet .synth-controls{grid-template-columns:repeat(2,minmax(0,1fr))!important}
-  html body .machine-suite #midiRouter .midi-compact-head{grid-template-columns:minmax(0,1fr) 78px!important}
+  html body .machine-suite #midiRouter .midi-compact-head{grid-template-columns:minmax(0,1fr) 78px!important;height:auto!important;min-height:80px!important}
   html body .machine-suite #midiRouter .midi-badge{width:78px!important}
 }
