@@ -5,7 +5,7 @@
   const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
   const STORE='303box-delay-feedback-v1';
   const ORDER=['tune','cutoff','resonance','envMod','decay','accent','delay','feedback','reverb','distortion'];
-  let value=32,node=null,attempts=0,observer=null;
+  let value=32,node=null,attempts=0;
   try{const saved=Number(localStorage.getItem(STORE));if(Number.isFinite(saved))value=clamp(Math.round(saved),0,100)}catch(_){}
 
   function dialSvg(){
@@ -63,10 +63,9 @@
     if(!grid.querySelector('[data-knob-id="feedback"]'))grid.appendChild(makeKnob());
     const nodes=ORDER.map(id=>grid.querySelector(`[data-knob-id="${id}"]`)?.closest('.knob')).filter(Boolean);
     if(nodes.length!==ORDER.length)return false;
-    nodes.forEach(n=>grid.appendChild(n));
-    render();
-    if(!observer){observer=new MutationObserver(()=>queueMicrotask(normalizeGrid));observer.observe(grid,{childList:true})}
-    return true;
+    const current=[...grid.children].filter(el=>el.classList.contains('knob'));
+    if(nodes.some((n,i)=>current[i]!==n))nodes.forEach(n=>grid.appendChild(n));
+    render();return true;
   }
 
   function installStyle(){
