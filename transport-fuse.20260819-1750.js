@@ -74,33 +74,17 @@
     const e=engine();
     if(!e){unlockSoon();return}
 
-    const startSolo = part => {
-      const isBass = part==='bass';
-      const active = isBass ? e.bassOn : e.drumsOn;
-      if(active){
-        isBass ? e.toggleBass?.() : e.toggleDrums?.();
-        return;
-      }
-      // Dedicated section buttons are deliberately exclusive on start. If the
-      // other part is already running, reset the shared clock and start only
-      // the requested section from step 1.
-      if(e.state!=='stopped') e.stopAll?.();
-      setTimeout(()=>{
-        const fresh=engine();
-        if(!fresh) return;
-        isBass ? fresh.toggleBass?.() : fresh.toggleDrums?.();
-      },0);
-    };
-
-    if(action==='bass') startSolo('bass');
-    else if(action==='drums') startSolo('drums');
+    // Bass and rhythm are two switches on one clock. Starting one no longer
+    // tears down the other part; it simply joins the current shared position.
+    if(action==='bass') e.toggleBass?.();
+    else if(action==='drums') e.toggleDrums?.();
     else if(action==='all'){
       const both=e.state==='playing'&&e.bassOn&&e.drumsOn;
       if(both) e.stopAll?.();
-      else{
-        if(e.state!=='stopped') e.stopAll?.();
-        setTimeout(()=>engine()?.toggleAll?.(),0);
-      }
+      else if(e.state==='playing'){
+        if(!e.bassOn) e.toggleBass?.();
+        if(!e.drumsOn) e.toggleDrums?.();
+      }else e.toggleAll?.();
     }
     else if(action==='panic') e.stopAll?.();
     unlockSoon();
@@ -143,5 +127,5 @@
   window.addEventListener('load',neutralizeLegacySync,{once:true});
   window.addEventListener('pagehide',()=>{closeLegacy();closeUnified()});
 
-  window.__303boxTransportFuse={version:'1750',run,closeLegacy,closeUnified};
+  window.__303boxTransportFuse={version:'1830',run,closeLegacy,closeUnified};
 })();
