@@ -19,7 +19,7 @@
     const v=feedbackGain(),ctx=node.context,now=ctx?.currentTime||0;
     try{immediate?node.gain.setValueAtTime(v,now):node.gain.setTargetAtTime(v,now,.018)}catch(_){try{node.gain.value=v}catch(__){}}
   }
-  function captureNode(gain){node=gain;window.__303boxDelayFeedbackNode=gain;applyNode(true)}
+  function captureNode(gain){node=gain;window.__303boxDelayFeedbackNode=gain;applyNode(true);queueMicrotask(()=>applyNode(true))}
 
   function patchWebAudio(){
     const ctors=[window.AudioContext,window.webkitAudioContext].filter(Boolean);
@@ -84,6 +84,7 @@
 
   function boot(){attempts++;installStyle();if(!normalizeGrid()&&attempts<35)setTimeout(boot,40)}
   patchWebAudio();
+  setInterval(()=>applyNode(false),320);
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
   document.addEventListener('303box:ready',()=>{normalizeGrid();applyNode(true)});
   window.__303boxFeedback={version:'2120',set:setValue,get value(){return value},get node(){return node}};
