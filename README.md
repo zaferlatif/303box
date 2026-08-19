@@ -4,10 +4,10 @@
 
 <p align="center">
   <a href="https://303box.com"><img alt="OPEN 303BOX" src="https://img.shields.io/badge/OPEN_303BOX-LIVE-ddff37?style=for-the-badge&labelColor=080809"></a>
+  <img alt="T-8 and TD-3 focus" src="https://img.shields.io/badge/HARDWARE-T--8_%2F_TD--3-ddff37?style=for-the-badge&labelColor=080809">
   <img alt="Pattern sketchpad" src="https://img.shields.io/badge/PATTERN-SKETCHPAD-f4f4ef?style=for-the-badge&labelColor=080809">
   <img alt="Web MIDI" src="https://img.shields.io/badge/WEB_MIDI-HARDWARE-ddff37?style=for-the-badge&labelColor=080809">
   <img alt="No AI composition" src="https://img.shields.io/badge/AI_COMPOSITION-NO-f4f4ef?style=for-the-badge&labelColor=080809">
-  <img alt="License MIT" src="https://img.shields.io/badge/LICENSE-MIT-ddff37?style=for-the-badge&labelColor=080809">
 </p>
 
 <h1 align="center">303box</h1>
@@ -27,7 +27,7 @@ It is closer to a notebook with sound:
 - use rule-based Random as a starting sketch, then edit it by hand;
 - export the pattern as a visual reference;
 - route notes/clock to supported MIDI hardware;
-- on supported workflows, record the live MIDI pass into the device and perform the final WRITE on the hardware.
+- where a capture workflow is verified, perform the live MIDI pass into the device and finish the actual save on the hardware.
 
 The musical decisions remain with the musician. Notes can be changed, random results can be rejected, knobs still need to be performed, and the final recording/performance is not automated by 303box.
 
@@ -41,7 +41,7 @@ Programming a hardware sequencer one tiny step at a time can be slow when you ar
 |---|---|---|---|
 | Readable 16-step grid | Browser Web Audio preview | MIDI notes + clock | Hardware knobs remain yours |
 | Note / rest / tie | Bass + rhythm together | Device profiles | Final sound decisions remain yours |
-| Accent / slide / octave | Scope + FFT | T-8 REC helper | WRITE/save remains on hardware |
+| Accent / slide / octave | Scope + FFT | Verified REC helpers | WRITE/save remains on hardware |
 | Rule-based Random | Shared BPM / Swing | Pattern image export | Live performance remains live |
 
 Playback position uses the same small red transport LED across the 303 and rhythm sequencers; pattern content keeps its authored colors.
@@ -81,18 +81,35 @@ Playback modes:
 - `BROWSER + MIDI` — browser + connected hardware
 - `MIDI ONLY` — hardware output only
 
-### Device profiles
+The MIDI panel includes a **HARDWARE GUIDE / CİHAZ REHBERİ** button. It opens the transfer matrix inside the app, so “live MIDI support” cannot be confused with “direct device-memory WRITE.”
 
-| Profile | Bass | Rhythm | Default channels | REC helper |
-|---|---:|---:|---|---|
-| Roland T-8 | Yes | Yes | Bass 2 / Rhythm 10 | Bass + Rhythm |
-| Behringer TD-3 | Yes | — | Bass 1 | — |
-| Behringer TD-3-MO | Yes | — | Bass 1 | — |
-| Korg volca bass | Yes | — | Bass 1 | — |
-| Korg volca nubass | Yes | — | Bass 1 | — |
-| Generic MIDI | Yes | Optional | User selected | — |
+### Hardware transfer matrix
 
-These are **303box routing profiles**, not manufacturer certifications.
+| Device | Live MIDI | Sequencer transfer path | Direct browser memory write | Final save |
+|---|---|---|---|---|
+| **Roland T-8** | Bass + Rhythm, velocity, clock, transport | **REC capture** — Bass hardware-tested; Rhythm beta | **No** — T-8 does not receive SysEx | Physical T-8 WRITE |
+| **Behringer TD-3** | Bass + clock/transport workflow | Live MIDI / manual sequencing; external capture needs verification | **Not enabled** — no public official pattern-write SysEx specification found | Device sequencer/save |
+| **Behringer TD-3-MO** | Bass + clock/transport; MIDI-controllable filter capability | Same verification status as TD-3 | **Not enabled** — no verified public pattern-write protocol | Device sequencer/save |
+| Korg volca bass | Notes, velocity, clock and documented synthesis CCs | External-MIDI-to-sequencer capture requires hardware verification | **No SysEx** in the official MIDI chart | Device memory workflow; 8 recording patterns |
+| Korg volca nubass | Notes, velocity, clock and documented CCs | Realtime REC exists; external MIDI capture still requires verification | No documented browser pattern-memory write workflow | Physical device memory workflow; 16 patterns |
+
+**303box policy:** a device can be supported for live MIDI without being supported for direct non-volatile memory WRITE. 303box does not send guessed or undocumented memory commands.
+
+Primary hardware focus is currently **Roland T-8 + Behringer TD-3/TD-3-MO**. Korg volca bass and volca nubass remain first-class live-MIDI profiles and hardware-transfer research targets.
+
+### Official hardware references
+
+- Roland T-8: [Realtime rhythm recording](https://static.roland.com/manuals/T-8_manual_v102/eng/28312384.html) · [MIDI implementation](https://static.roland.com/manuals/T-8_manual_v102/ptb/31849756.html)
+- Behringer TD-3: [Official product / sequencer information](https://www.behringer.com/en/products/0718-ABP)
+- Behringer TD-3-MO: [Official product / MIDI-controllable VCF information](https://www.behringer.com/en/products/0718-ACF)
+- Korg volca bass: [Official downloads / MIDI documentation](https://www.korg.com/us/support/download/product/0/140/) · [Specifications](https://www.korg.com/us/products/dj/volca_bass/page_2.php)
+- Korg volca nubass: [Official downloads / MIDI documentation](https://www.korg.com/us/support/download/product/0/820/) · [Specifications](https://www.korg.com/us/products/dj/volca_nubass/specifications.php)
+
+### Why there is no TD-3 “DIRECT SYSEX WRITE” button
+
+The TD-3 family has an onboard 16-step sequencer and can store up to 250 patterns. That does **not** by itself define a public browser-safe memory-write protocol.
+
+303box currently has no verified, manufacturer-published TD-3 pattern-memory SysEx message format. Therefore the application deliberately does not expose a “direct WRITE” button that could imply a safe protocol exists. If Behringer publishes a suitable protocol, or a protocol can be verified rigorously on disposable hardware memory without guessing, it can be implemented as a device-specific capability later.
 
 ### Clock and tempo
 
@@ -102,7 +119,7 @@ This is external synchronization, not a rewrite of the hardware's stored tempo v
 
 ### T-8 rhythm velocity
 
-T-8 rhythm notes respond to MIDI velocity. The T-8 profile now uses a moderate outgoing velocity curve so live browser-driven drums sit closer to the device sequencer instead of overpowering it.
+T-8 rhythm notes respond to MIDI velocity. The T-8 profile uses a moderate outgoing velocity curve so live browser-driven drums sit closer to the device sequencer instead of overpowering it.
 
 ## Roland T-8 REC helper
 
@@ -162,17 +179,19 @@ For Web MIDI hardware testing, the live HTTPS deployment is usually the easiest 
 
 ```text
 303box/
-├── index.html                            # static workstation shell + product positioning
-├── app.js                                # core sequencer foundation
-├── acid-console.20260818-1340.js         # unified Web Audio engine
-├── midi-router.20260818-1730.js          # MIDI routing + T-8 REC flow
-├── bass-scope.20260818-1680.js           # 303-only Scope / FFT
-├── generator-router.20260818-1650.js     # independent rule-based generators
-├── playhead-unified.20260818-1720.css    # shared red transport LED
-├── positioning.20260818-1740.css         # sketchpad / musician-owned positioning UI
-├── seo.20260818-1740.js                  # matching EN/TR product + SEO copy
-├── sequencer-engine.20260818-1740.js     # production compatibility loader
-├── cache-reset.20260818-1740.js          # current cache epoch
+├── index.html                             # static workstation shell + hardware guide dialog
+├── app.js                                 # core sequencer foundation
+├── acid-console.20260818-1340.js          # unified Web Audio engine
+├── midi-router.20260818-1730.js           # MIDI routing + T-8 REC flow
+├── hardware-guide.20260819-0815.js        # guide open/close + selected-device focus
+├── hardware-guide.20260819-0815.css       # transfer matrix dialog UI
+├── bass-scope.20260818-1680.js            # 303-only Scope / FFT
+├── generator-router.20260818-1650.js      # independent rule-based generators
+├── playhead-unified.20260818-1720.css     # shared red transport LED
+├── positioning.20260818-1740.css          # sketchpad / musician-owned positioning UI
+├── seo.20260818-1740.js                   # matching EN/TR product + SEO copy
+├── sequencer-engine.20260818-1740.js      # production compatibility loader
+├── cache-reset.20260818-1740.js           # compatibility cache epoch
 └── README.md
 ```
 
