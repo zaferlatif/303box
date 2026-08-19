@@ -1,146 +1,187 @@
-/* 303box 2150 — MIDI layout repair authority.
-   This intentionally outranks the legacy runtime-injected 8-column grid. */
+/* 303box 2200 — final workstation layout authority.
+   Desktop MIDI remains bounded; mobile becomes a deliberate compact layout.
+   This file loads after legacy runtime-injected rules and therefore owns the last word. */
 
+html,body{max-width:100%;overflow-x:hidden}
+html body .machine-suite,html body .machine-suite *{box-sizing:border-box}
+
+/* ---------- MIDI: desktop authority ---------- */
 html body .machine-suite #midiRouter,
-html body .machine-suite #midiRouter *{
-  box-sizing:border-box!important;
-}
+html body .machine-suite #midiRouter *{box-sizing:border-box!important}
 html body .machine-suite #midiRouter{
-  width:100%!important;
-  max-width:100%!important;
-  min-width:0!important;
-  overflow:hidden!important;
-  contain:inline-size!important;
+  width:100%!important;max-width:100%!important;min-width:0!important;
+  overflow:hidden!important;contain:inline-size!important
 }
-
-/* Header: title / hardware guide / status badge. */
 html body .machine-suite #midiRouter .midi-compact-head{
-  display:grid!important;
-  grid-template-columns:minmax(0,1fr) minmax(180px,.72fr) 130px!important;
-  gap:8px!important;
-  align-items:center!important;
-  width:100%!important;
-  max-width:100%!important;
-  min-width:0!important;
-  margin:0 0 11px!important;
+  display:grid!important;grid-template-columns:minmax(0,1fr) minmax(170px,.72fr) 96px!important;
+  gap:8px!important;align-items:center!important;width:100%!important;max-width:100%!important;
+  min-width:0!important;margin:0 0 11px!important
 }
 html body .machine-suite #midiRouter .midi-compact-head>strong,
 html body .machine-suite #midiHardwareGuide,
 html body .machine-suite #midiRouter .midi-badge{
-  grid-column:auto!important;
-  grid-row:auto!important;
-  width:100%!important;
-  max-width:100%!important;
-  min-width:0!important;
-  margin:0!important;
-  position:static!important;
-  transform:none!important;
+  grid-column:auto!important;grid-row:auto!important;position:static!important;transform:none!important;
+  width:100%!important;max-width:100%!important;min-width:0!important;margin:0!important
 }
 html body .machine-suite #midiHardwareGuide,
-html body .machine-suite #midiRouter .midi-badge{
-  overflow:hidden!important;
-  text-overflow:ellipsis!important;
-  white-space:nowrap!important;
-}
+html body .machine-suite #midiRouter .midi-badge{overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important}
 
-/* Primary row: Connect / Output / Device / Playback. */
 html body .machine-suite #midiRouter .midi-router-primary{
-  display:grid!important;
-  grid-template-columns:minmax(0,1.18fr) minmax(0,1.18fr) minmax(0,1fr) minmax(0,.92fr)!important;
-  gap:8px!important;
-  align-items:end!important;
-  width:100%!important;
-  max-width:100%!important;
-  min-width:0!important;
-  margin:0!important;
-  overflow:hidden!important;
+  display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr) minmax(0,1fr) minmax(0,.9fr)!important;
+  gap:8px!important;align-items:end!important;width:100%!important;max-width:100%!important;min-width:0!important;
+  margin:0!important;overflow:hidden!important
+}
+html body .machine-suite #midiRouter .midi-router-secondary{
+  display:grid!important;grid-template-columns:minmax(0,.7fr) minmax(0,.7fr) minmax(0,1.08fr) minmax(0,1.18fr) minmax(0,.76fr)!important;
+  gap:8px!important;align-items:end!important;width:100%!important;max-width:100%!important;min-width:0!important;
+  margin:8px 0 0!important;overflow:hidden!important
 }
 html body .machine-suite #midiRouter .midi-connect,
 html body .machine-suite #midiRouter .midi-output,
 html body .machine-suite #midiRouter .midi-profile,
-html body .machine-suite #midiRouter .midi-playback{
-  grid-column:auto!important;
-  grid-row:auto!important;
-}
-
-/* Secondary row: Bass / Rhythm / Clock / Start-Stop / final action. */
-html body .machine-suite #midiRouter .midi-router-secondary{
-  display:grid!important;
-  grid-template-columns:minmax(0,.72fr) minmax(0,.72fr) minmax(0,1.16fr) minmax(0,1.24fr) minmax(0,.82fr)!important;
-  gap:8px!important;
-  align-items:end!important;
-  width:100%!important;
-  max-width:100%!important;
-  min-width:0!important;
-  margin:8px 0 0!important;
-  overflow:hidden!important;
-}
+html body .machine-suite #midiRouter .midi-playback,
 html body .machine-suite #midiRouter .midi-router-secondary>:nth-child(1),
 html body .machine-suite #midiRouter .midi-router-secondary>:nth-child(2),
 html body .machine-suite #midiRouter .midi-router-secondary>:nth-child(3),
 html body .machine-suite #midiRouter .midi-router-secondary>:nth-child(4),
-html body .machine-suite #midiRouter .midi-router-secondary>:nth-child(5){
-  grid-column:auto!important;
-  grid-row:auto!important;
-}
+html body .machine-suite #midiRouter .midi-router-secondary>:nth-child(5){grid-column:auto!important;grid-row:auto!important}
 
 html body .machine-suite #midiRouter .midi-router-primary>*,
 html body .machine-suite #midiRouter .midi-router-secondary>*,
 html body .machine-suite #midiRouter .midi-field,
 html body .machine-suite #midiRouter label{
-  width:100%!important;
-  max-width:100%!important;
-  min-width:0!important;
-  margin-left:0!important;
-  margin-right:0!important;
+  width:100%!important;max-width:100%!important;min-width:0!important;margin-left:0!important;margin-right:0!important
 }
 html body .machine-suite #midiRouter select,
 html body .machine-suite #midiRouter button,
 html body .machine-suite #midiRouter .midi-connect,
 html body .machine-suite #midiRouter .midi-toggle,
 html body .machine-suite #midiRouter .midi-panic{
-  width:100%!important;
-  max-width:100%!important;
-  min-width:0!important;
-  overflow:hidden!important;
+  width:100%!important;max-width:100%!important;min-width:0!important;overflow:hidden!important
 }
 html body .machine-suite #midiRouter select,
-html body .machine-suite #midiRouter .midi-toggle b{
-  text-overflow:ellipsis!important;
-  white-space:nowrap!important;
+html body .machine-suite #midiRouter .midi-toggle b{white-space:nowrap!important;text-overflow:ellipsis!important;overflow:hidden!important}
+
+/* ---------- mobile workstation ---------- */
+@media(max-width:760px){
+  html body .workspace.shell,html body .machine-suite{width:100%!important;max-width:100%!important;min-width:0!important}
+  html body .machine-suite{border-radius:13px!important;overflow:hidden!important}
+
+  /* Console top: master play full width, controls 2-up, pump full width. */
+  html body .machine-suite #acidConsole .acid-console-grid{
+    display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:1px!important;width:100%!important;min-width:0!important
+  }
+  html body .machine-suite #acidConsole .acid-console-play-cell{grid-column:1/-1!important;min-height:74px!important;padding:12px!important}
+  html body .machine-suite #acidConsole .acid-console-play-cell #acidPlayAll{width:100%!important;max-width:100%!important;min-height:52px!important}
+  html body .machine-suite #acidConsole .acid-pump-cell{grid-column:1/-1!important}
+  html body .machine-suite #acidConsole .acid-console-scope-cell,
+  html body .machine-suite #acidConsole #midiRouter{grid-column:1/-1!important;width:100%!important;min-width:0!important;padding:11px!important}
+
+  /* Scope: one canvas and a single compact command line. */
+  html body .machine-suite .scope-panel{
+    display:grid!important;grid-template-columns:1fr!important;grid-template-rows:auto 104px auto auto auto!important;
+    width:100%!important;min-width:0!important;gap:8px!important
+  }
+  html body .machine-suite .scope-panel #bassOnlyScope,
+  html body .machine-suite .scope-panel #bassLiveScope{
+    grid-column:1!important;grid-row:2!important;width:100%!important;height:104px!important;min-height:104px!important;max-height:104px!important
+  }
+  html body .machine-suite .scope-panel .mini-tabs{grid-column:1!important;grid-row:3!important;display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:6px!important;width:100%!important}
+  html body .machine-suite #scopeSourceControls{grid-column:1!important;grid-row:4!important;width:100%!important;min-width:0!important;margin:0!important;display:grid!important;grid-template-columns:1fr!important;gap:6px!important}
+  html body .machine-suite .scope-source-buttons{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:6px!important;width:100%!important}
+  html body .machine-suite .scope-panel .analyzer-tab,
+  html body .machine-suite .scope-source-button{width:100%!important;min-width:0!important;height:38px!important;min-height:38px!important;margin:0!important}
+  html body .machine-suite #scopeAudioInput:not([hidden]){grid-column:1!important;width:100%!important;max-width:100%!important;height:38px!important}
+  html body .machine-suite #scopeInputStatus{grid-column:1!important;grid-row:5!important}
+
+  /* MIDI header: title/badge first row, guide second row. */
+  html body .machine-suite #midiRouter .midi-compact-head{
+    display:grid!important;grid-template-columns:minmax(0,1fr) 92px!important;grid-template-rows:auto auto!important;
+    gap:8px!important;width:100%!important;min-width:0!important;margin:0 0 10px!important
+  }
+  html body .machine-suite #midiRouter .midi-compact-head>strong{grid-column:1!important;grid-row:1!important;align-self:center!important}
+  html body .machine-suite #midiRouter .midi-badge{grid-column:2!important;grid-row:1!important;width:92px!important;min-width:0!important}
+  html body .machine-suite #midiHardwareGuide{grid-column:1/-1!important;grid-row:2!important;width:100%!important;min-width:0!important;height:40px!important;margin:0!important}
+
+  /* Primary mobile order: Enable + Playback, then Output, then Device. */
+  html body .machine-suite #midiRouter .midi-router-primary{
+    display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;grid-template-rows:auto auto auto!important;
+    gap:8px!important;width:100%!important;max-width:100%!important;min-width:0!important;overflow:hidden!important
+  }
+  html body .machine-suite #midiRouter .midi-connect{grid-column:1!important;grid-row:1!important;width:100%!important}
+  html body .machine-suite #midiRouter .midi-playback{grid-column:2!important;grid-row:1!important;width:100%!important}
+  html body .machine-suite #midiRouter .midi-output{grid-column:1/-1!important;grid-row:2!important;width:100%!important}
+  html body .machine-suite #midiRouter .midi-profile{grid-column:1/-1!important;grid-row:3!important;width:100%!important}
+
+  /* Secondary mobile order: channels / clock controls / panic. */
+  html body .machine-suite #midiRouter .midi-router-secondary{
+    display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;grid-template-rows:auto auto auto!important;
+    gap:8px!important;width:100%!important;max-width:100%!important;min-width:0!important;margin-top:8px!important;overflow:hidden!important
+  }
+  html body .machine-suite #midiRouter .midi-router-secondary>:nth-child(1){grid-column:1!important;grid-row:1!important}
+  html body .machine-suite #midiRouter .midi-router-secondary>:nth-child(2){grid-column:2!important;grid-row:1!important}
+  html body .machine-suite #midiRouter .midi-router-secondary>:nth-child(3){grid-column:1!important;grid-row:2!important}
+  html body .machine-suite #midiRouter .midi-router-secondary>:nth-child(4){grid-column:2!important;grid-row:2!important}
+  html body .machine-suite #midiRouter .midi-router-secondary>:nth-child(5){grid-column:1/-1!important;grid-row:3!important}
+  html body .machine-suite #midiRouter .midi-panic{width:100%!important;min-height:46px!important}
+  html body .machine-suite #midiRouter .midi-field{grid-template-rows:auto 46px!important}
+  html body .machine-suite #midiRouter select,
+  html body .machine-suite #midiRouter .midi-connect,
+  html body .machine-suite #midiRouter .midi-toggle{height:46px!important;min-height:46px!important}
+  html body .machine-suite #midiRouter .midi-rec-assist{grid-template-columns:repeat(2,minmax(0,1fr))!important;width:100%!important;gap:8px!important}
+
+  /* 303 control strip must never inherit the old 550px minimum width. */
+  html body .machine-suite #patternSheet .hardware-strip{
+    display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;grid-template-rows:auto auto!important;
+    width:100%!important;max-width:100%!important;min-width:0!important;min-height:0!important;overflow:hidden!important
+  }
+  html body .machine-suite #patternSheet .waveform-module,
+  html body .machine-suite #patternSheet .tempo-module{
+    grid-row:1!important;min-width:0!important;width:100%!important;min-height:150px!important;height:auto!important;padding:12px 8px!important
+  }
+  html body .machine-suite #patternSheet .waveform-module{grid-column:1!important}
+  html body .machine-suite #patternSheet .tempo-module{grid-column:2!important}
+
+  html body .machine-suite #patternSheet #knobGrid,
+  html body .machine-suite #patternSheet .synth-controls{
+    grid-column:1/-1!important;grid-row:2!important;display:grid!important;
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;grid-template-rows:none!important;grid-auto-rows:108px!important;
+    width:100%!important;max-width:100%!important;min-width:0!important;min-height:0!important;height:auto!important;
+    gap:0!important;padding:0!important;overflow:hidden!important;background:#1b1d22!important
+  }
+  html body .machine-suite #patternSheet #knobGrid .knob,
+  html body .machine-suite #patternSheet #knobGrid .fx-knob,
+  html body .machine-suite #patternSheet #knobGrid .fx-reverb{
+    width:100%!important;max-width:100%!important;min-width:0!important;height:108px!important;min-height:108px!important;
+    padding:7px 4px 6px!important;border-left:1px solid #41444d!important;border-bottom:1px solid #373a42!important;overflow:hidden!important
+  }
+  html body .machine-suite #patternSheet #knobGrid .knob-control,
+  html body .machine-suite #patternSheet #knobGrid .knob-control svg{
+    width:56px!important;height:56px!important;min-width:56px!important;min-height:56px!important;flex:0 0 56px!important
+  }
+  html body .machine-suite #patternSheet #knobGrid .knob-title{font-size:.45rem!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+  html body .machine-suite #patternSheet #knobGrid .knob-value{font-size:.45rem!important;margin-top:2px!important}
+
+  /* Waveform and tempo remain compact and centred. */
+  html body .machine-suite #patternSheet .wave-selector{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:6px!important;width:100%!important;padding:0!important}
+  html body .machine-suite #patternSheet .wave-button{width:100%!important;min-width:0!important;height:46px!important}
+  html body .machine-suite #patternSheet .tempo-module{display:grid!important;grid-template-columns:minmax(0,1fr) 58px!important;grid-template-rows:auto auto auto!important;column-gap:6px!important;row-gap:7px!important;align-content:center!important;align-items:center!important}
+  html body .machine-suite #patternSheet .tempo-module>.control-label{grid-column:1/-1!important;grid-row:1!important;text-align:center!important}
+  html body .machine-suite #patternSheet .tempo-module>.seven-display{grid-column:1!important;grid-row:2!important;width:100%!important;max-width:112px!important;justify-self:end!important}
+  html body .machine-suite #patternSheet .tempo-module>#tempoKnob{grid-column:2!important;grid-row:2!important;width:58px!important}
+  html body .machine-suite #patternSheet .tempo-module .random-patch-button{grid-column:1/-1!important;grid-row:3!important;justify-self:center!important;margin:0!important;max-width:150px!important}
+
+  /* Both action bars remain the same compact 2x2 component. */
+  html body .machine-suite .pattern-actions,
+  html body .machine-suite .pattern-action-grid,
+  html body .machine-suite #drums .drum-actions{
+    display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;grid-auto-rows:46px!important;gap:7px!important;width:100%!important;min-width:0!important
+  }
 }
 
-/* Narrow layouts become two columns instead of forcing desktop widths. */
-@media(max-width:900px){
-  html body .machine-suite #midiRouter .midi-compact-head{
-    grid-template-columns:minmax(0,1fr) minmax(150px,.8fr) 94px!important;
-  }
-  html body .machine-suite #midiRouter .midi-router-primary,
-  html body .machine-suite #midiRouter .midi-router-secondary{
-    grid-template-columns:repeat(2,minmax(0,1fr))!important;
-    gap:7px!important;
-    overflow:visible!important;
-  }
-  html body .machine-suite #midiRouter .midi-router-primary>*:last-child,
-  html body .machine-suite #midiRouter .midi-router-secondary>*:last-child{
-    grid-column:1/-1!important;
-  }
-}
-
-@media(max-width:560px){
-  html body .machine-suite #midiRouter .midi-compact-head{
-    grid-template-columns:minmax(0,1fr) auto!important;
-    row-gap:7px!important;
-  }
-  html body .machine-suite #midiRouter .midi-compact-head>strong{grid-column:1!important;grid-row:1!important}
-  html body .machine-suite #midiRouter .midi-badge{grid-column:2!important;grid-row:1!important;width:auto!important;min-width:70px!important}
-  html body .machine-suite #midiHardwareGuide{grid-column:1/-1!important;grid-row:2!important}
-  html body .machine-suite #midiRouter .midi-router-primary,
-  html body .machine-suite #midiRouter .midi-router-secondary{
-    grid-template-columns:minmax(0,1fr)!important;
-  }
-  html body .machine-suite #midiRouter .midi-router-primary>*,
-  html body .machine-suite #midiRouter .midi-router-secondary>*{
-    grid-column:1!important;
-  }
+@media(max-width:360px){
+  html body .machine-suite #patternSheet #knobGrid,
+  html body .machine-suite #patternSheet .synth-controls{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  html body .machine-suite #midiRouter .midi-compact-head{grid-template-columns:minmax(0,1fr) 78px!important}
+  html body .machine-suite #midiRouter .midi-badge{width:78px!important}
 }
