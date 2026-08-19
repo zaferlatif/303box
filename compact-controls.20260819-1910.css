@@ -1,0 +1,136 @@
+/* 303box 1910 — compact scope + MIDI controls across desktop/tablet/mobile */
+
+/* Scope: keep the four primary switches on one visual row. */
+.acid-console-scope-cell .scope-panel{
+  grid-template-columns:auto minmax(0,1fr)!important;
+  grid-template-rows:auto 112px auto!important;
+  column-gap:8px!important;
+  row-gap:7px!important;
+}
+.acid-console-scope-cell .mini-analyzer-head,
+.acid-console-scope-cell #bassLiveScope{
+  grid-column:1/-1!important;
+}
+.acid-console-scope-cell .mini-tabs{
+  grid-column:1!important;
+  grid-row:3!important;
+  align-self:start!important;
+  display:flex!important;
+  gap:5px!important;
+  margin:0!important;
+  white-space:nowrap!important;
+}
+.acid-console-scope-cell .scope-source-controls{
+  grid-column:2!important;
+  grid-row:3!important;
+  align-self:start!important;
+  display:grid!important;
+  grid-template-columns:auto minmax(0,1fr) auto!important;
+  gap:5px!important;
+  min-width:0!important;
+}
+.acid-console-scope-cell .scope-source-buttons{
+  display:flex!important;
+  gap:5px!important;
+  white-space:nowrap!important;
+}
+.acid-console-scope-cell .analyzer-tab,
+.acid-console-scope-cell .scope-source-button{
+  min-width:0!important;
+  min-height:30px!important;
+  height:30px!important;
+  padding:0 10px!important;
+  box-sizing:border-box!important;
+}
+#scopeInputStatus:empty{display:none!important}
+#scopeInputStatus:not(:empty){grid-column:1/-1!important;margin-top:1px!important}
+
+/* At the 1180 breakpoint the MIDI area must use the full console width instead of a narrow side column. */
+@media(max-width:1180px){
+  .acid-console.static-console .acid-console-scope-cell{grid-column:1/-1!important}
+  #acidConsole #midiRouter{grid-column:1/-1!important}
+}
+
+/* Force a workstation-like MIDI layout instead of tall form fields. */
+#acidConsole #midiRouter .midi-router-primary{
+  grid-template-columns:160px minmax(250px,1.45fr) minmax(180px,.9fr) minmax(180px,.9fr)!important;
+  gap:8px!important;
+}
+#acidConsole #midiRouter .midi-router-secondary{
+  grid-template-columns:104px 104px minmax(170px,1fr) minmax(190px,1.08fr) 118px!important;
+  gap:8px!important;
+  margin-top:8px!important;
+}
+#acidConsole #midiRouter select,
+#acidConsole #midiRouter .midi-connect,
+#acidConsole #midiRouter .midi-panic,
+#acidConsole #midiRouter .midi-toggle{
+  height:40px!important;
+  min-height:40px!important;
+}
+#acidConsole #midiRouter .midi-rec-assist{
+  grid-template-columns:96px minmax(0,1fr) minmax(0,1fr)!important;
+  gap:8px!important;
+  margin-top:8px!important;
+}
+#acidConsole #midiRouter .midi-rec-assist[hidden]{display:none!important}
+
+@media(max-width:900px){
+  #acidConsole #midiRouter .midi-router-primary{
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
+  }
+  #acidConsole #midiRouter .midi-connect{grid-column:1!important}
+  #acidConsole #midiRouter .midi-playback{grid-column:2!important}
+  #acidConsole #midiRouter .midi-output{grid-column:1/-1!important}
+  #acidConsole #midiRouter .midi-profile{grid-column:1/-1!important}
+  #acidConsole #midiRouter .midi-router-secondary{
+    grid-template-columns:92px 92px minmax(0,1fr) minmax(0,1fr)!important;
+  }
+  #acidConsole #midiRouter .midi-panic{grid-column:1/-1!important}
+}
+
+@media(max-width:600px){
+  .acid-console.static-console .acid-console-scope-cell{min-height:164px!important;padding:10px!important}
+  .acid-console-scope-cell .scope-panel{
+    grid-template-columns:auto minmax(0,1fr)!important;
+    grid-template-rows:auto 96px auto!important;
+  }
+  .acid-console-scope-cell #bassLiveScope{height:96px!important;min-height:96px!important}
+  .acid-console-scope-cell .analyzer-tab,
+  .acid-console-scope-cell .scope-source-button{
+    height:29px!important;min-height:29px!important;padding:0 7px!important;font-size:.43rem!important;
+  }
+  .acid-console-scope-cell #scopeSourceState{display:none!important}
+  .acid-console-scope-cell .scope-source-controls{grid-template-columns:auto minmax(0,1fr)!important}
+
+  #acidConsole #midiRouter{padding:10px!important}
+  #acidConsole #midiRouter .midi-router-primary{
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
+    gap:7px!important;
+  }
+  #acidConsole #midiRouter .midi-connect{grid-column:1!important}
+  #acidConsole #midiRouter .midi-playback{grid-column:2!important}
+  #acidConsole #midiRouter .midi-output,
+  #acidConsole #midiRouter .midi-profile{grid-column:1/-1!important}
+  #acidConsole #midiRouter .midi-router-secondary{
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
+    gap:7px!important;
+  }
+  #acidConsole #midiRouter #midiRhythmField{grid-column:2!important}
+  #acidConsole #midiRouter .midi-toggle{grid-column:auto!important}
+  #acidConsole #midiRouter .midi-panic{grid-column:1/-1!important}
+  #acidConsole #midiRouter .midi-rec-assist{
+    grid-template-columns:1fr 1fr!important;
+  }
+  #acidConsole #midiRouter .midi-rec-title{grid-column:1/-1!important}
+}
+
+@media(max-width:390px){
+  .acid-console-scope-cell .scope-panel{column-gap:5px!important}
+  .acid-console-scope-cell .mini-tabs,
+  .acid-console-scope-cell .scope-source-buttons{gap:4px!important}
+  .acid-console-scope-cell .analyzer-tab,
+  .acid-console-scope-cell .scope-source-button{padding:0 6px!important;font-size:.4rem!important}
+  #acidConsole #midiRouter .midi-router-primary,
+  #acidConsole #midiRouter .midi-router-secondary{grid-template-columns:1fr 1fr!important}
+}
