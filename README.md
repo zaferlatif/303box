@@ -6,7 +6,7 @@
   <a href="https://303box.com"><img alt="OPEN 303BOX" src="https://img.shields.io/badge/OPEN_303BOX-LIVE-ddff37?style=for-the-badge&labelColor=1f2126"></a>
   <img alt="Pattern sketchpad" src="https://img.shields.io/badge/PATTERN-SKETCHPAD-f4f4ef?style=for-the-badge&labelColor=1f2126">
   <img alt="Web MIDI" src="https://img.shields.io/badge/WEB_MIDI-HARDWARE-ddff37?style=for-the-badge&labelColor=1f2126">
-  <img alt="Runtime" src="https://img.shields.io/badge/RUNTIME-2120-ddff37?style=for-the-badge&labelColor=1f2126">
+  <img alt="Runtime" src="https://img.shields.io/badge/RUNTIME-2200-ddff37?style=for-the-badge&labelColor=1f2126">
 </p>
 
 <h1 align="center">303box</h1>
@@ -33,7 +33,7 @@ Browser synth controls:
 
 `TUNE` · `CUTOFF` · `RESONANCE` · `ENV MOD` · `DECAY` · `ACCENT` · `DELAY` · `FEEDBACK` · `REVERB` · `DISTORTION`
 
-The final control bank is a 5 + 5 layout. `FEEDBACK` independently controls the delay regeneration path, while `DISTORTION` stays at the end of the signal-shaping control order.
+The final control bank is a 5 + 5 desktop layout. `FEEDBACK` independently controls the delay regeneration path, while `DISTORTION` stays at the end of the signal-shaping control order. On narrow mobile layouts the controls reflow inside the component rather than increasing the page width.
 
 Rhythm voices:
 
@@ -46,9 +46,11 @@ Rhythm voices:
 | CH | 606 closed hi-hat | `CH` |
 | OH | 606 open hi-hat | `OH` |
 
-## Runtime 2120
+## Runtime 2200
 
-The current production pass keeps the workstation behind a small animated `303BOX / INITIALIZING` surface until the final UI is ready, instead of visibly rewriting text, knobs, scope and layout after first paint.
+The workstation stays behind a small animated `303BOX / INITIALIZING` surface until the final UI is ready, instead of visibly rewriting text, knobs, scope and layout after first paint.
+
+Runtime 2200 also adds a final narrow-screen authority. The 303 control strip no longer inherits the old 550 px minimum-width desktop grid on phones. Waveform + tempo remain together, the ten synth controls reflow inside the viewport, and MIDI uses an explicit mobile order rather than desktop columns leaking off-screen.
 
 ### Single ownership rules
 
@@ -62,6 +64,7 @@ The current production pass keeps the workstation behind a small animated `303BO
 - **Feedback control:** `fx-feedback.20260819-2120.js`
 - **T-8 PRM export:** `t8-prm-export.20260819-2120.js`
 - **Final workstation authority:** `ui-system.20260819-2100.js`
+- **Final desktop/mobile MIDI + narrow workstation layout:** `midi-layout-fix.20260819-2150.css` (`v=20260820-2200`)
 - **Atomic boot:** `sequencer-engine.20260818-1740.js`
 
 ## Transport contract
@@ -101,6 +104,15 @@ Playback modes:
 - `MIDI ONLY`
 
 A disconnected page does not intentionally present a previously used T-8 as connected. `PANIC` clears queued MIDI where possible, sends note-off cleanup and stops the site transport.
+
+On mobile the MIDI control order is explicit:
+
+1. Enable MIDI + Playback;
+2. Output;
+3. Device;
+4. Bass channel + Rhythm channel;
+5. Send Clock + Send Start/Stop;
+6. Panic.
 
 ## Roland T-8 research
 
@@ -143,7 +155,7 @@ Confirmed values and mappings:
 
 ### PRM generator — first restore-test build
 
-Runtime 2120 contains a first conservative T-8 Rhythm PRM writer. It intentionally exports only information that has been directly confirmed by controlled hardware backups:
+Runtime 2200 contains a conservative T-8 Rhythm PRM writer. It intentionally exports only information that has been directly confirmed by controlled hardware backups:
 
 - the current 16-step six-voice rhythm grid;
 - default active-hit encoding `170AA`;
@@ -177,20 +189,21 @@ The development process includes AI-assisted coding with ChatGPT together with d
 ```text
 303box/
 ├── index.html                               # consent-aware entrypoint + boot curtain
-├── app.js                                  # base 303 grid / legacy preview kept muted
-├── studio.20260818-0912.js                 # deterministic UI scaffold
+├── app.js                                   # base 303 grid / legacy preview kept muted
+├── studio.20260818-0912.js                  # deterministic UI scaffold
 ├── pattern-shell.20260818-1045.js           # pattern shell / tune / keyboard UI
 ├── workstation-ui.20260818-1680.js          # ten-knob + action normalization
-├── acid-console.20260818-1340.js            # shared audible bass + rhythm engine
-├── transport-fuse.20260819-1750.js          # single transport authority
-├── midi-router.20260818-1730.js             # Web MIDI router
-├── scope-live.20260819-1830.js              # synth + real USB Audio scope/FFT
-├── generator-router.20260818-1650.js         # rule-based startup/random engine
-├── fx-feedback.20260819-2120.js             # independent delay feedback control
-├── t8-prm-export.20260819-2120.js           # decoded T-8 Rhythm PRM generator
-├── content-stable.20260819-2000.js           # visible-copy authority
-├── ui-system.20260819-2100.js                # final machine + MIDI layout authority
-└── sequencer-engine.20260818-1740.js         # Runtime 2120 boot coordinator
+├── acid-console.20260818-1340.js             # shared audible bass + rhythm engine
+├── transport-fuse.20260819-1750.js           # single transport authority
+├── midi-router.20260818-1730.js              # Web MIDI router
+├── scope-live.20260819-1830.js               # synth + real USB Audio scope/FFT
+├── generator-router.20260818-1650.js          # rule-based startup/random engine
+├── fx-feedback.20260819-2120.js              # independent delay feedback control
+├── t8-prm-export.20260819-2120.js             # decoded T-8 Rhythm PRM generator
+├── content-stable.20260819-2000.js            # visible-copy authority
+├── ui-system.20260819-2100.js                 # final machine ownership
+├── midi-layout-fix.20260819-2150.css          # Runtime 2200 responsive final authority
+└── sequencer-engine.20260818-1740.js          # boot coordinator
 ```
 
 ## Philosophy
