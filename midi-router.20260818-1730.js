@@ -7,8 +7,8 @@
   const isTR=()=>document.documentElement.lang==='tr';
   const t=(en,tr)=>isTR()?tr:en;
 
-  const STORE='303box-midi-router-v13';
-  const LEGACY=['303box-midi-router-v12','303box-midi-router-v11','303box-midi-router-v10','303box-midi-router-v9','303box-midi-router-v8'];
+  const STORE='303box-midi-router-v14';
+  const LEGACY=['303box-midi-router-v13','303box-midi-router-v12','303box-midi-router-v11','303box-midi-router-v10','303box-midi-router-v9','303box-midi-router-v8'];
   const NOTE={C:60,'C#':61,D:62,'D#':63,E:64,F:65,'F#':66,G:67,'G#':68,A:69,'A#':70,B:71};
   const DRUM={bd:36,sd:38,cp:50,tm:47,ch:42,oh:46};
 
@@ -223,8 +223,6 @@
   const level=id=>{const v=Number($(`#drums [data-level="${id}"]`)?.value);return Number.isFinite(v)?clamp(v,0,100):80};
   function activeStep(){const h=$('#patternSheet [data-step-header][data-playing="true"]');const n=Number(h?.dataset?.stepHeader);return Number.isInteger(n)&&n>=0&&n<16?n:0}
 
-  // T-8's internal rhythm steps are much quieter than velocity 126/127 live hits.
-  // Use a moderate curve so live MIDI resembles the device sequencer instead of overpowering it.
   function drumVelocity(l,{record=false}={}){
     if(l<=0)return 0;
     if(state.effective==='t8'){
@@ -250,6 +248,26 @@
       const on=at+(k++*2.5),vel=drumVelocity(l);
       note(state.rhythm,n,vel,on,on+(id==='oh'?150:76));
     }
+  }
+
+  function expressionSteps(){
+    const accent=[],slide=[];
+    $$('#patternSheet .accentSlide-cell').forEach((cell,i)=>{
+      const value=cell.textContent.trim().toUpperCase();
+      if(value.includes('A'))accent.push(i+1);
+      if(value.includes('S'))slide.push(i+1);
+    });
+    return{accent,slide};
+  }
+
+  function bassFinishMessage(){
+    const {accent,slide}=expressionSteps();
+    const a=accent.length?accent.join(', '):'—';
+    const s=slide.length?slide.join(', '):'—';
+    return t(
+      `Bass notes transferred. T-8 MIDI cannot write sequencer Accent/Slide flags. Finish on the device: ACCENT ${a} · SLIDE ${s} · then WRITE.`,
+      `Bass notaları aktarıldı. T-8 MIDI sequencer Accent/Slide bayraklarını yazamıyor. Cihazda tamamla: ACCENT ${a} · SLIDE ${s} · sonra WRITE.`
+    );
   }
 
   function signature(){const e=engine();return `${e?.state}|${e?.bassOn?'b':'-'}${e?.drumsOn?'d':'-'}|${bpm()}|${Math.round(swing()*100)}|${state.bass}|${state.rhythm}|${state.effective}`}
@@ -318,38 +336,34 @@
     let k=0;
     for(const[id,n]of Object.entries(DRUM)){
       const l=level(id);if(!drumOn(id,s)||l<=0)continue;
-      const on=at+24+(k++*3),vel=drumVelocity(l,{record:true});
-      note(state.rhythm,n,vel,on,on+Math.min(d*.55,id==='oh'?135:82));
+      const on=at+30+(k++*2.5),vel=drumVelocity(l);
+      note(state.rhythm,n,vel,on,on+(id==='oh'?150:76));
     }
   }
 
   function scheduleClockedStep(at,d){for(let c=0;c<6;c++)scheduled([0xF8],at+c*d/6)}
 
-  // REC Assist never sends a Stop after the user has armed REC on the hardware.
-  // It first supplies clock while transport is stopped, then starts the actual capture pass.
   function recPass(kind){
     const p=profile();if(!ready()||!p.rec||state.rec)return;
+    if(engine()?.state==='playing'){
+      status(t('Stop 303box playback first, then arm REC on the T-8 and try again.','Önce 303box çalmasını durdur, sonra T-8 üzerinde REC’i açıp tekrar dene.'));
+      return;
+    }
     if(state.effective==='t8')state.clock=true;
 
-    try{engine()?.stopAll?.()}catch(_){}
-
-    // Quiet the browser router without emitting MIDI Stop, which can cancel the T-8 REC arm.
     clearQueue();
     state.running=false;state.sentStart=false;state.nextAt=0;state.signature='';state.clockNextAt=0;
     state.rec=true;persist();render();
 
     const d=60000/bpm()/4;
     const now=performance.now();
-    const lockSteps=kind==='rhythm'?8:2;
-    const lockStart=now+120;
-    const start=lockStart+lockSteps*d;
-
-    // Clock-only lock-in: no Start, no notes, no transport advance.
-    for(let i=0;i<lockSteps;i++)scheduleClockedStep(lockStart+i*d,d);
-
-    scheduled([0xFA],start-12);
 
     if(kind==='bass'){
+      const lockSteps=2;
+      const lockStart=now+120;
+      const start=lockStart+lockSteps*d;
+      for(let i=0;i<lockSteps;i++)scheduleClockedStep(lockStart+i*d,d);
+      scheduled([0xFA],start-12);
       for(let s=0;s<16;s++){
         const at=start+s*d;
         scheduleClockedStep(at,d);
@@ -359,8 +373,8 @@
       return;
     }
 
-    // Rhythm is intentionally sent twice after lock-in. If a tap is missed on the first loop,
-    // the identical second loop reinforces the same sequencer step instead of shifting it.
+    const start=now+260;
+    scheduled([0xFA],start-45);
     const loops=2;
     for(let loop=0;loop<loops;loop++){
       for(let s=0;s<16;s++){
@@ -376,10 +390,11 @@
     scheduled([0xFC],end+16);
     state.recTimer=setTimeout(()=>{
       state.recTimer=0;state.rec=false;state.sentStart=false;cleanupChannels();state.clockNextAt=0;
+      render();
       status(kind==='rhythm'
         ? t('Rhythm REC finished. Check the T-8 pattern, then WRITE on the device.','Ritim REC bitti. T-8 patternini kontrol et, sonra cihazda WRITE yap.')
-        : t('Bass REC finished. Check the T-8 pattern, then WRITE on the device.','Bass REC bitti. T-8 patternini kontrol et, sonra cihazda WRITE yap.'));
-      render();pumpClock();
+        : bassFinishMessage());
+      pumpClock();
     },Math.max(300,end-performance.now()+180));
   }
 
@@ -418,7 +433,7 @@
     window.addEventListener('pagehide',()=>emergencyStop({block:true,stopSite:true,renderAfter:false}));
     window.addEventListener('beforeunload',()=>emergencyStop({block:true,stopSite:false,renderAfter:false}));
     document.addEventListener('freeze',()=>emergencyStop({block:true,stopSite:true,renderAfter:false}));
-    window.__303boxMidiRouter={version:'1730',panic:()=>emergencyStop({stopSite:true}),sendRecPass:recPass,get state(){return{...state}}};
+    window.__303boxMidiRouter={version:'1750',panic:()=>emergencyStop({stopSite:true}),sendRecPass:recPass,get state(){return{...state}}};
   }
 
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
