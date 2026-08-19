@@ -1,6 +1,6 @@
 (() => {
   'use strict';
-  const version='20260819-1815';
+  const version='20260819-1830';
   const addCss=(key,href)=>{if(document.querySelector(`link[data-303box-${key}]`))return;const link=document.createElement('link');link.rel='stylesheet';link.href=`${href}?v=${version}`;link.dataset[`303box${key.replace(/-([a-z])/g,(_,c)=>c.toUpperCase())}`]='true';document.head.appendChild(link)};
   addCss('audio-ui','./ui-audio.20260818-1240.css');
   addCss('final-polish','./ui-polish.20260818-1255.css');
@@ -26,5 +26,6 @@
     .then(()=>load('./hero-stability.20260818-1500.js'))
     .then(()=>load('./generator-router.20260818-1650.js'))
     .then(()=>load('./ui-refresh.20260819-1750.js'))
+    .then(()=>load('./scope-live.20260819-1830.js'))
     .catch(error=>console.error('303box production loader',error));
 })();
