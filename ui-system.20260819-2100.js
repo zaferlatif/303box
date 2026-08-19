@@ -2,9 +2,8 @@
   'use strict';
 
   const $=(s,r=document)=>r.querySelector(s);
-  const $$=(s,r=document)=>[...r.querySelectorAll(s)];
   const isTR=()=>document.documentElement.lang==='tr';
-  let panicBound=false,scopeBound=false;
+  let panicBound=false,scopeBound=false,suiteObserver=null,repairing=false;
 
   function mountMachineSuite(){
     const workspace=$('.workspace.shell'),acid=$('#acidConsole'),card=$('.pattern-card-wrap'),controls=$('.pattern-control-panel'),drums=$('#drums');
@@ -36,6 +35,20 @@
 
     workspace.classList.add('machine-suite-ready');
     return true;
+  }
+
+  function installSuiteGuard(){
+    if(suiteObserver)return;
+    const workspace=$('.workspace.shell');if(!workspace)return;
+    suiteObserver=new MutationObserver(()=>{
+      if(repairing)return;
+      const suite=$('#machineSuite'),acid=$('#acidConsole'),pattern=$('#patternModule'),drums=$('#drums');
+      if(!suite||!acid||!pattern||!drums)return;
+      if(acid.parentElement===suite&&pattern.parentElement===suite&&drums.parentElement===suite)return;
+      repairing=true;
+      queueMicrotask(()=>{try{mountMachineSuite()}finally{repairing=false}});
+    });
+    suiteObserver.observe(workspace,{childList:true});
   }
 
   function normalizeHeads(){
@@ -113,18 +126,17 @@
   }
 
   function installFooterDisclaimerLink(){
-    const links=$('.footer-links');if(!links||links.querySelector('[data-disclaimer-link]'))return;
-    const a=document.createElement('a');a.href='#disclaimer';a.dataset.disclaimerLink='true';a.textContent=isTR()?'Sorumluluk':'Disclaimer';links.prepend(a);
+    const links=$('.footer-links');if(!links)return;
+    let a=links.querySelector('[data-disclaimer-link]');
+    if(!a){a=document.createElement('a');a.href='#disclaimer';a.dataset.disclaimerLink='true';links.prepend(a)}
+    a.textContent=isTR()?'Sorumluluk':'Disclaimer';
   }
 
-  function syncLanguage(){
-    normalizeHeads();
-    const link=$('[data-disclaimer-link]');if(link)link.textContent=isTR()?'Sorumluluk':'Disclaimer';
-  }
+  function syncLanguage(){normalizeHeads();installFooterDisclaimerLink()}
 
   function apply(){
     const ready=mountMachineSuite();
-    normalizeHeads();normalizeActions();normalizeMidi();syncScope();bindScope();bindPanic();installFooterDisclaimerLink();
+    installSuiteGuard();normalizeHeads();normalizeActions();normalizeMidi();syncScope();bindScope();bindPanic();installFooterDisclaimerLink();
     return ready;
   }
 
