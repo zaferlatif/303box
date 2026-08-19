@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION='20260819-2120';
+  const VERSION='20260820-2200';
   const BOOT_STARTED=performance.now();
   const MIN_HIDDEN_BOOT=2250;
   let revealed=false;
@@ -12,8 +12,8 @@
   const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
   const raf=()=>new Promise(resolve=>requestAnimationFrame(resolve));
   function withVersion(path){const sep=path.includes('?')?'&':'?';return `${path}${sep}v=${VERSION}`}
-  function loadStyle(path){return new Promise(resolve=>{const clean=path.split('?')[0];const existing=[...document.querySelectorAll('link[rel="stylesheet"]')].find(x=>(x.getAttribute('href')||'').split('?')[0]===clean&&x.dataset.runtimeFinal==='2120');if(existing){resolve();return}const link=document.createElement('link');link.rel='stylesheet';link.href=withVersion(path);link.dataset.runtimeFinal='2120';link.addEventListener('load',()=>resolve(),{once:true});link.addEventListener('error',()=>{console.warn('[303box] stylesheet failed',path);resolve()},{once:true});document.head.appendChild(link)})}
-  function loadScript(path){return new Promise(resolve=>{const clean=path.split('?')[0];const found=[...document.scripts].find(x=>(x.getAttribute('src')||'').split('?')[0]===clean&&x.dataset.runtimeFinal==='2120');if(found){resolve();return}const s=document.createElement('script');s.src=withVersion(path);s.async=false;s.dataset.runtimeFinal='2120';s.addEventListener('load',()=>resolve(),{once:true});s.addEventListener('error',()=>{console.warn('[303box] module failed',path);resolve()},{once:true});document.head.appendChild(s)})}
+  function loadStyle(path){return new Promise(resolve=>{const clean=path.split('?')[0];const existing=[...document.querySelectorAll('link[rel="stylesheet"]')].find(x=>(x.getAttribute('href')||'').split('?')[0]===clean&&x.dataset.runtimeFinal==='2200');if(existing){resolve();return}const link=document.createElement('link');link.rel='stylesheet';link.href=withVersion(path);link.dataset.runtimeFinal='2200';link.addEventListener('load',()=>resolve(),{once:true});link.addEventListener('error',()=>{console.warn('[303box] stylesheet failed',path);resolve()},{once:true});document.head.appendChild(link)})}
+  function loadScript(path){return new Promise(resolve=>{const clean=path.split('?')[0];const found=[...document.scripts].find(x=>(x.getAttribute('src')||'').split('?')[0]===clean&&x.dataset.runtimeFinal==='2200');if(found){resolve();return}const s=document.createElement('script');s.src=withVersion(path);s.async=false;s.dataset.runtimeFinal='2200';s.addEventListener('load',()=>resolve(),{once:true});s.addEventListener('error',()=>{console.warn('[303box] module failed',path);resolve()},{once:true});document.head.appendChild(s)})}
   async function domReady(){if(document.readyState!=='loading')return;await new Promise(resolve=>document.addEventListener('DOMContentLoaded',resolve,{once:true}))}
   async function windowLoaded(){if(document.readyState==='complete')return;await Promise.race([new Promise(resolve=>window.addEventListener('load',resolve,{once:true})),wait(2800)])}
   async function waitForFinalControls(timeout=2100){const start=performance.now();while(performance.now()-start<timeout){const knobs=document.querySelectorAll('#knobGrid .knob').length;const scope=document.querySelector('#bassLiveScope,#bassOnlyScope');const drumSteps=document.querySelectorAll('#drums .drum-step').length;const midi=document.querySelector('#midiRouter');if(knobs>=10&&scope&&drumSteps>=96&&midi)return true;await wait(40)}return false}
