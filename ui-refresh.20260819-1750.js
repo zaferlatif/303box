@@ -5,7 +5,7 @@
   let creatorTimer=0;
 
   const ICONS={
-    instagram:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5Zm0 2a3 3 0 0 0-3 3v10a3 3 0 1 0 3-3H7Zm5 3a5 5 0 1 1 0 10 5 5 0 0 1 0-10Zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6Zm5.4-3.2a1.2 1.2 0 1 1 0 2.4 1.2 1.2 0 0 1 0-2.4Z"/></svg>',
+    instagram:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5Zm0 2a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3H7Zm5 3a5 5 0 1 1 0 10 5 5 0 0 1 0-10Zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6Zm5.4-3.2a1.2 1.2 0 1 1 0 2.4 1.2 1.2 0 0 1 0-2.4Z"/></svg>',
     youtube:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8ZM9.6 15.7V8.3L16 12l-6.4 3.7Z"/></svg>'
   };
 
@@ -14,7 +14,6 @@
       ? {title:'303box hoşuna gittiyse Z3Z’yi takip et.',sub:'Yeni denemeler, donanım ve acid çalışmalarını Instagram ve YouTube’da paylaşıyorum.',close:'Kapat'}
       : {title:'Like 303box? Follow Z3Z.',sub:'I share new experiments, hardware and acid work on Instagram and YouTube.',close:'Close'};
   }
-
   function renderCreator(){
     const dock=$('#creatorFollow');if(!dock)return;const c=copy();
     const strong=dock.querySelector('.creator-follow-copy strong'),sub=dock.querySelector('.creator-follow-copy span'),close=dock.querySelector('.creator-follow-close');
@@ -30,7 +29,6 @@
     dock.querySelector('.creator-follow-close')?.addEventListener('click',()=>{window.clearTimeout(creatorTimer);try{sessionStorage.setItem('303box-creator-follow-hidden','1')}catch(_){}dock.classList.remove('is-visible');window.setTimeout(()=>dock.remove(),220)});
     renderCreator();scheduleCreatorReveal(dock);
   }
-
   function normalizeKnobs(){
     const grid=$('#knobGrid');if(!grid)return;
     ['tune','cutoff','resonance','envMod','decay','accent','delay','distortion','reverb'].forEach(id=>{
@@ -39,15 +37,11 @@
   }
   function mountScope(){
     const grid=$('#knobGrid'),panel=$('.scope-panel');if(!grid||!panel)return;
-    let slot=$('#hardwareScopeSlot');
-    if(!slot){slot=document.createElement('div');slot.id='hardwareScopeSlot';slot.className='hardware-scope-slot';}
-    if(panel.parentElement!==slot)slot.appendChild(panel);
-    grid.appendChild(slot);
+    let slot=$('#hardwareScopeSlot');if(!slot){slot=document.createElement('div');slot.id='hardwareScopeSlot';slot.className='hardware-scope-slot';}
+    if(panel.parentElement!==slot)slot.appendChild(panel);grid.appendChild(slot);
+    const oldCell=$('.acid-console-scope-cell');if(oldCell&&!oldCell.contains(panel))oldCell.hidden=true;
   }
-  function apply(){
-    document.querySelector('meta[name="theme-color"]')?.setAttribute('content','#181a1e');
-    mountCreator();normalizeKnobs();mountScope();
-  }
+  function apply(){document.querySelector('meta[name="theme-color"]')?.setAttribute('content','#181a1e');mountCreator();normalizeKnobs();mountScope()}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',apply,{once:true});else apply();
   window.addEventListener('load',()=>setTimeout(()=>{normalizeKnobs();mountScope()},80),{once:true});
   new MutationObserver(()=>{renderCreator();normalizeKnobs();mountScope()}).observe(document.documentElement,{attributes:true,attributeFilter:['lang']});
