@@ -53,6 +53,19 @@ The six-part rhythm sketchpad shares the same clock:
 
 Playback position uses the same small red playhead LED across the 303 and rhythm sequencers.
 
+## Random engine
+
+The 1920 random engine deliberately avoids the old small pool of repeating masks.
+
+- every page load starts with a new acid bass + rhythm sketch;
+- startup BPM is drawn from a high-energy acid range of roughly **132–154 BPM**;
+- eight different bass characters vary scale vocabulary, density, accent pressure, slide count and rhythm shape;
+- patch randomization also changes waveform and the complete synth-control set rather than leaving every generated pattern on the same sound;
+- recent bass, rhythm and patch fingerprints are remembered locally so exact recent repeats are rejected;
+- randomness uses `crypto.getRandomValues()` when available rather than depending only on `Math.random()`.
+
+The result is still rule-based and editable by hand; it is not an AI composition model.
+
 ## Transport model
 
 The transport uses one shared clock with two independent part switches:
@@ -154,7 +167,11 @@ This is external synchronization. It does not rewrite the T-8's stored internal 
 
 The current pass uses a lighter **anthracite studio surface** instead of near-black page chrome, while the sequencer itself stays dark enough for the acid-green controls to retain contrast.
 
-The synth knob panel is deliberately compact: nine controls use two short rows rather than stretching the pattern module vertically. The scope stays in the Acid Console.
+The synth knob panel is deliberately compact. Reverb now uses the same knob face, pointer, tick and sizing rules as the other synth controls.
+
+The MIDI header keeps `MIDI`, `HARDWARE GUIDE` and the detected-device badge separated, Playback is constrained to the panel width, and the T-8 REC label is centered over its REC controls.
+
+`CLEAR` now clears both the underlying note state and the visible note pickers, together with U/D, A/S and Gate cells, so stale notes cannot remain on screen after the pattern has been cleared.
 
 The Z3Z creator follow card appears on every fresh page load after roughly 5.2 seconds. It slides upward from below the viewport with a short acid-green arrival glow. Closing it dismisses only the current page instance; it is not stored as a permanent/session preference.
 
@@ -198,14 +215,16 @@ Then open `http://localhost:8080`.
 ├── midi-router.20260818-1730.js
 ├── transport-fuse.20260819-1750.js       # shared clock, independent bass/rhythm switches
 ├── scope-live.20260819-1830.js           # modeled synth + live USB audio scope/FFT
-├── ui-refresh.20260819-1750.css           # compact controls + anthracite + creator entrance
+├── generator-router.20260818-1650.js     # 1920 acid random engine + fresh startup patterns
+├── behavior-fixes.20260819-1920.js       # robust Clear + MIDI DOM normalization
+├── ui-fixes.20260819-1920.css            # unified knobs + MIDI alignment
+├── ui-refresh.20260819-1750.css           # anthracite + creator entrance
 ├── ui-refresh.20260819-1750.js            # creator reveal + scope placement + knob normalization
 ├── hardware-guide.20260819-0815.js
-├── generator-router.20260818-1650.js
 ├── playhead-unified.20260818-1720.css
 ├── positioning.20260818-1740.css
 ├── seo.20260818-1740.js
-├── sequencer-engine.20260818-1740.js       # production runtime / hero lock / cache version 1845
+├── sequencer-engine.20260818-1740.js      # production runtime / hero lock / cache version 1920
 └── README.md
 ```
 
