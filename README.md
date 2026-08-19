@@ -55,15 +55,26 @@ Playback position uses the same small red playhead LED across the 303 and rhythm
 
 ## Transport model
 
-The transport is deliberately deterministic:
+The transport uses one shared clock with two independent part switches:
 
-- **303 PLAY** starts/stops the bass section only.
-- **RHYTHM PLAY** starts/stops the rhythm section only.
-- **ACID CONSOLE PLAY** starts/stops bass + rhythm together from a clean shared step 1.
-- Switching from one solo section to the other resets the shared clock first, preventing hidden cross-part states.
+- **303 PLAY** toggles the bass section without stopping rhythm.
+- **RHYTHM PLAY** toggles the rhythm section without stopping bass.
+- Starting the second section while the first is already running joins the same shared transport instead of restarting it.
+- **ACID CONSOLE PLAY** starts whichever part is missing; if both parts are running it stops both.
 - Space controls the shared bass + rhythm transport.
 
 Legacy browser audio engines remain muted so only the shared Acid Console engine owns audible playback.
+
+## Scope / USB audio
+
+The oscilloscope lives inside the Acid Console rather than expanding the 303 pattern panel.
+
+Two sources are available:
+
+- **SYNTH** — a modeled view of the browser 303 signal that responds to pitch, waveform, filter, resonance, envelope, accent and distortion controls.
+- **T-8 USB** — a real audio-input view. The browser reads the T-8 USB audio stream, applies visual-only adaptive gain and triggering, and displays the captured waveform or FFT without routing it back to the speakers.
+
+MIDI itself does not contain audio samples, so real hardware waveform display uses USB Audio rather than MIDI data.
 
 ## MIDI / hardware
 
@@ -116,15 +127,16 @@ There is a more promising official path that does not depend on pretending MIDI 
 
 The T-8 exposes a USB mass-storage **Backup / Restore** mode. Roland's documented backup structure contains separate `BACKUP/BASS` and `BACKUP/RHYTHM` folders, and the device can restore corresponding data through its `RESTORE` workflow.
 
+Initial samples show that the `.PRM` pattern files are readable structured text rather than opaque binary blobs. Bass pattern rows expose fields such as state, note, accent and slide directly. Rhythm rows expose per-voice compact step codes, so the next research pass uses controlled one-change-at-a-time `.PRM` files to map velocity, sub-step, accent and instrument fields safely.
+
 The research plan is conservative and read-first:
 
 1. Make a full untouched T-8 backup.
 2. Use a disposable rhythm pattern as a controlled baseline.
-3. Back up the pattern with all rhythm steps off.
-4. Change exactly one step — for example BD on step 1 — WRITE it on the T-8 and back up again.
-5. Binary-diff the two `RHYTHM` backups.
-6. Repeat with BD step 5 and then another instrument to identify step and instrument fields.
-7. Only after the file structure is understood, prototype a 303box **restore-export** file generator.
+3. Back up an empty rhythm pattern.
+4. Change exactly one property at a time on the same pattern slot and back it up again.
+5. Diff the resulting `.PRM` text files character by character.
+6. Only after the structure is understood, prototype a 303box **T-8 PRM export** generator.
 
 No firmware/update image is modified in this research path. Restore tests should only be attempted after keeping an untouched full backup.
 
@@ -140,9 +152,11 @@ This is external synchronization. It does not rewrite the T-8's stored internal 
 
 ## UI direction
 
-The current pass uses a visibly lighter **anthracite studio surface** instead of near-black page chrome, while the sequencer itself stays dark enough for the acid-green controls to retain contrast.
+The current pass uses a lighter **anthracite studio surface** instead of near-black page chrome, while the sequencer itself stays dark enough for the acid-green controls to retain contrast.
 
-The Z3Z creator follow surface no longer appears immediately. It waits briefly after page entry, then slides upward from the bottom with a short acid-green arrival glow. Desktop and mobile both use the same attention cue without blocking the initial workspace.
+The synth knob panel is deliberately compact: nine controls use two short rows rather than stretching the pattern module vertically. The scope stays in the Acid Console.
+
+The Z3Z creator follow card appears on every fresh page load after roughly 5.2 seconds. It slides upward from below the viewport with a short acid-green arrival glow. Closing it dismisses only the current page instance; it is not stored as a permanent/session preference.
 
 ## Hardware references
 
@@ -182,16 +196,16 @@ Then open `http://localhost:8080`.
 ├── app.js
 ├── acid-console.20260818-1340.js
 ├── midi-router.20260818-1730.js
-├── transport-fuse.20260819-1750.js       # deterministic bass/rhythm/master transport
-├── ui-refresh.20260819-1750.css           # lighter anthracite + delayed creator entrance
-├── ui-refresh.20260819-1750.js            # delayed creator follow + knob normalization
+├── transport-fuse.20260819-1750.js       # shared clock, independent bass/rhythm switches
+├── scope-live.20260819-1830.js           # modeled synth + live USB audio scope/FFT
+├── ui-refresh.20260819-1750.css           # compact controls + anthracite + creator entrance
+├── ui-refresh.20260819-1750.js            # creator reveal + scope placement + knob normalization
 ├── hardware-guide.20260819-0815.js
-├── bass-scope.20260818-1680.js
 ├── generator-router.20260818-1650.js
 ├── playhead-unified.20260818-1720.css
 ├── positioning.20260818-1740.css
 ├── seo.20260818-1740.js
-├── sequencer-engine.20260818-1740.js       # loads runtime assets with 1815 cache version
+├── sequencer-engine.20260818-1740.js       # production runtime / hero lock / cache version 1845
 └── README.md
 ```
 
