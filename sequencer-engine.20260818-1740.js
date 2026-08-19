@@ -3,7 +3,7 @@
 
   const VERSION='20260819-2100';
   const BOOT_STARTED=performance.now();
-  const MIN_HIDDEN_BOOT=650;
+  const MIN_HIDDEN_BOOT=2250;
   let revealed=false;
   const root=document.documentElement;
   root.classList.add('app-booting');
@@ -17,7 +17,7 @@
   async function domReady(){if(document.readyState!=='loading')return;await new Promise(resolve=>document.addEventListener('DOMContentLoaded',resolve,{once:true}))}
   async function windowLoaded(){if(document.readyState==='complete')return;await Promise.race([new Promise(resolve=>window.addEventListener('load',resolve,{once:true})),wait(2800)])}
   async function waitForFinalControls(timeout=2100){const start=performance.now();while(performance.now()-start<timeout){const knobs=document.querySelectorAll('#knobGrid .knob').length;const scope=document.querySelector('#bassLiveScope,#bassOnlyScope');const drumSteps=document.querySelectorAll('#drums .drum-step').length;const midi=document.querySelector('#midiRouter');if(knobs>=9&&scope&&drumSteps>=96&&midi)return true;await wait(40)}return false}
-  async function waitFonts(){if(!document.fonts?.ready)return;await Promise.race([document.fonts.ready,wait(1200)]).catch(()=>{})}
+  async function waitFonts(){if(!document.fonts?.ready)return;await Promise.race([document.fonts.ready,wait(500)]).catch(()=>{})}
   async function waitMinimumBoot(){const left=MIN_HIDDEN_BOOT-(performance.now()-BOOT_STARTED);if(left>0)await wait(left)}
 
   function applyFinalState(){
