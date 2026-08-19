@@ -74,7 +74,8 @@ The transport uses one shared clock with two independent part switches:
 - **RHYTHM PLAY** toggles the rhythm section without stopping bass.
 - Starting the second section while the first is already running joins the same shared transport instead of restarting it.
 - **ACID CONSOLE PLAY** starts whichever part is missing; if both parts are running it stops both.
-- Space controls the shared bass + rhythm transport.
+- **Space always controls the shared bass + rhythm transport.** The legacy early shortcut currently calls `playButton.click()`; the transport fuse identifies that synthetic click and routes it to the shared transport instead of treating it as a bass-only pointer click.
+- **Shift + Space** remains rhythm-only.
 
 Legacy browser audio engines remain muted so only the shared Acid Console engine owns audible playback.
 
@@ -140,16 +141,55 @@ There is a more promising official path that does not depend on pretending MIDI 
 
 The T-8 exposes a USB mass-storage **Backup / Restore** mode. Roland's documented backup structure contains separate `BACKUP/BASS` and `BACKUP/RHYTHM` folders, and the device can restore corresponding data through its `RESTORE` workflow.
 
-Initial samples show that the `.PRM` pattern files are readable structured text rather than opaque binary blobs. Bass pattern rows expose fields such as state, note, accent and slide directly. Rhythm rows expose per-voice compact step codes, so the next research pass uses controlled one-change-at-a-time `.PRM` files to map velocity, sub-step, accent and instrument fields safely.
+The `.PRM` files are readable structured text rather than opaque binary blobs. A controlled one-change-at-a-time hardware diff now confirms the first useful pieces of the rhythm format.
 
-The research plan is conservative and read-first:
+### Controlled rhythm PRM findings — 2026-08-19
 
-1. Make a full untouched T-8 backup.
-2. Use a disposable rhythm pattern as a controlled baseline.
-3. Back up an empty rhythm pattern.
-4. Change exactly one property at a time on the same pattern slot and back it up again.
-5. Diff the resulting `.PRM` text files character by character.
-6. Only after the structure is understood, prototype a 303box **T-8 PRM export** generator.
+A normal rhythm row has fields such as:
+
+```text
+STEP 1 = AC=00000 BD=170AA SD=00000 LT=00000 HT=00000 CY=00000 CH=00000 OH=00000
+```
+
+For the five-character per-part code, the controlled files currently confirm:
+
+| Position | Meaning | Confirmed examples |
+|---|---|---|
+| 1 | step state | `0` = off, `1` = on |
+| 2 | velocity value | default step = `7`, hardware `v.10` = `A` |
+| 3 | sub-step mode | `0` = off, `1` = `1_2` |
+| 4 | main probability encoding | default/full value observed as `A` |
+| 5 | sub-step probability encoding | default/full value observed as `A` |
+
+Examples from physical T-8 backups:
+
+```text
+BD default active  = 170AA
+BD velocity v.10   = 1A0AA
+BD sub-step 1_2    = 171AA
+Rhythm accent step = AC=170AA
+Hand Clap step     = HT=170AA
+```
+
+An important detail is that an **off** step can retain its parameter payload. For example `070AA` means the state character is off even though the previous/default velocity and probability characters remain. Therefore export code must treat the first character as the actual trigger state rather than assuming every non-zero five-character token sounds a note.
+
+The separate `AC` field matches the T-8's global rhythm-accent model: an accent step applies to the rhythm instruments sounding on that step.
+
+The controlled Hand Clap file proves that the T-8's Hand Clap part is stored in the `HT` field. The likely Tom mapping is `LT`, but the uploaded `R6_TOM` sample was actually a **BASS-format PRM** (`TRIPLET`, `STATE`, `NOTE`, `ACCENT`, `SLIDE`) rather than a RHYTHM-format file, so Tom is intentionally left unconfirmed until one corrected rhythm backup is supplied.
+
+The exact encodings for probability values below 100 and the remaining sub-step states (`1_3`, `1_4`, `FLAN`) are not guessed in production code yet. The first exporter will preserve/default those values safely rather than invent undocumented encodings.
+
+### Next transfer architecture
+
+The preferred route is template-based and conservative:
+
+1. Read a real T-8 rhythm `.PRM` template from the selected pattern slot.
+2. Preserve its header and slot/file identity.
+3. Replace only the understood step fields for the six 303box rhythm parts and global accent.
+4. Write the generated file into the official `RESTORE/RHYTHM` workflow.
+5. Eject the T-8 drive and let the hardware perform the official restore.
+
+On Chromium desktop, this can later use the File System Access API after the user explicitly grants access to the T-8 drive/folder. Other browsers can fall back to downloading the generated `.PRM` file for manual copying.
 
 No firmware/update image is modified in this research path. Restore tests should only be attempted after keeping an untouched full backup.
 
@@ -169,13 +209,15 @@ The current pass uses a lighter **anthracite studio surface** instead of near-bl
 
 The synth knob panel is deliberately compact. Reverb uses the same knob face, pointer, tick and sizing rules as the other synth controls.
 
-The Acid Console now reserves the oscilloscope's final geometry before the runtime analyzer mounts, so the legacy canvas and live canvas occupy the same fixed box instead of producing a load-time resize jump.
+The Acid Console reserves the oscilloscope's final geometry before the runtime analyzer mounts, so the legacy canvas and live canvas occupy the same fixed box instead of producing a load-time resize jump.
 
 The MIDI layout constrains Playback inside the console with a dedicated minimum-width column and safe select padding. The redundant floating `T-8 REC` caption is visually removed; the two self-explanatory REC actions remain side by side.
 
 `CLEAR` clears both the underlying note state and the visible note pickers, together with U/D, A/S and Gate cells, so stale notes cannot remain on screen after the pattern has been cleared.
 
 The Z3Z creator follow card appears on every fresh page load after roughly 5.2 seconds. It slides upward from below the viewport with a short acid-green arrival glow. Closing it dismisses only the current page instance; it is not stored as a permanent/session preference.
+
+Footer and creator-popup Instagram/YouTube links carry distinct UTM placement values and also emit a GA4 `social_click` event so outbound traffic can be separated by platform and placement.
 
 ## Hardware references
 
@@ -215,18 +257,21 @@ Then open `http://localhost:8080`.
 ├── app.js
 ├── acid-console.20260818-1340.js
 ├── midi-router.20260818-1730.js
-├── transport-fuse.20260819-1750.js       # shared clock, independent bass/rhythm switches
+├── transport-fuse.20260819-1750.js       # 1950 shared transport + Space ownership fix
+├── shortcut-sync.20260819-1950.js        # shortcut copy matches shared Space transport
 ├── scope-live.20260819-1830.js           # modeled synth + live USB audio scope/FFT
-├── generator-router.20260818-1650.js     # 1920 acid random engine + fresh startup patterns
+├── generator-router.20260818-1650.js     # acid random engine + fresh startup patterns
 ├── behavior-fixes.20260819-1920.js       # robust Clear + MIDI DOM normalization
-├── ui-fixes.20260819-1920.css            # 1930 stable scope + MIDI fit + REC layout
+├── ui-fixes.20260819-1920.css            # stable scope + MIDI fit + REC layout
+├── layout-compact.20260819-1940.css       # compact sequencer transition/action layout
+├── social-tracking.20260819-1940.js       # UTM + GA4 social source tracking
 ├── ui-refresh.20260819-1750.css           # anthracite + creator entrance
 ├── ui-refresh.20260819-1750.js            # creator reveal + scope placement + knob normalization
 ├── hardware-guide.20260819-0815.js
 ├── playhead-unified.20260818-1720.css
 ├── positioning.20260818-1740.css
 ├── seo.20260818-1740.js
-├── sequencer-engine.20260818-1740.js      # production runtime / hero lock / cache version 1930
+├── sequencer-engine.20260818-1740.js      # production runtime / hero lock / cache version 1950
 └── README.md
 ```
 
