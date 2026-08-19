@@ -4,6 +4,14 @@
   const $=(s,r=document)=>r.querySelector(s);
   let changing=false;
 
+  function ensureLayoutRepair(){
+    const href='./midi-layout-fix.20260819-2150.css?v=20260819-2150';
+    if([...document.querySelectorAll('link[rel="stylesheet"]')].some(x=>(x.getAttribute('href')||'').includes('midi-layout-fix.20260819-2150.css')))return;
+    const link=document.createElement('link');
+    link.rel='stylesheet';link.href=href;link.dataset.midiLayoutAuthority='2150';
+    document.head.appendChild(link);
+  }
+
   function routerState(){
     try{return window.__303boxMidiRouter?.state||null}catch(_){return null}
   }
@@ -41,6 +49,7 @@
   }
 
   function init(){
+    ensureLayoutRepair();
     const root=$('#midiRouter');if(!root)return;
     neutralizeDisconnectedHardware();
     const observer=new MutationObserver(neutralizeDisconnectedHardware);
@@ -48,8 +57,9 @@
     root.addEventListener('change',()=>queueMicrotask(neutralizeDisconnectedHardware));
     root.addEventListener('click',()=>setTimeout(neutralizeDisconnectedHardware,0));
     document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')neutralizeDisconnectedHardware()});
-    window.__303boxMidiConnectionState={version:'1910',refresh:neutralizeDisconnectedHardware};
+    window.__303boxMidiConnectionState={version:'2150',refresh:neutralizeDisconnectedHardware};
   }
 
+  ensureLayoutRepair();
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
