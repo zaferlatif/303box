@@ -3,12 +3,13 @@
   const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
   const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
   const rand=(a,b)=>Math.round(a+Math.random()*(b-a));
-  const KNOB_ORDER=['tune','cutoff','resonance','envMod','decay','accent','delay','distortion','reverb'];
+  const KNOB_ORDER=['tune','cutoff','resonance','envMod','decay','accent','delay','feedback','reverb','distortion'];
   let busy=false,attempts=0;
   const tr=()=>document.documentElement.lang==='tr';
   const fire=(control,key)=>control?.dispatchEvent(new KeyboardEvent('keydown',{key,bubbles:true,cancelable:true}));
 
   function setKnob(id,value){
+    if(id==='feedback'&&window.__303boxFeedback?.set){window.__303boxFeedback.set(value);return}
     const c=$(`[data-knob-id="${id}"]`);if(!c)return;
     const min=Number(c.getAttribute('aria-valuemin')),max=Number(c.getAttribute('aria-valuemax')),lo=Number.isFinite(min)?min:0,hi=Number.isFinite(max)?max:100,target=clamp(Math.round(value),lo,hi);
     if(target-lo<=hi-target){fire(c,'Home');for(let v=lo;v<target;v++)fire(c,'ArrowRight')}
@@ -16,8 +17,8 @@
   }
 
   function fallbackRandomizePatch(){
-    const v={cutoff:rand(18,72),resonance:rand(68,100),envMod:rand(40,100),decay:rand(18,84),accent:rand(38,100),delay:rand(0,34),distortion:rand(0,48),reverb:rand(0,28)};
-    if(Math.random()<.3)v.delay=0;if(Math.random()<.28)v.distortion=0;if(Math.random()<.38)v.reverb=0;
+    const v={cutoff:rand(18,72),resonance:rand(68,100),envMod:rand(40,100),decay:rand(18,84),accent:rand(38,100),delay:rand(0,34),feedback:rand(16,64),reverb:rand(0,28),distortion:rand(0,48)};
+    if(Math.random()<.3)v.delay=0;if(Math.random()<.22)v.feedback=0;if(Math.random()<.28)v.distortion=0;if(Math.random()<.38)v.reverb=0;
     Object.entries(v).forEach(([id,val])=>setKnob(id,val));
     window.dispatchEvent(new CustomEvent('303box:patch-randomized',{detail:v}));
     return v;
@@ -38,7 +39,8 @@
     const grid=$('#knobGrid');if(!grid)return false;
     const nodes=KNOB_ORDER.map(id=>grid.querySelector(`[data-knob-id="${id}"]`)?.closest('.knob')).filter(Boolean);
     if(nodes.length<KNOB_ORDER.length)return false;
-    nodes.forEach(n=>grid.appendChild(n));
+    const current=[...grid.children].filter(el=>el.classList.contains('knob'));
+    if(nodes.some((n,i)=>current[i]!==n))nodes.forEach(n=>grid.appendChild(n));
     return true;
   }
   function normalizeActions(){
@@ -57,9 +59,9 @@
     try{removeLegacyIo();const a=patchButton(),b=normalizeKnobs(),c=normalizeActions(),d=simplifyRhythm();return a&&b&&c&&d}
     finally{busy=false}
   }
-  function bootSettle(){attempts+=1;if(!apply()&&attempts<28)setTimeout(bootSettle,40)}
+  function bootSettle(){attempts+=1;if(!apply()&&attempts<40)setTimeout(bootSettle,40)}
 
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bootSettle,{once:true});else bootSettle();
   new MutationObserver(()=>patchButton()).observe(document.documentElement,{attributes:true,attributeFilter:['lang']});
-  window.__303boxWorkstationUi={version:'2000',apply,randomizePatch};
+  window.__303boxWorkstationUi={version:'2120',apply,randomizePatch};
 })();
