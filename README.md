@@ -3,11 +3,10 @@
 </p>
 
 <p align="center">
-  <a href="https://303box.com"><img alt="OPEN 303BOX" src="https://img.shields.io/badge/OPEN_303BOX-LIVE-ddff37?style=for-the-badge&labelColor=080809"></a>
-  <img alt="Hardware workflow" src="https://img.shields.io/badge/HARDWARE-T--8_%2F_TD--3-ddff37?style=for-the-badge&labelColor=080809">
-  <img alt="Pattern sketchpad" src="https://img.shields.io/badge/PATTERN-SKETCHPAD-f4f4ef?style=for-the-badge&labelColor=080809">
-  <img alt="Web MIDI" src="https://img.shields.io/badge/WEB_MIDI-HARDWARE-ddff37?style=for-the-badge&labelColor=080809">
-  <img alt="No AI composition" src="https://img.shields.io/badge/AI_COMPOSITION-NO-f4f4ef?style=for-the-badge&labelColor=080809">
+  <a href="https://303box.com"><img alt="OPEN 303BOX" src="https://img.shields.io/badge/OPEN_303BOX-LIVE-ddff37?style=for-the-badge&labelColor=101114"></a>
+  <img alt="Hardware workflow" src="https://img.shields.io/badge/HARDWARE-T--8_%2F_TD--3-ddff37?style=for-the-badge&labelColor=101114">
+  <img alt="Pattern sketchpad" src="https://img.shields.io/badge/PATTERN-SKETCHPAD-f4f4ef?style=for-the-badge&labelColor=101114">
+  <img alt="Web MIDI" src="https://img.shields.io/badge/WEB_MIDI-HARDWARE-ddff37?style=for-the-badge&labelColor=101114">
 </p>
 
 <h1 align="center">303box</h1>
@@ -54,6 +53,18 @@ The six-part rhythm sketchpad shares the same clock:
 
 Playback position uses the same small red playhead LED across the 303 and rhythm sequencers.
 
+## Transport model
+
+The transport was deliberately simplified in the 1750 UI pass:
+
+- **303 PLAY** starts/stops the bass section only.
+- **RHYTHM PLAY** starts/stops the rhythm section only.
+- **ACID CONSOLE PLAY** starts/stops bass + rhythm together from a clean shared step 1.
+- Switching from one solo section to the other resets the shared clock first, preventing hidden cross-part states.
+- Space controls the shared bass + rhythm transport.
+
+Legacy browser audio engines remain muted so only the shared Acid Console engine owns audible playback.
+
 ## MIDI / hardware
 
 Playback modes:
@@ -87,34 +98,27 @@ The MIDI panel exposes:
 
 Bass note transfer is the reliable reference workflow.
 
-Physical T-8 testing also shows that **Accent and Slide can be captured during this workflow**. 303box therefore keeps sending both expression cues during `BASS → REC`:
+Physical T-8 testing also shows that **Accent and Slide can be captured during this workflow**. 303box keeps sending both expression cues during `BASS → REC`:
 
 - `A` is expressed with higher incoming MIDI velocity;
 - `S` / legato is expressed with overlapping note timing.
 
-A captured T-8 pattern can still sound less dramatic than the same line played live from 303box. This does **not** mean that A/S failed to record. The live MIDI stream uses explicit velocity and note-overlap timing in real time, while T-8 sequencer playback uses its stored Accent/Slide behavior. The T-8 also has a separate **Bass Accent strength** setting (`b.ACC`, 1–255), so the same Accent steps can play back softer or harder depending on the device setting.
-
-303box does not ask the user to manually re-enter A/S steps after a successful Bass REC.
+A captured T-8 pattern can still sound less dramatic than the same line played live from 303box. This does **not** mean A/S failed to record. Live MIDI uses explicit velocity and note-overlap timing while the T-8 internal sequencer uses its own stored playback behavior. The T-8 also has a separate Bass Accent strength setting (`b.ACC`, 1–255).
 
 ### Rhythm REC
 
-Rhythm capture is still beta and is being tuned against physical T-8 hardware.
+Rhythm capture remains beta and is being tuned against physical T-8 hardware.
 
-The current fallback deliberately mirrors the live MIDI path that already triggers the T-8 reliably:
+Current hardware testing is intentionally separating two questions:
 
-1. Stop 303box playback first.
-2. Select a disposable/empty 16-step pattern on the T-8.
-3. Arm REC on the T-8.
-4. Press `RHYTHM → REC` in 303box.
-5. 303box sends MIDI Start just before step 1.
-6. The same rhythm note/velocity path used by live playback is sent for two identical 16-step loops.
-7. Inspect the T-8 pattern before using physical WRITE.
+1. Does the T-8 rhythm recorder capture incoming live MIDI notes while its own REC/PLAY transport is armed manually?
+2. If yes, what MIDI Clock / Start timing makes automated `RHYTHM → REC` deterministic?
 
-The older long clock-only pre-roll was removed because real hardware testing regressed from partial capture to no capture.
+The site keeps live rhythm MIDI and automated Rhythm REC as separate code paths so failed REC experiments do not degrade normal performance playback.
 
 ### T-8 rhythm velocity
 
-The T-8 rhythm engine responds to incoming MIDI velocity. 303box uses a moderate T-8-specific velocity curve so live browser-driven drums sit closer to the device sequencer instead of overpowering it.
+The T-8 rhythm engine responds to incoming MIDI velocity. 303box uses a moderate T-8-specific velocity curve so browser-driven drums sit closer to the device sequencer instead of overpowering it.
 
 ### Clock and tempo
 
@@ -122,15 +126,9 @@ When `SEND CLOCK` is enabled, 303box sends 24 PPQN MIDI clock so compatible hard
 
 This is external synchronization. It does not rewrite the T-8's stored internal tempo value. If external clock disappears, the device may return to its own internal tempo.
 
-## Why live MIDI can sound different from a recorded T-8 pattern
+## UI direction
 
-The important distinction is **performance behavior versus sequencer playback behavior**.
-
-303box live MIDI sends the exact velocity and overlap timing generated by the browser pattern at that moment. During REC, the T-8 can capture the musical intent — including Accent/Slide in tested bass workflows — but once the device plays the stored pattern itself, its own sequencer and global bass settings determine the final accent strength and slide character.
-
-So a difference in sound does not automatically mean the A/S steps were lost.
-
-For comparisons, keep the same T-8 sound settings and pay special attention to the device's `b.ACC` Bass Accent strength before judging live MIDI against internal pattern playback.
+The 1750 pass moves the site away from pure black toward a softer **anthracite studio surface**, keeps the 303 control strip on one consistent knob baseline, removes the decorative Author/Title/Memory block from the visible sequencer sheet, and adds a compact Z3Z creator follow surface for Instagram + YouTube.
 
 ## Hardware references
 
@@ -169,14 +167,17 @@ Then open `http://localhost:8080`.
 ├── index.html
 ├── app.js
 ├── acid-console.20260818-1340.js
-├── midi-router.20260818-1730.js          # MIDI routing + T-8 REC
-├── hardware-guide.20260819-0815.js       # hardware transfer guide
+├── midi-router.20260818-1730.js
+├── transport-fuse.20260819-1750.js       # deterministic bass/rhythm/master transport
+├── ui-refresh.20260819-1750.css           # anthracite + knob-grid + creator surface
+├── ui-refresh.20260819-1750.js            # creator follow + knob normalization
+├── hardware-guide.20260819-0815.js
 ├── bass-scope.20260818-1680.js
 ├── generator-router.20260818-1650.js
 ├── playhead-unified.20260818-1720.css
 ├── positioning.20260818-1740.css
 ├── seo.20260818-1740.js
-├── sequencer-engine.20260818-1740.js
+├── sequencer-engine.20260818-1740.js       # loads 1750 runtime assets
 └── README.md
 ```
 
