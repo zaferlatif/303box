@@ -74,8 +74,6 @@
     const e=engine();
     if(!e){unlockSoon();return}
 
-    // Bass and rhythm are two switches on one clock. Starting one no longer
-    // tears down the other part; it simply joins the current shared position.
     if(action==='bass') e.toggleBass?.();
     else if(action==='drums') e.toggleDrums?.();
     else if(action==='all'){
@@ -105,7 +103,12 @@
     if(!target?.closest) return;
     let action='';
     if(target.closest('#acidPlayAll')) action='all';
-    else if(target.closest('#playButton')) action='bass';
+    else if(target.closest('#playButton')) {
+      // pattern-shell owns the earliest Space capture and calls playButton.click().
+      // Synthetic playButton clicks are therefore the Space shortcut and must
+      // mean ALL, while a real pointer click still means bass only.
+      action=event.isTrusted?'bass':'all';
+    }
     else if(target.closest('#drumPlay')) action='drums';
     if(!action) return;
     event.preventDefault();
@@ -127,5 +130,5 @@
   window.addEventListener('load',neutralizeLegacySync,{once:true});
   window.addEventListener('pagehide',()=>{closeLegacy();closeUnified()});
 
-  window.__303boxTransportFuse={version:'1830',run,closeLegacy,closeUnified};
+  window.__303boxTransportFuse={version:'1950',run,closeLegacy,closeUnified};
 })();
