@@ -1,6 +1,6 @@
 (() => {
   'use strict';
-  const version='20260819-1940';
+  const version='20260819-1950';
 
   const HERO={
     en:{
