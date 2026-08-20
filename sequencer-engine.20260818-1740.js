@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION='20260820-2203';
+  const VERSION='20260820-2204';
   const BOOT_STARTED=performance.now();
   const MIN_HIDDEN_BOOT=2250;
   let revealed=false;
@@ -12,8 +12,8 @@
   const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
   const raf=()=>new Promise(resolve=>requestAnimationFrame(resolve));
   function withVersion(path){const sep=path.includes('?')?'&':'?';return `${path}${sep}v=${VERSION}`}
-  function loadStyle(path){return new Promise(resolve=>{const clean=path.split('?')[0];const existing=[...document.querySelectorAll('link[rel="stylesheet"]')].find(x=>(x.getAttribute('href')||'').split('?')[0]===clean&&x.dataset.runtimeFinal==='2203');if(existing){resolve();return}const link=document.createElement('link');link.rel='stylesheet';link.href=withVersion(path);link.dataset.runtimeFinal='2203';link.addEventListener('load',()=>resolve(),{once:true});link.addEventListener('error',()=>{console.warn('[303box] stylesheet failed',path);resolve()},{once:true});document.head.appendChild(link)})}
-  function loadScript(path){return new Promise(resolve=>{const clean=path.split('?')[0];const found=[...document.scripts].find(x=>(x.getAttribute('src')||'').split('?')[0]===clean&&x.dataset.runtimeFinal==='2203');if(found){resolve();return}const s=document.createElement('script');s.src=withVersion(path);s.async=false;s.dataset.runtimeFinal='2203';s.addEventListener('load',()=>resolve(),{once:true});s.addEventListener('error',()=>{console.warn('[303box] module failed',path);resolve()},{once:true});document.head.appendChild(s)})}
+  function loadStyle(path){return new Promise(resolve=>{const clean=path.split('?')[0];const existing=[...document.querySelectorAll('link[rel="stylesheet"]')].find(x=>(x.getAttribute('href')||'').split('?')[0]===clean&&x.dataset.runtimeFinal==='2204');if(existing){resolve();return}const link=document.createElement('link');link.rel='stylesheet';link.href=withVersion(path);link.dataset.runtimeFinal='2204';link.addEventListener('load',()=>resolve(),{once:true});link.addEventListener('error',()=>{console.warn('[303box] stylesheet failed',path);resolve()},{once:true});document.head.appendChild(link)})}
+  function loadScript(path){return new Promise(resolve=>{const clean=path.split('?')[0];const found=[...document.scripts].find(x=>(x.getAttribute('src')||'').split('?')[0]===clean&&x.dataset.runtimeFinal==='2204');if(found){resolve();return}const s=document.createElement('script');s.src=withVersion(path);s.async=false;s.dataset.runtimeFinal='2204';s.addEventListener('load',()=>resolve(),{once:true});s.addEventListener('error',()=>{console.warn('[303box] module failed',path);resolve()},{once:true});document.head.appendChild(s)})}
   async function domReady(){if(document.readyState!=='loading')return;await new Promise(resolve=>document.addEventListener('DOMContentLoaded',resolve,{once:true}))}
   async function windowLoaded(){if(document.readyState==='complete')return;await Promise.race([new Promise(resolve=>window.addEventListener('load',resolve,{once:true})),wait(2800)])}
   async function waitForFinalControls(timeout=2100){const start=performance.now();while(performance.now()-start<timeout){const knobs=document.querySelectorAll('#knobGrid .knob').length;const scope=document.querySelector('#bassLiveScope,#bassOnlyScope');const drumSteps=document.querySelectorAll('#drums .drum-step').length;const midi=document.querySelector('#midiRouter');if(knobs>=10&&scope&&drumSteps>=96&&midi)return true;await wait(40)}return false}
@@ -28,12 +28,13 @@
     try{window.__303boxContentStable?.apply?.()}catch(_){}
     try{window.__303boxMidiConnectionState?.refresh?.()}catch(_){}
     try{window.__303boxUiSystem?.apply?.()}catch(_){}
+    try{window.__303boxActionStyleLock?.apply?.()}catch(_){}
   }
   async function reveal(reason='complete'){if(revealed)return;revealed=true;applyFinalState();await raf();applyFinalState();await raf();root.classList.remove('app-booting');root.classList.add('app-ready');document.dispatchEvent(new CustomEvent('303box:ready',{detail:{version:VERSION,reason}}));window.dispatchEvent(new Event('resize'))}
   const watchdog=setTimeout(()=>reveal('watchdog'),7000);
 
   const CSS=['./ui-audio.20260818-1240.css','./ui-polish.20260818-1255.css','./seo.20260818-1315.css','./unified-actions.20260818-1450.css','./workstation-ui.20260818-1680.css','./playhead-unified.20260818-1720.css','./positioning.20260818-1740.css','./ui-refresh.20260819-1750.css','./compact-controls.20260819-1910.css','./layout-compact.20260819-1940.css','./ui-fixes.20260819-1920.css','./ui-system.20260819-2100.css','./pattern-mobile-final.20260820-2203.css'];
-  const JS=['./entry-normalize.20260819-2000.js','./cache-reset.20260818-1740.js','./seo.20260818-1740.js','./transport-fuse.20260819-1750.js','./audio-mode-gate.20260818-1530.js','./stable-audio-timer.20260818-1600.js','./master-reverb.20260818-1510.js','./drum-level-fix.20260818-1420.js','./acid-console.20260818-1340.js','./acid-console-guard.20260818-1343.js','./ui-audio.20260818-1240.js','./ui-polish.20260818-1255.js','./generator-router.20260818-1650.js','./scope-live.20260819-1830.js','./t8-rhythm-rec-status.20260819-1830.js','./midi-connection-state.20260819-1910.js','./behavior-fixes.20260819-1920.js','./ui-refresh.20260819-1750.js','./social-tracking.20260819-1940.js','./content-stable.20260819-2000.js','./fx-feedback.20260819-2120.js','./t8-prm-export.20260819-2120.js','./ui-system.20260819-2100.js'];
+  const JS=['./entry-normalize.20260819-2000.js','./cache-reset.20260818-1740.js','./seo.20260818-1740.js','./transport-fuse.20260819-1750.js','./audio-mode-gate.20260818-1530.js','./stable-audio-timer.20260818-1600.js','./master-reverb.20260818-1510.js','./drum-level-fix.20260818-1420.js','./acid-console.20260818-1340.js','./acid-console-guard.20260818-1343.js','./ui-audio.20260818-1240.js','./ui-polish.20260818-1255.js','./generator-router.20260818-1650.js','./scope-live.20260819-1830.js','./t8-rhythm-rec-status.20260819-1830.js','./midi-connection-state.20260819-1910.js','./behavior-fixes.20260819-1920.js','./ui-refresh.20260819-1750.js','./social-tracking.20260819-1940.js','./content-stable.20260819-2000.js','./fx-feedback.20260819-2120.js','./t8-prm-export.20260819-2120.js','./ui-system.20260819-2100.js','./action-style-lock.20260820-2204.js'];
 
   (async()=>{
     try{
