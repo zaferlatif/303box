@@ -35,6 +35,8 @@ Browser synth controls:
 
 The final control bank is a 5 + 5 layout on desktop and on narrow mobile screens. Mobile keeps all ten controls in two compact rows rather than turning the control bank into a long 2-column stack. `FEEDBACK` independently controls the delay regeneration path, while `DISTORTION` stays at the end of the signal-shaping control order.
 
+On mobile, the Waveform and Tempo modules keep equal height. The BPM display and tempo knob are treated as one centred visual group, with Random Patch centred directly beneath them instead of pulling the tempo panel to the right.
+
 Rhythm voices:
 
 | Voice | Character | T-8 PRM field |
