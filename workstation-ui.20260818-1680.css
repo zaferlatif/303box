@@ -22,4 +22,119 @@
 #patternSheet .tempo-module .random-patch-button:hover{background:#20270b!important;border-color:#8ca326!important}
 #patternSheet .tempo-module .random-patch-button:active{transform:translateY(1px)}
 #patternSheet #knobGrid{padding-top:0!important}
-@media(max-width:760px){#patternSheet .tempo-module .random-patch-button{min-height:26px!important;margin-top:6px!important;font-size:.45rem!important}}
+
+/* Mobile tempo is one centred visual group, not two independently aligned columns. */
+@media(max-width:760px){
+  html body .machine-suite #patternSheet .hardware-strip{
+    grid-template-rows:118px auto!important;
+  }
+  html body .machine-suite #patternSheet .waveform-module,
+  html body .machine-suite #patternSheet .tempo-module{
+    height:118px!important;
+    min-height:118px!important;
+    max-height:118px!important;
+    padding:7px 6px!important;
+  }
+  html body .machine-suite #patternSheet .tempo-module{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr) 90px 46px minmax(0,1fr)!important;
+    grid-template-rows:13px 54px 28px!important;
+    column-gap:5px!important;
+    row-gap:3px!important;
+    align-content:center!important;
+    align-items:center!important;
+    justify-items:center!important;
+    overflow:hidden!important;
+  }
+  html body .machine-suite #patternSheet .tempo-module>.control-label{
+    grid-column:1/-1!important;
+    grid-row:1!important;
+    align-self:end!important;
+    justify-self:center!important;
+    margin:0!important;
+    padding:0!important;
+    text-align:center!important;
+    font-size:.43rem!important;
+    line-height:1!important;
+  }
+  html body .machine-suite #patternSheet .tempo-module>.seven-display{
+    grid-column:2!important;
+    grid-row:2!important;
+    width:90px!important;
+    min-width:90px!important;
+    max-width:90px!important;
+    height:54px!important;
+    min-height:54px!important;
+    max-height:54px!important;
+    margin:0!important;
+    padding:0!important;
+    justify-self:center!important;
+    align-self:center!important;
+  }
+  html body .machine-suite #patternSheet .tempo-module>#tempoKnob{
+    grid-column:3!important;
+    grid-row:2!important;
+    width:46px!important;
+    min-width:46px!important;
+    max-width:46px!important;
+    margin:0!important;
+    padding:0!important;
+    justify-self:center!important;
+    align-self:center!important;
+  }
+  html body .machine-suite #patternSheet .tempo-module>#tempoKnob .knob,
+  html body .machine-suite #patternSheet .tempo-module>#tempoKnob .knob-control,
+  html body .machine-suite #patternSheet .tempo-module>#tempoKnob .knob-control svg{
+    width:46px!important;
+    height:46px!important;
+    min-width:46px!important;
+    min-height:46px!important;
+    max-width:46px!important;
+    max-height:46px!important;
+    margin:0!important;
+  }
+  html body .machine-suite #patternSheet .tempo-module .random-patch-button{
+    grid-column:2/4!important;
+    grid-row:3!important;
+    width:116px!important;
+    min-width:116px!important;
+    max-width:116px!important;
+    height:28px!important;
+    min-height:28px!important;
+    max-height:28px!important;
+    margin:0!important;
+    padding:0 8px!important;
+    justify-self:center!important;
+    align-self:center!important;
+    font-size:.39rem!important;
+    line-height:1!important;
+  }
+}
+
+@media(max-width:360px){
+  html body .machine-suite #patternSheet .tempo-module{
+    grid-template-columns:minmax(0,1fr) 84px 43px minmax(0,1fr)!important;
+    column-gap:4px!important;
+  }
+  html body .machine-suite #patternSheet .tempo-module>.seven-display{
+    width:84px!important;
+    min-width:84px!important;
+    max-width:84px!important;
+  }
+  html body .machine-suite #patternSheet .tempo-module>#tempoKnob,
+  html body .machine-suite #patternSheet .tempo-module>#tempoKnob .knob,
+  html body .machine-suite #patternSheet .tempo-module>#tempoKnob .knob-control,
+  html body .machine-suite #patternSheet .tempo-module>#tempoKnob .knob-control svg{
+    width:43px!important;
+    min-width:43px!important;
+    max-width:43px!important;
+    height:43px!important;
+    min-height:43px!important;
+    max-height:43px!important;
+  }
+  html body .machine-suite #patternSheet .tempo-module .random-patch-button{
+    width:108px!important;
+    min-width:108px!important;
+    max-width:108px!important;
+  }
+}
