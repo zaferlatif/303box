@@ -2,6 +2,7 @@
   'use strict';
 
   const $=(s,r=document)=>r.querySelector(s);
+  const say=(en,tr)=>document.documentElement.lang==='tr'?tr:en;
   const PART_TO_FIELD={bd:'BD',sd:'SD',tm:'LT',cp:'HT',ch:'CH',oh:'OH'};
   const FIELD_ORDER=['AC','BD','SD','LT','HT','CY','CH','OH'];
   const OFF='00000',ON='170AA';
@@ -72,11 +73,11 @@
     const t8Card=dialog.querySelector('[data-device="t8"]');
     const host=t8Card||dialog.querySelector('.hardware-guide-body,.hardware-guide-content,.guide-body')||dialog;
     const box=document.createElement('section');box.id='t8PrmExportAction';box.className='t8-prm-export-action';
-    box.innerHTML=`<strong>T-8 RHYTHM PRM</strong><p>Current 16-step rhythm → decoded T-8 backup/restore format.</p><div><button type="button" data-prm-download>DOWNLOAD PRM</button><button type="button" data-prm-write>WRITE / REPLACE PRM</button></div><small>Test only on a disposable copied rhythm slot. Make a T-8 backup first.</small>`;
+    box.innerHTML=`<strong data-i18n="t8PrmTitle">T-8 RHYTHM PRM</strong><p data-i18n="t8PrmLead">Current 16-step rhythm → decoded T-8 backup/restore format.</p><div><button type="button" data-prm-download data-i18n="t8PrmDownload">DOWNLOAD PRM</button><button type="button" data-prm-write data-i18n="t8PrmWrite">WRITE / REPLACE PRM</button></div><small data-i18n="t8PrmWarning">Test only on a disposable copied rhythm slot. Make a T-8 backup first.</small>`;
     box.querySelector('[data-prm-download]').addEventListener('click',()=>downloadRhythmPrm());
     const write=box.querySelector('[data-prm-write]');
     if(typeof window.showSaveFilePicker!=='function'&&typeof window.showDirectoryPicker!=='function')write.hidden=true;
-    else write.addEventListener('click',async()=>{const original=write.textContent;write.disabled=true;try{await writeRhythmPrm();write.textContent='WRITTEN'}catch(err){if(err?.name!=='AbortError'){console.warn('[303box] PRM write failed',err);write.textContent='WRITE FAILED'}}finally{setTimeout(()=>{write.disabled=false;write.textContent=original},1400)}});
+    else write.addEventListener('click',async()=>{write.disabled=true;try{await writeRhythmPrm();write.textContent=say('WRITTEN','YAZILDI')}catch(err){if(err?.name!=='AbortError'){console.warn('[303box] PRM write failed',err);write.textContent=say('WRITE FAILED','YAZMA BAŞARISIZ')}}finally{setTimeout(()=>{write.disabled=false;write.textContent=window.__303boxContentStable?.t?.('t8PrmWrite')||say('WRITE / REPLACE PRM','PRM YAZ / DEĞİŞTİR')},1400)}});
     host.appendChild(box);return true;
   }
 

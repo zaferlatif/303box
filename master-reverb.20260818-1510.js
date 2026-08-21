@@ -24,9 +24,10 @@
   function createNetwork(ctx,dest){
     const dry=ctx.createGain(),pre=ctx.createDelay(.12),conv=ctx.createConvolver(),wet=ctx.createGain();
     [dry,pre,conv,wet].forEach(n=>internal.add(n));
-    dry.gain.value=1;pre.delayTime.value=.018;conv.buffer=impulse(ctx);wet.gain.value=(value/100)*.42;
+    const buffer=impulse(ctx);
+    dry.gain.value=1;pre.delayTime.value=.018;conv.buffer=buffer;wet.gain.value=(value/100)*.42;
     previousConnect.call(pre,conv);previousConnect.call(conv,wet);previousConnect.call(dry,dest);previousConnect.call(wet,dest);
-    const net={ctx,dest,dry,pre,conv,wet};networks.set(ctx,net);live.push(net);
+    const net={ctx,dest,dry,pre,conv,wet,buffer};networks.set(ctx,net);live.push(net);
     ctx.addEventListener?.('statechange',()=>{if(ctx.state!=='closed')return;const i=live.indexOf(net);if(i>=0)live.splice(i,1)});
     return net;
   }
@@ -46,6 +47,17 @@
     value=clamp(Math.round(v),0,100);try{localStorage.setItem(STORE,String(value))}catch(_){}
     live.forEach(net=>{if(net.ctx.state==='closed')return;try{net.wet.gain.setTargetAtTime((value/100)*.42,net.ctx.currentTime,.025)}catch(_){net.wet.gain.value=(value/100)*.42}});
     render();window.dispatchEvent(new CustomEvent('303box:reverb-change',{detail:{value}}));
+  }
+
+  function flush(){
+    live.forEach(net=>{
+      if(!net.ctx||net.ctx.state==='closed')return;
+      try{
+        net.pre.disconnect(net.conv);net.conv.disconnect(net.wet);
+        const conv=net.ctx.createConvolver();internal.add(conv);conv.buffer=net.buffer;
+        previousConnect.call(net.pre,conv);previousConnect.call(conv,net.wet);net.conv=conv;
+      }catch(_){}
+    });
   }
 
   function dialSvg(){
@@ -82,5 +94,5 @@
   function bootMount(){attempts+=1;if(!mount()&&attempts<25)setTimeout(bootMount,40)}
   window.addEventListener('303box:patch-randomized',e=>{const v=e.detail?.reverb;if(Number.isFinite(v))setValue(v)});
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bootMount,{once:true});else bootMount();
-  window.__303boxMasterReverb={version:'2000',setValue,get value(){return value}};
+  window.__303boxMasterReverb={version:'2205',setValue,flush,get value(){return value}};
 })();

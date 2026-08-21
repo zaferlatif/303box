@@ -1,6 +1,6 @@
 (() => {
   'use strict';
-  const EPOCH='20260819-2100',KEY=`303box-cache-reset-${EPOCH}`;
+  const EPOCH='20260821-2350',KEY=`303box-cache-reset-${EPOCH}`;
   if(sessionStorage.getItem(KEY))return;
   sessionStorage.setItem(KEY,'1');
   if('caches' in window)caches.keys().then(keys=>Promise.all(keys.map(k=>caches.delete(k)))).catch(()=>{});

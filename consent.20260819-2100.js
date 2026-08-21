@@ -22,11 +22,11 @@
     },
     tr:{
       kicker:'GİZLİLİK TERCİHLERİ',title:'İsteğe bağlı depolamayı seç',
-      intro:'303box aracın çalışması için yerel depolama kullanır. Analytics ve reklam depolaması siz seçim yapana kadar kapalı kalır. Reklam izni yalnız kişiselleştirilmemiş AdSense’i etkinleştirir.',
-      analytics:'Analytics',analyticsText:'Google Analytics kullanım ve performans ölçümü.',
+      intro:'303box aracın çalışması için yerel depolama kullanır. Analiz ve reklam depolaması siz seçim yapana kadar kapalı kalır. Reklam izni yalnız kişiselleştirilmemiş AdSense’i etkinleştirir.',
+      analytics:'Analiz',analyticsText:'Google Analytics ile kullanım ve performans ölçümü.',
       ads:'Reklam',adsText:'Kişiselleştirilmemiş AdSense, frekans sınırlama ve toplu raporlama.',
       reject:'İSTEĞE BAĞLIYI REDDET',save:'SEÇİMLERİ KAYDET',accept:'İKİSİNİ KABUL ET',
-      foot:'Bu seçimi daha sonra footer’daki Çerez ayarları bağlantısından değiştirebilirsiniz. Bu kontrol kişiselleştirilmiş reklamı açmaz.',
+      foot:'Bu seçimi daha sonra altbilgideki Çerez ayarları bağlantısından değiştirebilirsiniz. Bu kontrol kişiselleştirilmiş reklamı açmaz.',
       privacy:'Gizlilik politikası',close:'Gizlilik tercihlerini kapat',settings:'Çerez ayarları',gpc:'Global Privacy Control etkin; reklam depolaması kapalı kalacak.'
     }
   };
@@ -148,7 +148,7 @@
   const onReady=()=>{init();};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',onReady,{once:true});else onReady();
   document.addEventListener('303box:ready',installSettingsLink);
-  new MutationObserver(()=>{render();installSettingsLink()}).observe(document.documentElement,{attributes:true,attributeFilter:['lang']});
+  document.addEventListener('303box:languagechange',()=>queueMicrotask(()=>{render();installSettingsLink()}));
 
   window.__303boxConsent={
     version:'2100',show,
