@@ -123,7 +123,17 @@
     setText(overlay.querySelector('#shortcutTitle'),t('title'));setText(overlay.querySelector('#shortcutIntro'),t('intro'));setText(overlay.querySelector('#shortcutSpace'),t('space'));setText(overlay.querySelector('#shortcutShiftSpace'),t('shiftSpace'));setText(overlay.querySelector('#shortcutG'),t('g'));setText(overlay.querySelector('#shortcutQuestion'),t('question'));setText(overlay.querySelector('#shortcutEsc'),t('esc'));setText(overlay.querySelector('#shortcutDone'),t('close'));overlay.classList.add('open');document.body.classList.add('shortcuts-open');
   }
   function closeShortcuts(remember=true){const overlay=document.querySelector('#shortcutOverlay');if(!overlay?.classList.contains('open'))return;overlay.classList.remove('open');document.body.classList.remove('shortcuts-open');if(remember)try{localStorage.setItem(STORAGE_KEY,'1')}catch(_){}}
-  function installFooterShortcutLink(){const links=document.querySelector('.footer-links');if(!links||links.querySelector('[data-shortcuts-link]'))return false;const a=document.createElement('a');a.href='#shortcuts';a.dataset.shortcutsLink='true';a.textContent=t('shortcuts');a.addEventListener('click',e=>{e.preventDefault();openShortcuts()});links.prepend(a);return true}
+  function installFooterShortcutLink(){
+    const links=document.querySelector('.footer-links');if(!links)return false;
+    let a=links.querySelector('[data-shortcuts-link]');
+    if(!a){a=document.createElement('a');a.href='/#shortcuts';a.dataset.shortcutsLink='true';links.prepend(a)}
+    a.textContent=t('shortcuts');
+    if(a.dataset.shortcutsBound!=='true'){
+      a.dataset.shortcutsBound='true';
+      a.addEventListener('click',e=>{e.preventDefault();openShortcuts()});
+    }
+    return true;
+  }
 
   // One keyboard authority before old bubble handlers. Transport itself is owned by transport-fuse.
   window.addEventListener('keydown',e=>{
@@ -157,6 +167,7 @@
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bootSettle,{once:true});else bootSettle();
 
   document.addEventListener('303box:ready',()=>{
+    if(location.hash==='#shortcuts'){openShortcuts();return}
     if(localStorage.getItem(STORAGE_KEY))return;
     setTimeout(()=>{if(!localStorage.getItem(STORAGE_KEY))openShortcuts()},900);
   },{once:true});

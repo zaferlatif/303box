@@ -26,8 +26,8 @@
   <meta name="color-scheme" content="dark">
   <meta name="google-site-verification" content="uQ3Lw1MyKXpHzSP4Rwj1ijKvB229AUvrjWhwdEW6x1Y">
   <link rel="canonical" href="https://303box.com/">
-  <link rel="manifest" href="./site.webmanifest?v=20260819-2100">
-  <link rel="icon" type="image/svg+xml" href="./favicon.svg?v=20260819-2100">
+  <link rel="manifest" href="./site.webmanifest?v=20260821-2440">
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg?v=20260821-2440">
 
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="303box">
@@ -42,40 +42,41 @@
   <meta name="twitter:description" content="A browser pattern notebook with sound, MIDI and hardware workflow. The musical decisions and performance stay yours.">
   <meta name="twitter:image" content="https://303box.com/og-image.svg">
 
-  <link rel="stylesheet" href="./styles.css?v=20260819-2100">
-  <link rel="stylesheet" href="./studio.20260818-0912.css?v=20260819-2100">
-  <link rel="stylesheet" href="./studio-dark.20260818-0912.css?v=20260819-2100">
-  <link rel="stylesheet" href="./pattern-shell.20260818-1045.css?v=20260819-2100">
-  <link rel="stylesheet" href="./acid-console.20260818-1340.css?v=20260819-2100">
-  <link rel="stylesheet" href="./console-stable.20260818-1700.css?v=20260819-2100">
-  <link rel="stylesheet" href="./ui-fixes.20260819-1920.css?v=20260819-2100">
-  <link rel="stylesheet" href="./hardware-guide.20260819-0815.css?v=20260819-2100">
-  <link rel="stylesheet" href="./consent.20260819-2100.css?v=20260819-2100">
-  <link rel="stylesheet" href="./midi-layout-fix.20260819-2150.css?v=20260820-2202">
+  <link rel="stylesheet" href="./styles.css?v=20260821-2440">
+  <link rel="stylesheet" href="./studio.20260818-0912.css?v=20260821-2440">
+  <link rel="stylesheet" href="./studio-dark.20260818-0912.css?v=20260821-2440">
+  <link rel="stylesheet" href="./pattern-shell.20260818-1045.css?v=20260821-2440">
+  <link rel="stylesheet" href="./acid-console.20260818-1340.css?v=20260821-2440">
+  <link rel="stylesheet" href="./console-stable.20260818-1700.css?v=20260821-2440">
+  <link rel="stylesheet" href="./ui-fixes.20260819-1920.css?v=20260821-2440">
+  <link rel="stylesheet" href="./hardware-guide.20260819-0815.css?v=20260821-2440">
+  <link rel="stylesheet" href="./consent.20260819-2100.css?v=20260821-2440">
+  <link rel="stylesheet" href="./midi-layout-fix.20260819-2150.css?v=20260821-2440">
   <style>
     :root{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
     .workspace-toolbar svg,.wave-button svg{width:18px;height:18px}button svg{max-width:100%;max-height:100%}
   </style>
 
   <script defer src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-  <script defer src="./consent.20260819-2100.js?v=20260821-2350"></script>
-  <script defer src="./app.js?v=20260821-2350"></script>
-  <script defer src="./studio.20260818-0912.js?v=20260821-2350"></script>
-  <script defer src="./pattern-shell.20260818-1045.js?v=20260821-2350"></script>
-  <script defer src="./workstation-ui.20260818-1680.js?v=20260821-2350"></script>
-  <script defer src="./midi-mode-migration.20260818-1711.js?v=20260821-2350"></script>
-  <script defer src="./midi-router.20260818-1730.js?v=20260821-2350"></script>
-  <script defer src="./hardware-guide.20260819-0815.js?v=20260821-2350"></script>
-  <script defer src="./sequencer-engine.20260818-1740.js?v=20260821-2350"></script>
+  <script defer src="./site-shell.20260821-2440.js?v=20260821-2440"></script>
+  <script defer src="./consent.20260819-2100.js?v=20260821-2440"></script>
+  <script defer src="./app.js?v=20260821-2440"></script>
+  <script defer src="./studio.20260818-0912.js?v=20260821-2440"></script>
+  <script defer src="./pattern-shell.20260818-1045.js?v=20260821-2440"></script>
+  <script defer src="./workstation-ui.20260818-1680.js?v=20260821-2440"></script>
+  <script defer src="./midi-mode-migration.20260818-1711.js?v=20260821-2440"></script>
+  <script defer src="./midi-router.20260818-1730.js?v=20260821-2440"></script>
+  <script defer src="./hardware-guide.20260819-0815.js?v=20260821-2440"></script>
+  <script defer src="./sequencer-engine.20260818-1740.js?v=20260821-2440"></script>
 
   <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://303box.com/#website","url":"https://303box.com/","name":"303box","description":"Browser-based 303 pattern sketchpad for hardware workflows.","inLanguage":["en","tr"]},{"@type":"WebApplication","@id":"https://303box.com/#app","url":"https://303box.com/","name":"303box","applicationCategory":"MultimediaApplication","applicationSubCategory":"Music pattern editor","operatingSystem":"Any modern browser","browserRequirements":"JavaScript and Web Audio API","isAccessibleForFree":true,"featureList":["16-step 303 pattern editing","Rule-based random starting patterns","Accent and slide","Synchronized six-part rhythm sketching","Live oscilloscope and FFT","Browser MIDI output","Hardware MIDI profiles","Hardware transfer guide","JPG pattern export","Rhythm pattern export"]}]}</script>
 </head>
-<body>
+<body data-page="home">
   <a class="skip-link" href="#sequencer" data-i18n="skip">Skip to sequencer</a>
   <header class="site-header"><div class="shell header-inner">
-    <a class="brand" href="#top" aria-label="303box home"><span class="brand-glyph" aria-hidden="true">303</span><span class="brand-copy"><strong>303box</strong><small data-i18n="brandTag">Acid pattern laboratory</small></span></a>
-    <nav class="nav" aria-label="Primary navigation"><a href="#sequencer">303</a><a href="#drums">Rhythm</a><a href="#guide">Guide</a><a href="#history">History</a><a href="#faq">FAQ</a></nav>
-    <div class="header-actions"><button class="language-switch" id="languageButton" type="button" aria-label="Change language"><span id="languageCurrent">EN</span><span class="language-separator">/</span><span id="languageNext">TR</span></button><a class="mini-cta" href="#sequencer" data-i18n="openSequencer">Open sequencer</a></div>
+    <a class="brand" href="/#top" aria-label="303box home"><span class="brand-glyph" aria-hidden="true">303</span><span class="brand-copy"><strong>303box</strong><small data-i18n="brandTag" data-shell-i18n="brandTag">Acid pattern laboratory</small></span></a>
+    <nav class="nav" aria-label="Primary navigation" data-shell-i18n-attr="primaryNavigation"><a href="/#sequencer">303</a><a href="/#drums" data-shell-i18n="rhythm">Rhythm</a><a href="/#guide" data-shell-i18n="guide">Guide</a><a href="/#history" data-shell-i18n="history">History</a><a href="/#faq" data-shell-i18n="faq">FAQ</a></nav>
+    <div class="header-actions"><button class="language-switch" id="languageButton" data-language-switch type="button" aria-label="Change language"><span id="languageCurrent" data-language-current>EN</span><span class="language-separator">/</span><span id="languageNext" data-language-next>TR</span></button><a class="mini-cta" href="/#sequencer" data-i18n="openSequencer" data-shell-i18n="openSequencer">Open sequencer</a></div>
   </div></header>
 
   <main id="top">
@@ -150,7 +151,7 @@
     </div></section>
   </main>
 
-  <footer class="site-footer"><div class="shell footer-inner"><div><strong>303box</strong><p>A Z3Z project. Pattern sketchpad for hardware workflows.</p></div><div class="footer-links"><a href="#disclaimer" data-disclaimer-link="true">Disclaimer</a><a href="./privacy.html">Privacy</a><a href="https://instagram.com/zafer.pro" rel="me noopener" target="_blank">Instagram</a><a href="https://youtube.com/@zaferlatif" rel="noopener" target="_blank">YouTube</a></div></div></footer>
+  <footer class="site-footer"><div class="shell footer-inner"><div class="z3z-credit"><span data-shell-i18n="footerCredit">303box is an independent music tool built by Z3Z.</span><a href="https://instagram.com/zafer.pro" target="_blank" rel="me noopener" data-social-platform="instagram" data-social-placement="footer">Z3Z / @zafer.pro</a><small class="site-version" data-site-version>v2026.08.21.1</small></div><div class="footer-links"><a href="/#disclaimer" data-disclaimer-link="true" data-shell-i18n="footerDisclaimer">Disclaimer</a><a href="/#shortcuts" data-shortcuts-link="true" data-shell-i18n="footerShortcuts">Shortcuts</a><a href="/privacy.html" data-shell-i18n="footerPrivacy">Privacy</a><a href="https://instagram.com/zafer.pro" rel="me noopener" target="_blank" data-social-platform="instagram" data-social-placement="footer">Instagram</a><a href="https://youtube.com/@zaferlatif" rel="noopener" target="_blank" data-social-platform="youtube" data-social-placement="footer">YouTube</a></div></div></footer>
 
   <dialog class="hardware-guide-dialog" id="hardwareGuideDialog" aria-labelledby="hardwareGuideTitle"><div class="hardware-guide-shell">
     <header class="hardware-guide-head"><div><span class="hardware-guide-kicker"><span class="lang-en">HARDWARE TRANSFER / VERIFIED METHODS</span><span class="lang-tr">DONANIM AKTARIMI / DOĞRULANMIŞ YÖNTEMLER</span></span><h2 id="hardwareGuideTitle"><span class="lang-en">How 303box reaches each device</span><span class="lang-tr">303box her cihaza nasıl aktarım yapıyor?</span></h2></div><button class="hardware-guide-close" id="hardwareGuideClose" type="button" aria-label="Close">×</button></header>

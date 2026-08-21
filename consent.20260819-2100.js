@@ -58,6 +58,8 @@
   function loadAnalytics(){
     if(analyticsLoaded||!state?.analytics)return;
     analyticsLoaded=true;
+    window.dataLayer=window.dataLayer||[];
+    if(typeof window.gtag!=='function')window.gtag=function(){window.dataLayer.push(arguments)};
     const s=document.createElement('script');s.async=true;s.src=`https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(GA_ID)}`;s.dataset.consentGoogle='analytics';document.head.appendChild(s);
     window.gtag('js',new Date());
     window.gtag('config',GA_ID,{send_page_view:true});
@@ -84,7 +86,7 @@
     banner.id='consentBanner';banner.className='consent-banner';banner.setAttribute('role','dialog');banner.setAttribute('aria-labelledby','consentTitle');
     banner.innerHTML=`
       <div class="consent-banner-head"><div><span class="consent-kicker" data-consent-copy="kicker"></span><h2 id="consentTitle" data-consent-copy="title"></h2></div><button class="consent-close" type="button" aria-label="Close">×</button></div>
-      <p class="consent-intro"><span data-consent-copy="intro"></span> <a href="./privacy.html" data-consent-copy="privacy"></a></p>
+      <p class="consent-intro"><span data-consent-copy="intro"></span> <a href="/privacy.html" data-consent-copy="privacy"></a></p>
       <div class="consent-purposes">
         <div class="consent-purpose"><div><strong data-consent-copy="analytics"></strong><small data-consent-copy="analyticsText"></small></div><label class="consent-switch"><input id="consentAnalytics" type="checkbox"><span aria-hidden="true"></span></label></div>
         <div class="consent-purpose"><div><strong data-consent-copy="ads"></strong><small data-consent-copy="adsText"></small></div><label class="consent-switch"><input id="consentAds" type="checkbox"><span aria-hidden="true"></span></label></div>
