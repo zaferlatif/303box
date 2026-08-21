@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const SITE_VERSION='2026.08.21.1';
+  const SITE_VERSION='2026.08.21.2';
   const COPY={
     en:{
       brandTag:'Acid pattern laboratory',primaryNavigation:'Primary navigation',rhythm:'Rhythm',guide:'Guide',history:'History',faq:'FAQ',openSequencer:'Open sequencer',changeLanguage:'Change language',
