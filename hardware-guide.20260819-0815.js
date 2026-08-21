@@ -14,9 +14,10 @@
   const TD3_WRITE_SETTLE=500;
   const TD3_VERIFY_RETRIES=3;
   const TD3_VERIFY_RETRY_DELAY=450;
+  const TD3_WRITE_CONFIRM_WINDOW=15000;
   const NOTE={C:0,'C#':1,D:2,'D#':3,E:4,F:5,'F#':6,G:7,'G#':8,A:9,'A#':10,B:11};
 
-  const td3={access:null,input:null,output:null,product:'',firmware:'',profile:'',verified:false,sysexEnabled:false,busy:false,stateListener:null};
+  const td3={access:null,input:null,output:null,product:'',firmware:'',profile:'',verified:false,sysexEnabled:false,busy:false,stateListener:null,pendingWrite:null,pendingTimer:0};
 
   function selectedDevice(){
     const v=$('#midiDeviceProfile')?.value||'auto';
@@ -71,10 +72,12 @@
       .td3-direct-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:9px}
       .td3-direct-actions button{min-height:36px;padding:0 8px;border:1px solid #3b3b42;border-radius:7px;background:#17171b;color:#c9c9ce;font:850 .48rem/1.15 JetBrains Mono,monospace;letter-spacing:.045em;cursor:pointer}
       .td3-direct-actions button.primary{border-color:#61731b;background:#192009;color:#ddff37}
+      .td3-direct-actions button.primary.armed{border-color:#ddff37;background:#29340b;box-shadow:0 0 0 2px rgba(221,255,55,.12),0 0 18px rgba(221,255,55,.1)}
       .td3-direct-actions button.danger{border-color:#653833;background:#1d1111;color:#ff8a82}
       .td3-direct-actions button:disabled{opacity:.38;cursor:not-allowed}
-      .td3-direct-status{min-height:18px;margin:9px 0 0;color:#8d8d95;font-size:.57rem;line-height:1.5}
+      .td3-direct-status{min-height:40px;margin:9px 0;padding:9px 10px;border:1px solid #303038;border-radius:7px;background:#101013;color:#b8b8bf;font-size:.57rem;line-height:1.5}
       .td3-direct-status.good{color:#ddff37}.td3-direct-status.warn{color:#ffc765}.td3-direct-status.bad{color:#ff8179}
+      .td3-direct-box[aria-busy="true"] .td3-direct-status{border-color:#65751e;box-shadow:0 0 0 2px rgba(221,255,55,.06)}
       .td3-direct-warning{margin:8px 0 0;color:#77777f;font-size:.55rem;line-height:1.5}
       @media(max-width:560px){.td3-direct-target{grid-template-columns:1fr 1fr}.td3-direct-target label:last-child{grid-column:1/-1}.td3-direct-actions{grid-template-columns:1fr}}
     `;document.head.appendChild(s);
@@ -90,23 +93,61 @@
         <label><span data-i18n="td3Section">SECTION</span><select id="td3WriteSection"><option value="A">A</option><option value="B">B</option></select></label>
         <label><span data-i18n="td3Pattern">PATTERN</span><select id="td3WriteNumber">${Array.from({length:8},(_,i)=>`<option value="${i+1}">${i+1}</option>`).join('')}</select></label>
       </div>
+      <p id="td3DirectStatus" class="td3-direct-status" role="status" aria-live="polite" aria-atomic="true"></p>
       <div class="td3-direct-actions">
         <button id="td3ArmSysex" data-i18n="td3Verify" type="button">VERIFY USB / SYSEX</button>
         <button id="td3WritePattern" data-i18n="td3BackupWrite" class="primary" type="button">BACKUP + WRITE</button>
         <button id="td3RestorePattern" data-i18n="td3Restore" class="danger" type="button">RESTORE LAST BACKUP</button>
-        <button id="td3ReadPattern" data-i18n="td3ReadOnly" type="button">READ TARGET ONLY</button>
+        <button id="td3ReadPattern" data-i18n="td3ReadOnly" type="button">TEST READ (NO WRITE)</button>
       </div>
-      <p id="td3DirectStatus" class="td3-direct-status"></p>
       <p class="td3-direct-warning"><span class="lang-en">Safety flow: identify the TD-3 over USB → read the target slot → save a browser backup → write → read it again and compare. Use a disposable pattern slot first.</span><span class="lang-tr">Güvenlik akışı: TD-3’ü USB üzerinden doğrula → hedef slotu oku → tarayıcıya yedekle → yaz → tekrar okuyup karşılaştır. İlk denemede önemsiz bir pattern slotu kullan.</span></p>`;
     card.appendChild(box);
-    $('#td3ArmSysex')?.addEventListener('click',()=>armTd3(true));
-    $('#td3ReadPattern')?.addEventListener('click',readOnly);
-    $('#td3WritePattern')?.addEventListener('click',writeTd3);
-    $('#td3RestorePattern')?.addEventListener('click',restoreTd3);
+    $('#td3ArmSysex',box)?.addEventListener('click',()=>armTd3(true));
+    $('#td3ReadPattern',box)?.addEventListener('click',readOnly);
+    $('#td3WritePattern',box)?.addEventListener('click',writeTd3);
+    $('#td3RestorePattern',box)?.addEventListener('click',restoreTd3);
+    $$('select',box).forEach(select=>select.addEventListener('change',targetChanged));
+    targetChanged();
   }
 
   function td3Status(msg,kind=''){
     const el=$('#td3DirectStatus');if(!el)return;el.textContent=msg;el.className=`td3-direct-status ${kind}`.trim();
+  }
+
+  function patternSignature(){return JSON.stringify(patternSteps())}
+  function setWriteButton(mode='default',tg=null){
+    const button=$('#td3WritePattern');if(!button)return;
+    const dynamic=mode!=='default';
+    button.dataset.dynamicCopy=dynamic?'true':'false';
+    button.classList.toggle('armed',mode==='confirm');
+    button.textContent=mode==='confirm'
+      ? say(`CONFIRM WRITE ${tg?.label||''}`,`${tg?.label||''} YAZMAYI ONAYLA`)
+      : mode==='working'
+        ? say('WORKING…','İŞLENİYOR…')
+        : say('BACKUP + WRITE','YEDEKLE + YAZ');
+  }
+
+  function clearPendingWrite(){
+    if(td3.pendingTimer)clearTimeout(td3.pendingTimer);
+    td3.pendingTimer=0;td3.pendingWrite=null;setWriteButton();
+  }
+
+  function targetChanged(){
+    clearPendingWrite();
+    const tg=target();
+    td3Status(`${tg.label} — ${say('target selected. Nothing has been written.','hedef seçildi. Henüz hiçbir şey yazılmadı.')}`,'warn');
+  }
+
+  function armPendingWrite(packet,tg){
+    clearPendingWrite();
+    td3.pendingWrite={packet:packet.slice(),tg:{...tg},signature:patternSignature(),product:td3.product,expires:Date.now()+TD3_WRITE_CONFIRM_WINDOW};
+    setWriteButton('confirm',tg);
+    const pending=td3.pendingWrite;
+    td3.pendingTimer=setTimeout(()=>{
+      if(td3.pendingWrite!==pending)return;
+      clearPendingWrite();
+      td3Status(`${tg.label} — ${say('write confirmation expired. Nothing was written.','yazma onayı zaman aşımına uğradı. Hiçbir şey yazılmadı.')}`,'warn');
+    },TD3_WRITE_CONFIRM_WINDOW);
   }
 
   function setTd3Busy(busy){
@@ -115,6 +156,9 @@
     if(!box)return;
     box.setAttribute('aria-busy',busy?'true':'false');
     $$('button, select',box).forEach(el=>{el.disabled=busy});
+    if(busy)setWriteButton('working');
+    else if(td3.pendingWrite)setWriteButton('confirm',td3.pendingWrite.tg);
+    else setWriteButton();
   }
 
   async function runTd3Operation(operation){
@@ -441,10 +485,12 @@
 
   function readOnly(){return runTd3Operation(async()=>{
     const tg=target();
+    clearPendingWrite();
+    td3Status(`${tg.label} — ${say('test read started. This action cannot write to the TD-3.','test okuma başladı. Bu işlem TD-3’e yazamaz.')}`,'warn');
     if(!(await ensureTd3(tg)))return false;
     try{
       const raw=await requestPattern(tg);
-      td3Status(`${tg.label} — ${raw.length} bytes ${say('read successfully. No write was performed.','başarıyla okundu. Yazma yapılmadı.')}`,'good');
+      td3Status(`${tg.label} — ${say(`READ OK (${raw.length} bytes). The connection and slot are readable; no pattern was changed.`,`OKUMA TAMAM (${raw.length} bayt). Bağlantı ve slot okunabiliyor; hiçbir pattern değiştirilmedi.`)}`,'good');
       return true;
     }catch(err){
       if(['port-disconnected','send-failed'].includes(td3ErrorCode(err)))clearVerification();
@@ -466,12 +512,12 @@
     return say(`TD-3 direct write failed (${code}). The last pre-write backup was kept when available.`,`TD-3 doğrudan yazma başarısız (${code}). Varsa yazma öncesi son yedek korundu.`);
   }
 
-  function writeTd3(){return runTd3Operation(async()=>{
+  function prepareWrite(){return runTd3Operation(async()=>{
     const device=selectedDevice();
     if(device!=='td3'&&device!=='td3mo'){td3Status(say('Select TD-3 / TD-3-MO first.','Önce TD-3 / TD-3-MO seç.'),'warn');return false}
     const tg=target();
+    td3Status(`${tg.label} — ${say('Backup + Write started. Verifying the device and reading the safety backup…','Yedekle + Yaz başlatıldı. Cihaz doğrulanıyor ve güvenlik yedeği okunuyor…')}`,'warn');
     if(!(await ensureTd3(tg)))return false;
-    let writeSent=false;
     try{
       window.__303boxMidiRouter?.panic?.();
       window.__303boxUnifiedEngine?.stopAll?.();
@@ -480,14 +526,49 @@
       saveBackup(backup,tg);
       const packet=encodePattern(backup);
       if(!validPattern(packet,tg))throw td3Error('encoded-packet-invalid');
-      const warning=say(
-        `${td3.product} ${tg.label} will be overwritten. A raw backup has been saved in this browser first. This protocol is reverse-engineered and experimental. Continue?`,
-        `${td3.product} ${tg.label} üzerine yazılacak. Önce ham yedek bu tarayıcıya kaydedildi. Bu protokol tersine mühendislik ve deneyseldir. Devam edilsin mi?`);
-      if(!window.confirm(warning)){td3Status(say('Cancelled. Backup kept; nothing written.','İptal edildi. Yedek saklandı; hiçbir şey yazılmadı.'),'warn');return false}
-      try{td3.output.send(packet);writeSent=true}catch(cause){throw td3Error('send-failed',cause)}
-      td3Status(`${tg.label} — ${say('written; verifying read-back…','yazıldı; geri okuma doğrulanıyor…')}`);
-      await verifyReadBack(packet,tg);
-      td3Status(`${td3.product} ${tg.label} — ${say('DIRECT WRITE VERIFIED. Pattern memory matches the 303box sheet.','DIRECT WRITE DOĞRULANDI. Pattern hafızası 303box sayfasıyla eşleşiyor.')}`,'good');
+      armPendingWrite(packet,tg);
+      td3Status(`${tg.label} — ${say('backup saved; nothing written yet. Press CONFIRM WRITE within 15 seconds.','yedek kaydedildi; henüz yazılmadı. 15 saniye içinde YAZMAYI ONAYLA düğmesine bas.')}`,'warn');
+      return false;
+    }catch(err){
+      if(['port-disconnected','send-failed'].includes(td3ErrorCode(err)))clearVerification();
+      clearPendingWrite();
+      td3Status(writeFailureMessage(err,false),'bad');
+      return false;
+    }
+  })}
+
+  function commitPendingWrite(pending){return runTd3Operation(async()=>{
+    const tg=target();
+    if(!pending||Date.now()>pending.expires){
+      clearPendingWrite();
+      td3Status(say('Write confirmation expired. Start Backup + Write again.','Yazma onayı zaman aşımına uğradı. Yedekle + Yaz işlemini yeniden başlat.'),'warn');
+      return false;
+    }
+    if(tg.group!==pending.tg.group||tg.requestSlot!==pending.tg.requestSlot){
+      clearPendingWrite();
+      td3Status(say('The target changed. Nothing was written. Start Backup + Write again.','Hedef değişti. Hiçbir şey yazılmadı. Yedekle + Yaz işlemini yeniden başlat.'),'warn');
+      return false;
+    }
+    if(patternSignature()!==pending.signature){
+      clearPendingWrite();
+      td3Status(say('The 303box pattern changed after the backup. Nothing was written. Start again to use the current sheet.','303box pattern’i yedekten sonra değişti. Hiçbir şey yazılmadı. Güncel sayfayı kullanmak için yeniden başlat.'),'warn');
+      return false;
+    }
+    if(!(await ensureTd3(tg)))return false;
+    if(pending.product&&norm(pending.product)!==norm(td3.product)){
+      clearPendingWrite();
+      td3Status(say('The connected TD-3 changed. Nothing was written.','Bağlı TD-3 değişti. Hiçbir şey yazılmadı.'),'bad');
+      return false;
+    }
+    clearPendingWrite();
+    let writeSent=false;
+    try{
+      window.__303boxMidiRouter?.panic?.();
+      window.__303boxUnifiedEngine?.stopAll?.();
+      td3Status(`${tg.label} — ${say('WRITE sent. Reading the slot back for verification…','YAZMA gönderildi. Doğrulama için slot geri okunuyor…')}`,'warn');
+      try{td3.output.send(pending.packet);writeSent=true}catch(cause){throw td3Error('send-failed',cause)}
+      await verifyReadBack(pending.packet,tg);
+      td3Status(`${td3.product} ${tg.label} — ${say('WRITE VERIFIED. The TD-3 memory matches the visible 303box pattern.','YAZMA DOĞRULANDI. TD-3 hafızası ekrandaki 303box pattern’iyle eşleşiyor.')}`,'good');
       return true;
     }catch(err){
       if(['port-disconnected','send-failed'].includes(td3ErrorCode(err)))clearVerification();
@@ -495,6 +576,11 @@
       return false;
     }
   })}
+
+  function writeTd3(){
+    const pending=td3.pendingWrite;
+    return pending?commitPendingWrite(pending):prepareWrite();
+  }
 
   function restoreTd3(){return runTd3Operation(async()=>{
     const stored=loadBackup();
@@ -547,9 +633,9 @@
     $('#midiHardwareGuide')?.addEventListener('click',openGuide);
     $('#hardwareGuideClose')?.addEventListener('click',closeGuide);
     $('#hardwareGuideDialog')?.addEventListener('click',e=>{if(e.target===e.currentTarget)closeGuide()});
-    $('#midiDeviceProfile')?.addEventListener('change',()=>{clearVerification();markCurrent()});
-    document.addEventListener('303box:languagechange',()=>{if(!td3.busy)td3Status('');markCurrent()});
-    window.__303boxHardwareGuide={version:'0900',open:openGuide,close:closeGuide,armTd3,writeTd3,restoreTd3,get td3(){return{product:td3.product,firmware:td3.firmware,profile:td3.profile,verified:td3.verified,sysexEnabled:td3.sysexEnabled,busy:td3.busy,input:portName(td3.input),output:portName(td3.output)}}};
+    $('#midiDeviceProfile')?.addEventListener('change',()=>{clearVerification();clearPendingWrite();markCurrent();targetChanged()});
+    document.addEventListener('303box:languagechange',()=>{if(!td3.busy)targetChanged();markCurrent()});
+    window.__303boxHardwareGuide={version:'0930',open:openGuide,close:closeGuide,armTd3,writeTd3,restoreTd3,get td3(){return{product:td3.product,firmware:td3.firmware,profile:td3.profile,verified:td3.verified,sysexEnabled:td3.sysexEnabled,busy:td3.busy,pendingWrite:!!td3.pendingWrite,input:portName(td3.input),output:portName(td3.output)}}};
   }
 
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();

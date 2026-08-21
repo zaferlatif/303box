@@ -56,7 +56,7 @@ Runtime 2300 fixes three production paths together:
 - Visible English/Turkish copy uses one `303box:languagechange` event and one final copy pass, including late hardware, scope, consent and T-8 controls.
 - Browser audio and external MIDI share step timestamps. BPM changes no longer clear scheduled Note Off messages, long tie/slide chains are scheduled one step at a time, TD-3 live-note playback does not also start its stored sequencer, and stop flushes queued notes and effect tails.
 
-The `20260821-2330` query/loader epoch is intentional: it prevents a cached pre-fix writer or playback router from surviving the release.
+The `20260821-2350` query/loader epoch is intentional: it prevents a cached pre-fix writer or playback router from surviving the release.
 
 ## Runtime 2202
 

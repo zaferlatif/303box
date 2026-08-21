@@ -125,18 +125,38 @@ test('writer enforces SysEx capability, durable backup, serialization, and retry
   assert.match(source,/access\?\.sysexEnabled!==true/);
   assert.match(source,/if\(td3\.busy\)/);
   assert.match(source,/const TD3_VERIFY_RETRIES=3/);
-  assert.match(source,/await verifyReadBack\(packet,tg\)/);
+  assert.match(source,/await verifyReadBack\(pending\.packet,tg\)/);
 
-  const writeStart=source.indexOf('function writeTd3()');
-  const writeEnd=source.indexOf('function restoreTd3()',writeStart);
-  const writeBody=source.slice(writeStart,writeEnd);
-  assert.ok(writeBody.indexOf('saveBackup(backup,tg)')<writeBody.indexOf('td3.output.send(packet)'),
-    'a verified browser backup must be stored before WRITE is sent');
+  const prepareStart=source.indexOf('function prepareWrite()');
+  const commitStart=source.indexOf('function commitPendingWrite(',prepareStart);
+  const writeStart=source.indexOf('function writeTd3()',commitStart);
+  const restoreStart=source.indexOf('function restoreTd3()',writeStart);
+  const prepareBody=source.slice(prepareStart,commitStart);
+  const commitBody=source.slice(commitStart,writeStart);
+  assert.match(prepareBody,/saveBackup\(backup,tg\)/,'a verified browser backup must be stored before confirmation');
+  assert.match(prepareBody,/armPendingWrite\(packet,tg\)/,'the first click must arm, not send, the write');
+  assert.doesNotMatch(prepareBody,/output\.send\(/,'the first click must never write to the device');
+  assert.doesNotMatch(prepareBody,/window\.confirm/,'write confirmation must stay inside the panel');
+  assert.match(commitBody,/patternSignature\(\)!==pending\.signature/,'pattern edits after backup must cancel the write');
+  assert.match(commitBody,/td3\.output\.send\(pending\.packet\)/,'only the explicit second click may send the packet');
+  assert.match(commitBody,/await verifyReadBack\(pending\.packet,tg\)/);
 
-  const restoreStart=source.indexOf('function restoreTd3()');
   const restoreEnd=source.indexOf('function openGuide()',restoreStart);
   const restoreBody=source.slice(restoreStart,restoreEnd);
   assert.match(restoreBody,/tg=backup\.target/,'restore must use the address stored with the backup');
   assert.match(restoreBody,/await ensureTd3\(tg\)/);
   assert.match(restoreBody,/await verifyReadBack\(backup\.bytes,tg\)/);
+});
+
+test('writer controls make selection and operation state explicit',()=>{
+  const statusAt=source.indexOf('id="td3DirectStatus"');
+  const actionsAt=source.indexOf('class="td3-direct-actions"');
+  assert.ok(statusAt>0&&statusAt<actionsAt,'live status must be visible above the action buttons');
+  assert.match(source,/role="status" aria-live="polite"/);
+  assert.match(source,/TEST READ \(NO WRITE\)/);
+  assert.match(source,/TD3_WRITE_CONFIRM_WINDOW=15000/);
+  assert.match(source,/\$\('#td3WritePattern',box\)\?\.addEventListener\('click',writeTd3\)/,
+    'the write listener must be scoped to the write button inside the writer box');
+  assert.match(source,/\$\$\('select',box\)\.forEach\(select=>select\.addEventListener\('change',targetChanged\)\)/,
+    'select changes must only update the target state');
 });

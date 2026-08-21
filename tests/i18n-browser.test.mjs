@@ -35,7 +35,8 @@ try{
   assert.equal(await text('#midiOutputLabel'),'ÇIKIŞ');
   assert.equal(await text('#drums .drum-intro h2'),'Acid hattının yanına ritmi kur.');
   assert.equal(await text('#td3WritePattern'),'YEDEKLE + YAZ');
-  assert.equal(await text('#td3DirectStatus'),'','a status from the previous language must not remain visible');
+  assert.equal(await text('#td3DirectStatus'),'I / A1 — hedef seçildi. Henüz hiçbir şey yazılmadı.',
+    'the status must be regenerated in the current language');
   assert.equal(await text('.visual-head > span:first-child'),'303box / SİNYAL');
   assert.equal(await text('.signal-live'),'CANLI');
   assert.equal(await text('.acid-console-head > span'),'ACID KONSOLU');
@@ -50,7 +51,7 @@ try{
   if(process.env.I18N_DUMP==='1')console.log(visibleTurkish);
   for(const staleEnglish of [
     'WHAT 303BOX IS','Build the rhythm beside the acid line.','Hardware verification required',
-    'BACKUP + WRITE','RESTORE LAST BACKUP','READ TARGET ONLY','RANDOM PATCH',
+    'BACKUP + WRITE','RESTORE LAST BACKUP','READ TARGET ONLY','TEST READ (NO WRITE)','RANDOM PATCH',
     'TUNE','DELAY','DISTORTION','REVERB','FEEDBACK'
   ])assert.ok(!visibleTurkish.includes(staleEnglish),`stale English remained in Turkish UI: ${staleEnglish}`);
   await page.locator('#hardwareGuideClose').click();
