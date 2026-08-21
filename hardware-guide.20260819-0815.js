@@ -138,9 +138,16 @@
     td3Status(`${tg.label} — ${say('target selected. Nothing has been written.','hedef seçildi. Henüz hiçbir şey yazılmadı.')}`,'warn');
   }
 
-  function armPendingWrite(packet,tg){
+  function armPendingWrite(packet,tg,semantics){
     clearPendingWrite();
-    td3.pendingWrite={packet:packet.slice(),tg:{...tg},signature:patternSignature(),product:td3.product,expires:Date.now()+TD3_WRITE_CONFIRM_WINDOW};
+    td3.pendingWrite={
+      packet:packet.slice(),
+      semantics:semantics.map(step=>({...step})),
+      tg:{...tg},
+      signature:patternSignature(),
+      product:td3.product,
+      expires:Date.now()+TD3_WRITE_CONFIRM_WINDOW
+    };
     setWriteButton('confirm',tg);
     const pending=td3.pendingWrite;
     td3.pendingTimer=setTimeout(()=>{
@@ -355,7 +362,9 @@
     }));
   }
 
-  function pair(v){v=Math.max(0,Math.min(127,Math.round(v)));return[(v>>4)&0x0F,v&0x0F]}
+  // TD-3 stores a logical 8-bit value as two 4-bit SysEx bytes. Values above
+  // 0x7f are valid here: the hardware uses bit 7 to distinguish its upper C.
+  function pair(v){v=Math.max(0,Math.min(255,Math.round(v)));return[(v>>4)&0x0F,v&0x0F]}
   function writePair(a,index,v){const p=pair(v);a[index]=p[0];a[index+1]=p[1]}
   function boolPair(a,index,v){a[index]=0;a[index+1]=v?1:0}
   function packByRests(values,rests,off){
@@ -378,23 +387,75 @@
     return b;
   }
 
-  function encodePattern(backup){
+  function unpackMask16(a,index){
+    const b=a.slice(index,index+4);
+    return Array.from({length:16},(_,step)=>{
+      let bi,bit;
+      if(step<4){bi=1;bit=step}
+      else if(step<8){bi=0;bit=step-4}
+      else if(step<12){bi=3;bit=step-8}
+      else{bi=2;bit=step-12}
+      return Boolean(b[bi]&(1<<bit));
+    });
+  }
+
+  function td3Pitch(s,index){
+    const semitone=NOTE[s.note];
+    if(semitone==null)throw new Error(`bad-note-${index+1}`);
+    if(s.baseOct&&semitone!==0)throw new Error(`upper-c-only-${index+1}`);
+    const sounding=0x18+semitone+(s.baseOct?12:0)+(s.oct==='D'?-12:s.oct==='U'?12:0);
+    if(sounding<0x0C||sounding>0x30)throw new Error(`pitch-range-${index+1}`);
+    return sounding|(s.baseOct?0x80:0);
+  }
+
+  function patternSemantics(steps=patternSteps()){
+    return steps.map((s,i)=>{
+      const rest=!s.note||s.gate==='-'||!s.gate;
+      if(rest)return{gate:'rest'};
+      return{
+        gate:s.gate==='○'?'tie':'note',
+        pitch:td3Pitch(s,i)&0x7F,
+        accent:s.expr.includes('A'),
+        slide:s.expr.includes('S')
+      };
+    });
+  }
+
+  function decodePatternSemantics(packet){
+    if(!Array.isArray(packet)||packet.length!==TD3_PATTERN_BYTES)throw td3Error('short-pattern');
+    const triggers=unpackMask16(packet,0x72),rests=unpackMask16(packet,0x76);
+    let packed=0;
+    return rests.map((rest,step)=>{
+      if(rest)return{gate:'rest'};
+      const offset=packed++*2;
+      return{
+        gate:triggers[step]?'note':'tie',
+        pitch:((packet[0x0C+offset]<<4)|packet[0x0D+offset])&0x7F,
+        accent:Boolean((packet[0x2C+offset]<<4)|packet[0x2D+offset]),
+        slide:Boolean((packet[0x4C+offset]<<4)|packet[0x4D+offset])
+      };
+    });
+  }
+
+  function samePatternSemantics(a,b){return JSON.stringify(a)===JSON.stringify(b)}
+
+  function encodePattern(backup,steps=patternSteps()){
     if(!Array.isArray(backup)||backup.length!==TD3_PATTERN_BYTES)throw td3Error('short-pattern');
     const out=backup.slice();
-    const steps=patternSteps();
-    const ties=[],rests=[],pitches=Array(16).fill(0x18),accents=Array(16).fill(false),slides=Array(16).fill(false);
+    const triggers=[],rests=[],pitches=Array(16).fill(0x18),accents=Array(16).fill(false),slides=Array(16).fill(false);
     for(let i=0;i<16;i++){
       const s=steps[i],isRest=!s.note||s.gate==='-'||!s.gate,isTie=!isRest&&s.gate==='○';
-      rests[i]=isRest;ties[i]=isTie;
+      rests[i]=isRest;
+      // Despite the reverse-engineered field name "Tie", TD-3 stores 1 for a
+      // freshly triggered note and 0 for a tie. A canonical rest has both the
+      // trigger and rest bits set. Sending the visual tie value directly here
+      // inverts the rhythm and makes the written melody sound unrelated.
+      triggers[i]=isRest||!isTie;
       if(!isRest){
-        const semitone=NOTE[s.note];
-        if(semitone==null)throw new Error(`bad-note-${i+1}`);
         // The TD-3 consumes pitch/accent/slide entries sequentially for every
         // non-rest timing step. They are packed at the front of the dump rather
         // than stored at the matching visual step offset.
-        const stored=0x18+semitone+(s.baseOct?12:0)+(s.oct==='D'?-12:s.oct==='U'?12:0);
-        if(stored<0||stored>0x2F)throw new Error(`pitch-range-${i+1}`);
-        pitches[i]=stored;
+        pitches[i]=td3Pitch(s,i);
         accents[i]=s.expr.includes('A');
         slides[i]=s.expr.includes('S');
       }
@@ -409,8 +470,8 @@
     }
     out[0x6C]=0;out[0x6D]=0;       // straight 16th mode
     out[0x6E]=1;out[0x6F]=0;       // 0x10 = 16 steps, nibble-pair encoded
-    const tieMask=mask16(ties),restMask=mask16(rests);
-    tieMask.forEach((v,i)=>out[0x72+i]=v);
+    const triggerMask=mask16(triggers),restMask=mask16(rests);
+    triggerMask.forEach((v,i)=>out[0x72+i]=v);
     restMask.forEach((v,i)=>out[0x76+i]=v);
     out[out.length-1]=0xF7;
     return out;
@@ -502,9 +563,12 @@
   function writeFailureMessage(err,writeSent){
     const code=td3ErrorCode(err);
     if(code.startsWith('pitch-range-'))return say(`Step ${code.split('-').pop()} is outside the conservative TD-3 pitch range. Adjust D/U and try again.`,`Adım ${code.split('-').pop()} güvenli TD-3 perde aralığının dışında. D/U ayarını değiştirip tekrar dene.`);
+    if(code.startsWith('upper-c-only-'))return say(`Step ${code.split('-').pop()} has an invalid upper-C flag. Re-select its note and try again.`,`Adım ${code.split('-').pop()} geçersiz bir üst-C işareti taşıyor. Notayı yeniden seçip tekrar dene.`);
     if(code.startsWith('bad-note-'))return say(`Step ${code.split('-').pop()} contains a note the TD-3 writer cannot encode. Correct it and retry.`,`Adım ${code.split('-').pop()} TD-3 yazıcısının kodlayamadığı bir nota içeriyor. Düzeltip yeniden dene.`);
     if(code==='backup-save')return say('The target was read, but its safety backup could not be saved and verified in this browser. WRITE was not sent. Check site storage permissions.','Hedef okundu ancak güvenlik yedeği bu tarayıcıya kaydedilip doğrulanamadı. WRITE gönderilmedi. Site depolama izinlerini kontrol et.');
     if(code==='backup-invalid'||code==='encoded-packet-invalid'||code==='short-pattern')return say('The target data did not form a safe TD-3 pattern packet. WRITE was blocked before anything was sent.','Hedef verisi güvenli bir TD-3 pattern paketi oluşturmadı. Herhangi bir veri gönderilmeden WRITE engellendi.');
+    if(code==='semantic-encode-mismatch')return say('The TD-3 packet did not decode back to the visible pattern. WRITE was blocked before anything was sent.','TD-3 paketi ekrandaki pattern ile aynı biçimde çözülemedi. Herhangi bir veri gönderilmeden YAZMA engellendi.');
+    if(code==='semantic-readback-mismatch')return say('WRITE was sent, but the stored TD-3 notes/gates do not match the visible pattern. Use RESTORE LAST BACKUP.','YAZMA gönderildi ancak TD-3’e kaydedilen nota/gate değerleri ekrandaki pattern ile eşleşmiyor. SON YEDEĞİ GERİ YÜKLE kullan.');
     if(code==='verify-mismatch')return say('WRITE was sent, but three read-back checks did not match. Do not trust this slot; use RESTORE LAST BACKUP.','WRITE gönderildi ancak üç geri okuma kontrolü eşleşmedi. Bu slota güvenme; RESTORE LAST BACKUP kullan.');
     if(code==='pattern-timeout'&&!writeSent)return say('The target slot did not answer the safety-backup read. WRITE was not sent. Verify USB / SysEx and retry.','Hedef slot güvenlik yedeği okumasına yanıt vermedi. WRITE gönderilmedi. USB / SysEx doğrulamasını yapıp yeniden dene.');
     if(code==='pattern-timeout')return say('WRITE was sent, but the TD-3 did not answer the read-back checks. Do not trust this slot; use RESTORE LAST BACKUP after reconnecting.','WRITE gönderildi ancak TD-3 geri okuma kontrollerine yanıt vermedi. Bu slota güvenme; yeniden bağlandıktan sonra RESTORE LAST BACKUP kullan.');
@@ -524,9 +588,11 @@
       td3Status(`${tg.label} — ${say('reading backup…','yedek okunuyor…')}`);
       const backup=await requestPattern(tg);
       saveBackup(backup,tg);
-      const packet=encodePattern(backup);
+      const steps=patternSteps(),intended=patternSemantics(steps);
+      const packet=encodePattern(backup,steps);
       if(!validPattern(packet,tg))throw td3Error('encoded-packet-invalid');
-      armPendingWrite(packet,tg);
+      if(!samePatternSemantics(intended,decodePatternSemantics(packet)))throw td3Error('semantic-encode-mismatch');
+      armPendingWrite(packet,tg,intended);
       td3Status(`${tg.label} — ${say('backup saved; nothing written yet. Press CONFIRM WRITE within 15 seconds.','yedek kaydedildi; henüz yazılmadı. 15 saniye içinde YAZMAYI ONAYLA düğmesine bas.')}`,'warn');
       return false;
     }catch(err){
@@ -567,7 +633,8 @@
       window.__303boxUnifiedEngine?.stopAll?.();
       td3Status(`${tg.label} — ${say('WRITE sent. Reading the slot back for verification…','YAZMA gönderildi. Doğrulama için slot geri okunuyor…')}`,'warn');
       try{td3.output.send(pending.packet);writeSent=true}catch(cause){throw td3Error('send-failed',cause)}
-      await verifyReadBack(pending.packet,tg);
+      const actual=await verifyReadBack(pending.packet,tg);
+      if(!samePatternSemantics(pending.semantics,decodePatternSemantics(actual)))throw td3Error('semantic-readback-mismatch');
       td3Status(`${td3.product} ${tg.label} — ${say('WRITE VERIFIED. The TD-3 memory matches the visible 303box pattern.','YAZMA DOĞRULANDI. TD-3 hafızası ekrandaki 303box pattern’iyle eşleşiyor.')}`,'good');
       return true;
     }catch(err){
@@ -635,7 +702,7 @@
     $('#hardwareGuideDialog')?.addEventListener('click',e=>{if(e.target===e.currentTarget)closeGuide()});
     $('#midiDeviceProfile')?.addEventListener('change',()=>{clearVerification();clearPendingWrite();markCurrent();targetChanged()});
     document.addEventListener('303box:languagechange',()=>{if(!td3.busy)targetChanged();markCurrent()});
-    window.__303boxHardwareGuide={version:'0930',open:openGuide,close:closeGuide,armTd3,writeTd3,restoreTd3,get td3(){return{product:td3.product,firmware:td3.firmware,profile:td3.profile,verified:td3.verified,sysexEnabled:td3.sysexEnabled,busy:td3.busy,pendingWrite:!!td3.pendingWrite,input:portName(td3.input),output:portName(td3.output)}}};
+    window.__303boxHardwareGuide={version:'1100',open:openGuide,close:closeGuide,armTd3,writeTd3,restoreTd3,get td3(){return{product:td3.product,firmware:td3.firmware,profile:td3.profile,verified:td3.verified,sysexEnabled:td3.sysexEnabled,busy:td3.busy,pendingWrite:!!td3.pendingWrite,input:portName(td3.input),output:portName(td3.output)}}};
   }
 
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
