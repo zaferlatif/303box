@@ -2,6 +2,7 @@
   'use strict';
   const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
   const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
+  const say=(en,tr)=>document.documentElement.lang==='tr'?tr:en;
   const NOTE_MIDI={C:60,'C#':61,D:62,'D#':63,E:64,F:65,'F#':66,G:67,'G#':68,A:69,'A#':70,B:71};
   const NAMES=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
   let canvas=null,g=null,mode='scope',sourceMode='synth',lastStep=-1,stepStart=performance.now(),displayHz=0,frame=0;
@@ -31,7 +32,7 @@
   function installCanvas(){
     const legacy=$('#bassOnlyScope');if(legacy)legacy.remove();
     canvas=$('#bassLiveScope');
-    if(!canvas){const panel=$('.scope-panel');if(!panel)return false;canvas=document.createElement('canvas');canvas.id='bassLiveScope';canvas.setAttribute('aria-label','Live 303 and hardware oscilloscope');$('.mini-tabs',panel)?.before(canvas)}
+    if(!canvas){const panel=$('.scope-panel');if(!panel)return false;canvas=document.createElement('canvas');canvas.id='bassLiveScope';canvas.setAttribute('aria-label',say('Live 303 and hardware oscilloscope','Canlı 303 ve donanım osiloskobu'));$('.mini-tabs',panel)?.before(canvas)}
     if(!g)g=canvas.getContext('2d');return!!g;
   }
   function resize(){const r=canvas.getBoundingClientRect(),d=Math.min(window.devicePixelRatio||1,2),w=Math.max(1,Math.round(r.width*d)),h=Math.max(1,Math.round(r.height*d));if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h}return{w,h}}
@@ -107,18 +108,18 @@
   function stopHardware(){try{hwStream?.getTracks().forEach(t=>t.stop())}catch(_){}try{hwSource?.disconnect()}catch(_){}try{hwCtx?.close()}catch(_){}hwStream=hwCtx=hwSource=hwAnalyser=hwTime=hwFreq=null;hwHz=0;displayGain=1}
   function rawAudioConstraints(deviceId){const c={echoCancellation:false,noiseSuppression:false,autoGainControl:false,channelCount:{ideal:2},sampleRate:{ideal:48000}};if(deviceId)c.deviceId={exact:deviceId};return c}
   async function acquireHardware(deviceId=''){
-    if(!navigator.mediaDevices?.getUserMedia){status('Audio input is not available in this browser.','bad');return false}status('Requesting audio input…','');
+    if(!navigator.mediaDevices?.getUserMedia){status(say('Audio input is not available in this browser.','Bu tarayıcıda ses girişi kullanılamıyor.'),'bad');return false}status(say('Requesting audio input…','Ses girişi izni isteniyor…'),'');
     try{
-      let stream=await navigator.mediaDevices.getUserMedia({audio:rawAudioConstraints(deviceId),video:false});const devices=(await navigator.mediaDevices.enumerateDevices()).filter(d=>d.kind==='audioinput');const select=$('#scopeAudioInput');if(select)select.innerHTML=devices.map(d=>`<option value="${d.deviceId}">${d.label||'Audio input'}</option>`).join('');
+      let stream=await navigator.mediaDevices.getUserMedia({audio:rawAudioConstraints(deviceId),video:false});const devices=(await navigator.mediaDevices.enumerateDevices()).filter(d=>d.kind==='audioinput');const select=$('#scopeAudioInput');if(select)select.innerHTML=devices.map(d=>`<option value="${d.deviceId}">${d.label||say('Audio input','Ses girişi')}</option>`).join('');
       const t8=devices.find(d=>/\bT-?8\b|AIRA/i.test(d.label)),current=stream.getAudioTracks()[0]?.getSettings?.().deviceId||'';
       if(!deviceId&&t8?.deviceId&&t8.deviceId!==current){stream.getTracks().forEach(t=>t.stop());stream=await navigator.mediaDevices.getUserMedia({audio:rawAudioConstraints(t8.deviceId),video:false})}
       stopHardware();hwStream=stream;const AC=window.AudioContext||window.webkitAudioContext;hwCtx=new AC();if(hwCtx.state==='suspended')await hwCtx.resume();hwSource=hwCtx.createMediaStreamSource(stream);hwAnalyser=hwCtx.createAnalyser();hwAnalyser.fftSize=8192;hwAnalyser.smoothingTimeConstant=.08;hwAnalyser.minDecibels=-120;hwAnalyser.maxDecibels=-12;hwSource.connect(hwAnalyser);hwTime=new Float32Array(hwAnalyser.fftSize);hwFreq=new Float32Array(hwAnalyser.frequencyBinCount);sourceMode='usb';displayGain=1;
-      const track=stream.getAudioTracks()[0],label=track?.label||t8?.label||'USB audio';if(select){const id=track?.getSettings?.().deviceId;if(id)select.value=id;select.hidden=devices.length<2}updateSourceButtons();status(/\bT-?8\b|AIRA/i.test(label)?`LIVE: ${label}`:`LIVE INPUT: ${label}`,'good');return true;
-    }catch(err){stopHardware();sourceMode='synth';updateSourceButtons();status(err?.name==='NotAllowedError'?'Microphone / audio permission was denied.':'T-8 USB audio could not be opened. Check the USB audio input.','bad');return false}
+      const track=stream.getAudioTracks()[0],label=track?.label||t8?.label||say('USB audio','USB sesi');if(select){const id=track?.getSettings?.().deviceId;if(id)select.value=id;select.hidden=devices.length<2}updateSourceButtons();status(/\bT-?8\b|AIRA/i.test(label)?`${say('LIVE','CANLI')}: ${label}`:`${say('LIVE INPUT','CANLI GİRİŞ')}: ${label}`,'good');return true;
+    }catch(err){stopHardware();sourceMode='synth';updateSourceButtons();status(err?.name==='NotAllowedError'?say('Microphone / audio permission was denied.','Mikrofon / ses izni reddedildi.'):say('T-8 USB audio could not be opened. Check the USB audio input.','T-8 USB sesi açılamadı. USB ses girişini kontrol et.'),'bad');return false}
   }
   function updateSourceButtons(){$$('.scope-source-button').forEach(b=>b.classList.toggle('active',b.dataset.source===sourceMode))}
   function installControls(){
-    const panel=$('.scope-panel');if(!panel||$('#scopeSourceControls'))return;const row=document.createElement('div');row.id='scopeSourceControls';row.className='scope-source-controls';row.innerHTML=`<div class="scope-source-buttons"><button type="button" class="scope-source-button active" data-source="synth">SYNTH</button><button type="button" class="scope-source-button" data-source="usb">T-8 USB</button></div><select id="scopeAudioInput" hidden aria-label="Oscilloscope audio input"></select><span id="scopeSourceState">SYNTH</span><small id="scopeInputStatus"></small>`;$('.mini-tabs',panel)?.after(row);
+    const panel=$('.scope-panel');if(!panel||$('#scopeSourceControls'))return;const row=document.createElement('div');row.id='scopeSourceControls';row.className='scope-source-controls';row.innerHTML=`<div class="scope-source-buttons"><button type="button" class="scope-source-button active" data-source="synth">SYNTH</button><button type="button" class="scope-source-button" data-source="usb">T-8 USB</button></div><select id="scopeAudioInput" hidden data-i18n-aria-label="scopeInputLabel" aria-label="Oscilloscope audio input"></select><span id="scopeSourceState">SYNTH</span><small id="scopeInputStatus"></small>`;$('.mini-tabs',panel)?.after(row);
     row.addEventListener('click',async e=>{const b=e.target.closest('.scope-source-button');if(!b)return;if(b.dataset.source==='synth'){sourceMode='synth';stopHardware();updateSourceButtons();status('')}else await acquireHardware($('#scopeAudioInput')?.value||'')});
     $('#scopeAudioInput')?.addEventListener('change',e=>acquireHardware(e.target.value));
   }
@@ -130,7 +131,7 @@
     if(step!==lastStep){lastStep=step;stepStart=performance.now()}const hz=currentFrequency(step);if(!hz){readout(0,'SYNTH');return}displayHz=!displayHz||Math.abs(hz-displayHz)/hz>.7?hz:displayHz+(hz-displayHz)*.34;readout(displayHz,'SYNTH');if(mode==='fft')modeledSpectrum(w,h,displayHz,wave(),step);else drawSamples(w,h,modeledSamples(displayHz,wave(),step));
   }
   function init(){
-    if(!installCanvas())return;installControls();$$('.scope-panel .analyzer-tab').forEach(btn=>btn.addEventListener('click',()=>{mode=btn.dataset.mode==='fft'?'fft':'scope';$$('.scope-panel .analyzer-tab').forEach(x=>x.classList.toggle('active',x===btn))}));requestAnimationFrame(render);window.__303boxLiveScope={version:'1845',acquireHardware,stopHardware,get source(){return sourceMode},get mode(){return mode}};
+    if(!installCanvas())return;installControls();$$('.scope-panel .analyzer-tab').forEach(btn=>btn.addEventListener('click',()=>{mode=btn.dataset.mode==='fft'?'fft':'scope';$$('.scope-panel .analyzer-tab').forEach(x=>x.classList.toggle('active',x===btn))}));document.addEventListener('303box:languagechange',()=>status(''));requestAnimationFrame(render);window.__303boxLiveScope={version:'1845',acquireHardware,stopHardware,get source(){return sourceMode},get mode(){return mode}};
   }
   window.addEventListener('pagehide',stopHardware);if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();

@@ -152,7 +152,7 @@
     return ready;
   }
 
-  new MutationObserver(syncLanguage).observe(document.documentElement,{attributes:true,attributeFilter:['lang']});
+  document.addEventListener('303box:languagechange',syncLanguage);
   document.addEventListener('303box:ready',apply);
   window.__303boxUiSystem={version:'2201',apply,syncScope};
 })();

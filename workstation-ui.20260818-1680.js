@@ -62,6 +62,6 @@
   function bootSettle(){attempts+=1;if(!apply()&&attempts<40)setTimeout(bootSettle,40)}
 
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bootSettle,{once:true});else bootSettle();
-  new MutationObserver(()=>patchButton()).observe(document.documentElement,{attributes:true,attributeFilter:['lang']});
+  document.addEventListener('303box:languagechange',()=>patchButton());
   window.__303boxWorkstationUi={version:'2120',apply,randomizePatch};
 })();

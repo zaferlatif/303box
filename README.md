@@ -48,6 +48,16 @@ Rhythm voices:
 | CH | 606 closed hi-hat | `CH` |
 | OH | 606 open hi-hat | `OH` |
 
+## Runtime 2300
+
+Runtime 2300 fixes three production paths together:
+
+- TD-3 / TD-3-MO direct USB SysEx now binds `BACKUP + WRITE` to its real button, validates the exact group and slot, requires a durable pre-write backup, and retries target-specific read-back verification.
+- Visible English/Turkish copy uses one `303box:languagechange` event and one final copy pass, including late hardware, scope, consent and T-8 controls.
+- Browser audio and external MIDI share step timestamps. BPM changes no longer clear scheduled Note Off messages, long tie/slide chains are scheduled one step at a time, TD-3 live-note playback does not also start its stored sequencer, and stop flushes queued notes and effect tails.
+
+The `20260821-2300` query/loader epoch is intentional: it prevents a cached pre-fix writer or playback router from surviving the release.
+
 ## Runtime 2202
 
 The workstation stays behind a small animated `303BOX / INITIALIZING` surface until the final UI is ready, instead of visibly rewriting text, knobs, scope and layout after first paint.
@@ -69,8 +79,8 @@ Only the 16-step matrix is intended to scroll horizontally. The surrounding patt
 - **T-8 PRM export:** `t8-prm-export.20260819-2120.js`
 - **Final workstation ownership:** `ui-system.20260819-2100.js` (no MIDI geometry injection)
 - **Final desktop/mobile MIDI + narrow workstation layout:** `midi-layout-fix.20260819-2150.css` (`v=20260820-2202`)
-- **MIDI connection/cache guard:** `midi-connection-state.20260819-1910.js` (`2202`)
-- **Atomic boot:** `sequencer-engine.20260818-1740.js` (`2202`)
+- **MIDI connection/cache guard:** `midi-connection-state.20260819-1910.js` (`2300` loader epoch)
+- **Atomic boot:** `sequencer-engine.20260818-1740.js` (`2300`)
 
 ## Transport contract
 

@@ -160,7 +160,7 @@
     if(localStorage.getItem(STORAGE_KEY))return;
     setTimeout(()=>{if(!localStorage.getItem(STORAGE_KEY))openShortcuts()},900);
   },{once:true});
-  new MutationObserver(()=>{syncActionLabels();installFooterShortcutLink();normalizeDrumVoices()}).observe(document.documentElement,{attributes:true,attributeFilter:['lang']});
+  document.addEventListener('303box:languagechange',()=>{syncActionLabels();installFooterShortcutLink();normalizeDrumVoices()});
 
   window.__303boxPatternShell={version:'2000',apply,setTune,get tune(){return tuneSemitones},openShortcuts};
 })();

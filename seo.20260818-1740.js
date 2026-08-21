@@ -28,7 +28,7 @@
     canonical();alternates();schema(c);
   }
   let queued=false;function queue(){if(queued)return;queued=true;queueMicrotask(()=>{queued=false;apply()})}
-  new MutationObserver(queue).observe(document.documentElement,{attributes:true,attributeFilter:['lang']});
+  document.addEventListener('303box:languagechange',queue);
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',apply,{once:true});else apply();
   window.__303boxSeo={version:'2000',apply};
 })();

@@ -62,7 +62,7 @@
     timer=setTimeout(reveal,5200);
   }
 
-  new MutationObserver(render).observe(document.documentElement,{attributes:true,attributeFilter:['lang']});
+  document.addEventListener('303box:languagechange',render);
   document.addEventListener('303box:ready',start,{once:true});
   if(document.documentElement.classList.contains('app-ready'))start();
 

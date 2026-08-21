@@ -50,8 +50,11 @@
     { id:'accent', key:'accent', value:70, default:70 }
   ];
 
+  const savedLanguage = localStorage.getItem('303-lang');
   const state = {
-    language: localStorage.getItem('303-lang') || (navigator.language?.toLowerCase().startsWith('tr') ? 'tr' : 'en'),
+    language: savedLanguage === 'tr' || savedLanguage === 'en'
+      ? savedLanguage
+      : (navigator.language?.toLowerCase().startsWith('tr') ? 'tr' : 'en'),
     bpm: 140,
     waveform: 'square',
     knobs: Object.fromEntries(KNOBS.map(k => [k.id, k.value])),
@@ -69,14 +72,11 @@
     state.language = lang === 'tr' ? 'tr' : 'en';
     document.documentElement.lang = state.language;
     localStorage.setItem('303-lang', state.language);
-    $$('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
-    $$('[data-i18n-placeholder]').forEach(el => { el.placeholder = t(el.dataset.i18nPlaceholder); });
-    document.title = t('pageTitle');
-    $('meta[name="description"]')?.setAttribute('content', t('pageDescription'));
-    $('#languageCurrent').textContent = state.language.toUpperCase();
-    $('#languageNext').textContent = state.language === 'en' ? 'TR' : 'EN';
     updatePlayLabel();
     renderKnobLabels();
+    document.dispatchEvent(new CustomEvent('303box:languagechange', {
+      detail: { language: state.language }
+    }));
   }
 
   function initPatternGrid() {

@@ -56,7 +56,11 @@
     step:0,
     signature:'',
     clockNextAt:0,
-    clockBpm:0
+    clockBpm:0,
+    playbackGeneration:0,
+    lastAbsoluteStep:-1,
+    heldBassNote:null,
+    noteKeys:new Set()
   };
 
   const engine=()=>window.__303boxUnifiedEngine;
@@ -109,13 +113,17 @@
   }
 
   function immediate(msg){const o=out();if(!o||o.state!=='connected')return;try{o.send(msg)}catch(_){}}
-  function scheduled(msg,at){const o=out();if(!o||o.state!=='connected'||state.blocked)return;try{o.send(msg,at)}catch(_){}}
+  function scheduled(msg,at){const o=out();if(!o||o.state!=='connected'||state.blocked)return;try{o.send(msg,Math.max(performance.now(),Number(at)||0))}catch(_){}}
   function clearQueue(){try{out()?.clear()}catch(_){}state.clockNextAt=0}
-  function cleanupChannels(){for(let ch=1;ch<=16;ch++){immediate([0xB0+ch-1,120,0]);immediate([0xB0+ch-1,123,0])}}
+  function releaseKnownNotes(){
+    state.noteKeys.forEach(key=>{const[ch,n]=key.split(':').map(Number);if(ch>=1&&ch<=16&&n>=0&&n<=127)immediate([0x80+ch-1,n,0])});
+    state.noteKeys.clear();
+  }
+  function cleanupChannels(){releaseKnownNotes();for(let ch=1;ch<=16;ch++){immediate([0xB0+ch-1,120,0]);immediate([0xB0+ch-1,123,0])}}
 
   function emergencyStop({block=false,stopSite=true,renderAfter=true}={}){
     clearQueue();cleanupChannels();immediate([0xFC]);
-    state.running=false;state.sentStart=false;state.nextAt=0;state.signature='';
+    state.running=false;state.sentStart=false;state.nextAt=0;state.signature='';state.playbackGeneration=0;state.lastAbsoluteStep=-1;state.heldBassNote=null;
     state.rec=false;state.clockNextAt=0;
     if(state.recTimer){clearTimeout(state.recTimer);state.recTimer=0}
     if(block)state.blocked=true;
@@ -205,9 +213,6 @@
   }
 
   const bpm=()=>clamp(Number($('[data-knob-id="bpm"]')?.getAttribute('aria-valuenow'))||140,50,250);
-  const swing=()=>clamp(Number($('#consoleSwing')?.value)||0,0,60)/100;
-  const duration=s=>{const d=60000/bpm()/4,a=swing()*.28;return d*(s%2===0?1+a:1-a)};
-  const clockPeriod=()=>60000/bpm()/24;
 
   function bassStep(i){
     const n=$$('#patternSheet .note-input')[i];
@@ -218,10 +223,11 @@
   }
 
   function midiNote(x){let n=NOTE[x.note];if(n==null)return null;n+=x.base;if(x.oct==='D')n-=12;if(x.oct==='U')n+=12;return clamp(n,0,127)}
-  function note(ch,n,vel,on,off){scheduled([0x90+ch-1,n,clamp(Math.round(vel),1,127)],on);scheduled([0x80+ch-1,n,0],off)}
+  function note(ch,n,vel,on,off){state.noteKeys.add(`${ch}:${n}`);scheduled([0x90+ch-1,n,clamp(Math.round(vel),1,127)],on);scheduled([0x80+ch-1,n,0],off)}
   const drumOn=(id,s)=>!!$(`#drums .drum-step[data-drum="${id}"][data-step="${s}"]`)?.classList.contains('on');
   const level=id=>{const v=Number($(`#drums [data-level="${id}"]`)?.value);return Number.isFinite(v)?clamp(v,0,100):80};
-  function activeStep(){const h=$('#patternSheet [data-step-header][data-playing="true"]');const n=Number(h?.dataset?.stepHeader);return Number.isInteger(n)&&n>=0&&n<16?n:0}
+  const playable=x=>!!x.note&&x.gate!=='-';
+  const connects=(a,b)=>playable(a)&&playable(b)&&(a.gate==='○'||a.expr.includes('S'));
 
   function drumVelocity(l,{record=false}={}){
     if(l<=0)return 0;
@@ -233,15 +239,26 @@
     return clamp(Math.round((record?34:26)+l*.68),1,110);
   }
 
-  function liveBass(s,at,d){
-    const e=engine();if(!e?.bassOn)return;
-    const x=bassStep(s),n=midiNote(x);if(n==null||x.gate==='-')return;
-    const leg=x.gate==='○'||x.expr.includes('S');
-    note(state.bass,n,x.expr.includes('A')?127:90,at,at+(leg?d+Math.max(22,d*.12):d*.62));
+  function liveBass(s,at,d,bassOn){
+    if(!bassOn){state.heldBassNote=null;return}
+    const current=bassStep(s),n=midiNote(current);
+    if(n==null||!playable(current)){
+      if(state.heldBassNote!=null){scheduled([0x80+state.bass-1,state.heldBassNote,0],at);state.heldBassNote=null}
+      return;
+    }
+    const previous=bassStep((s+15)%16),next=bassStep((s+1)%16);
+    const previousNote=midiNote(previous),nextNote=midiNote(next);
+    const heldFromPrevious=connects(previous,current)&&previousNote===n&&state.heldBassNote===n;
+    const heldIntoNext=connects(current,next)&&nextNote===n;
+    if(!heldFromPrevious){state.noteKeys.add(`${state.bass}:${n}`);scheduled([0x90+state.bass-1,n,current.expr.includes('A')?127:90],at);state.heldBassNote=n}
+    if(heldIntoNext)return;
+    const overlap=connects(current,next)?clamp(d*.1,6,14):0;
+    const off=connects(current,next)?at+d+overlap:at+d*(current.gate==='○'?.92:.62);
+    state.noteKeys.add(`${state.bass}:${n}`);scheduled([0x80+state.bass-1,n,0],off);state.heldBassNote=null;
   }
 
-  function liveDrums(s,at){
-    const e=engine(),p=profile();if(!e?.drumsOn||!p.hasRhythm)return;
+  function liveDrums(s,at,drumsOn){
+    const p=profile();if(!drumsOn||!p.hasRhythm)return;
     let k=0;
     for(const[id,n]of Object.entries(DRUM)){
       const l=level(id);if(!drumOn(id,s)||l<=0)continue;
@@ -250,52 +267,62 @@
     }
   }
 
-  function signature(){const e=engine();return `${e?.state}|${e?.bassOn?'b':'-'}${e?.drumsOn?'d':'-'}|${bpm()}|${Math.round(swing()*100)}|${state.bass}|${state.rhythm}|${state.effective}`}
-  function clockWanted(){return sendEnabled()&&state.clock&&profile().clock&&!state.rec}
+  function signature(){const e=engine();return `${e?.state}|${e?.bassOn?'b':'-'}${e?.drumsOn?'d':'-'}|${state.bass}|${state.rhythm}|${state.effective}`}
+  function clockWanted(){return state.running&&sendEnabled()&&state.clock&&profile().clock&&!state.rec}
+  function liveTransportConflict(){return ['td3','td3mo','volcabass','volcanubass'].includes(state.effective)}
+  function transportWanted(){return state.transport&&profile().transport&&!liveTransportConflict()}
 
-  function pumpClock(){
-    if(!clockWanted()){state.clockNextAt=0;state.clockBpm=0;return}
-    const now=performance.now(),currentBpm=bpm(),period=clockPeriod(),horizon=260;
-    if(state.clockBpm!==currentBpm||!state.clockNextAt||state.clockNextAt<now-period*2){state.clockBpm=currentBpm;state.clockNextAt=now+24}
-    while(state.clockNextAt<now+horizon){scheduled([0xF8],state.clockNextAt);state.clockNextAt+=period}
-  }
-
-  function pumpNotes(){
-    if(!state.running||!sendEnabled()||state.rec)return;
-    const now=performance.now(),horizon=240;
-    if(state.nextAt<now-280){state.step=activeStep();state.nextAt=now+30}
-    while(state.nextAt<now+horizon){
-      const s=state.step,d=duration(s),at=state.nextAt;
-      liveBass(s,at,d);liveDrums(s,at);
-      state.nextAt+=d;state.step=(s+1)%16;
-    }
-  }
-
-  function startRouter(){
+  function startRouter(detail={}){
     if(state.running||state.rec||!sendEnabled())return;
-    state.running=true;state.step=activeStep();state.nextAt=performance.now()+30;state.signature=signature();
-    if(state.transport&&profile().transport){immediate([0xFA]);state.sentStart=true}
-    pumpNotes();
+    state.running=true;state.playbackGeneration=Number(detail.generation)||0;state.lastAbsoluteStep=-1;state.signature=signature();state.clockNextAt=0;state.clockBpm=0;
+    if(transportWanted()){
+      const firstAt=Number(detail.performanceTime),startAt=Number.isFinite(firstAt)?firstAt-12:performance.now();
+      scheduled([0xFA],startAt);state.sentStart=true;
+    }
   }
 
   function stopRouter(){
     if(!state.running&&!state.sentStart)return;
-    clearQueue();state.running=false;state.nextAt=0;state.signature='';
+    clearQueue();releaseKnownNotes();state.running=false;state.nextAt=0;state.signature='';state.playbackGeneration=0;state.lastAbsoluteStep=-1;state.heldBassNote=null;
     immediate([0xB0+state.bass-1,123,0]);
     if(profile().hasRhythm)immediate([0xB0+state.rhythm-1,123,0]);
     if(state.sentStart){immediate([0xFC]);state.sentStart=false}
     state.clockNextAt=0;
   }
 
+  function scheduleLiveClock(at,durationMs,eventBpm){
+    if(!clockWanted()){state.clockNextAt=0;state.clockBpm=0;return}
+    const currentBpm=clamp(Number(eventBpm)||bpm(),50,250),period=60000/currentBpm/24,end=at+durationMs;
+    if(!state.clockNextAt||state.clockNextAt<at-period){state.clockNextAt=at}
+    state.clockBpm=currentBpm;
+    while(state.clockNextAt<end-.001){scheduled([0xF8],state.clockNextAt);state.clockNextAt+=period}
+  }
+
+  function onPlaybackStep(event){
+    const d=event?.detail||{},step=Number(d.step),absoluteStep=Number(d.absoluteStep),at=Number(d.performanceTime),dur=Number(d.durationMs);
+    if(state.rec||!sendEnabled()||d.state!=='playing'||!Number.isInteger(step)||step<0||step>15||!Number.isFinite(absoluteStep)||!Number.isFinite(at)||!Number.isFinite(dur)||dur<=0)return;
+    if(state.running&&state.playbackGeneration!==Number(d.generation))stopRouter();
+    if(!state.running)startRouter(d);
+    if(!state.running)return;
+    if(absoluteStep<=state.lastAbsoluteStep)return;
+    if(state.lastAbsoluteStep>=0&&absoluteStep!==state.lastAbsoluteStep+1){stopRouter();startRouter(d)}
+    scheduleLiveClock(at,dur,d.bpm);
+    liveBass(step,at,dur,!!d.bassOn);liveDrums(step,at,!!d.drumsOn);
+    state.lastAbsoluteStep=absoluteStep;
+  }
+
+  function onPlaybackState(event){
+    const d=event?.detail||{};
+    if(d.state!=='playing'){if(state.running||state.sentStart)stopRouter();return}
+    if(!d.bassOn&&state.heldBassNote!=null){immediate([0x80+state.bass-1,state.heldBassNote,0]);state.heldBassNote=null}
+    if(state.sentStart&&liveTransportConflict()){immediate([0xFC]);state.sentStart=false}
+  }
+
+  function onPlaybackResync(){if(state.running||state.sentStart)stopRouter()}
+
   function sync(){
-    pumpClock();
     const e=engine();
-    if(sendEnabled()&&e?.state==='playing'&&!state.rec){
-      if(!state.running)startRouter();
-      const sig=signature();
-      if(state.signature&&sig!==state.signature){clearQueue();state.step=activeStep();state.nextAt=performance.now()+30;state.clockNextAt=0}
-      state.signature=sig;pumpNotes();pumpClock();
-    }else if(state.running){stopRouter();pumpClock()}
+    if((!sendEnabled()||e?.state!=='playing'||state.rec)&&state.running)stopRouter();
   }
 
   let worker=null;
@@ -374,7 +401,6 @@
       status(kind==='rhythm'
         ? t('Rhythm REC finished. Check the T-8 pattern, then WRITE on the device.','Ritim REC bitti. T-8 patternini kontrol et, sonra cihazda WRITE yap.')
         : t('Bass REC finished. Accent/Slide capture remains enabled; check the recorded T-8 pattern, then WRITE on the device.','Bass REC bitti. Accent/Slide aktarımı korunuyor; T-8 patternini kontrol et, sonra cihazda WRITE yap.'));
-      pumpClock();
     },Math.max(300,end-performance.now()+180));
   }
 
@@ -399,8 +425,8 @@
     $('#midiRhythmCh')?.addEventListener('change',e=>{
       emergencyStop({stopSite:false,renderAfter:false});state.rhythm=clamp(+e.target.value||10,1,16);rememberChannels();persist();render();
     });
-    $('#midiRouterClock')?.addEventListener('change',e=>{state.clock=!!e.target.checked;state.clockNextAt=0;persist();pumpClock()});
-    $('#midiRouterTransport')?.addEventListener('change',e=>{state.transport=!!e.target.checked;persist()});
+    $('#midiRouterClock')?.addEventListener('change',e=>{state.clock=!!e.target.checked;state.clockNextAt=0;persist()});
+    $('#midiRouterTransport')?.addEventListener('change',e=>{state.transport=!!e.target.checked;if(!state.transport&&state.sentStart){immediate([0xFC]);state.sentStart=false}persist()});
     $('#midiPanic')?.addEventListener('click',()=>emergencyStop({stopSite:true}));
     $('#midiRecBass')?.addEventListener('click',()=>recPass('bass'));
     $('#midiRecRhythm')?.addEventListener('click',()=>recPass('rhythm'));
@@ -409,11 +435,17 @@
   function init(){
     if(!$('#midiRouter'))return;
     applyProfile();bind();render();ensureWorker();
-    new MutationObserver(()=>{syncModeLabels();render()}).observe(document.documentElement,{attributes:true,attributeFilter:['lang']});
+    window.addEventListener('303box:playback-step',onPlaybackStep);
+    window.addEventListener('303box:playback-state',onPlaybackState);
+    window.addEventListener('303box:playback-start',onPlaybackState);
+    window.addEventListener('303box:playback-stop',onPlaybackState);
+    window.addEventListener('303box:playback-resync',onPlaybackResync);
+    document.addEventListener('303box:languagechange',()=>{syncModeLabels();render()});
+    document.addEventListener('visibilitychange',()=>{if(document.hidden)emergencyStop({stopSite:true,renderAfter:false})});
     window.addEventListener('pagehide',()=>emergencyStop({block:true,stopSite:true,renderAfter:false}));
     window.addEventListener('beforeunload',()=>emergencyStop({block:true,stopSite:false,renderAfter:false}));
     document.addEventListener('freeze',()=>emergencyStop({block:true,stopSite:true,renderAfter:false}));
-    window.__303boxMidiRouter={version:'1760',panic:()=>emergencyStop({stopSite:true}),sendRecPass:recPass,get state(){return{...state}}};
+    window.__303boxMidiRouter={version:'2205',panic:()=>emergencyStop({stopSite:true}),sendRecPass:recPass,get state(){return{...state,noteKeys:new Set(state.noteKeys)}}};
   }
 
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();

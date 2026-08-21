@@ -58,15 +58,15 @@
   </style>
 
   <script defer src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-  <script defer src="./consent.20260819-2100.js?v=20260819-2100"></script>
-  <script defer src="./app.js?v=20260819-2100"></script>
-  <script defer src="./studio.20260818-0912.js?v=20260819-2100"></script>
-  <script defer src="./pattern-shell.20260818-1045.js?v=20260819-2100"></script>
-  <script defer src="./workstation-ui.20260818-1680.js?v=20260819-2100"></script>
-  <script defer src="./midi-mode-migration.20260818-1711.js?v=20260819-2100"></script>
-  <script defer src="./midi-router.20260818-1730.js?v=20260819-2100"></script>
-  <script defer src="./hardware-guide.20260819-0815.js?v=20260819-2100"></script>
-  <script defer src="./sequencer-engine.20260818-1740.js?v=20260820-2202"></script>
+  <script defer src="./consent.20260819-2100.js?v=20260821-2300"></script>
+  <script defer src="./app.js?v=20260821-2300"></script>
+  <script defer src="./studio.20260818-0912.js?v=20260821-2300"></script>
+  <script defer src="./pattern-shell.20260818-1045.js?v=20260821-2300"></script>
+  <script defer src="./workstation-ui.20260818-1680.js?v=20260821-2300"></script>
+  <script defer src="./midi-mode-migration.20260818-1711.js?v=20260821-2300"></script>
+  <script defer src="./midi-router.20260818-1730.js?v=20260821-2300"></script>
+  <script defer src="./hardware-guide.20260819-0815.js?v=20260821-2300"></script>
+  <script defer src="./sequencer-engine.20260818-1740.js?v=20260821-2300"></script>
 
   <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://303box.com/#website","url":"https://303box.com/","name":"303box","description":"Browser-based 303 pattern sketchpad for hardware workflows.","inLanguage":["en","tr"]},{"@type":"WebApplication","@id":"https://303box.com/#app","url":"https://303box.com/","name":"303box","applicationCategory":"MultimediaApplication","applicationSubCategory":"Music pattern editor","operatingSystem":"Any modern browser","browserRequirements":"JavaScript and Web Audio API","isAccessibleForFree":true,"featureList":["16-step 303 pattern editing","Rule-based random starting patterns","Accent and slide","Synchronized six-part rhythm sketching","Live oscilloscope and FFT","Browser MIDI output","Hardware MIDI profiles","Hardware transfer guide","JPG pattern export","Rhythm pattern export"]}]}</script>
 </head>
@@ -87,7 +87,7 @@
         <div class="hero-actions"><a class="primary-cta" href="#sequencer" data-i18n="heroPrimary">Build a pattern</a><a class="secondary-cta" href="#intent">What this tool is</a></div>
         <div class="hero-facts"><div><strong>16</strong><span data-i18n="factSteps">steps</span></div><div><strong>50–250</strong><span>BPM</span></div></div>
       </div>
-      <div class="hero-visual" aria-hidden="true"><div class="visual-head"><span>303box / SIGNAL</span><span class="signal-live">LIVE</span></div><div class="scope"><svg viewBox="0 0 600 210" preserveAspectRatio="none"><path class="scope-grid" d="M0 42H600M0 84H600M0 126H600M0 168H600M100 0V210M200 0V210M300 0V210M400 0V210M500 0V210"/><path class="scope-wave" d="M0 105 C35 55 65 155 100 105 S165 55 200 105 S265 155 300 105 S365 55 400 105 S465 155 500 105 S565 55 600 105"/></svg></div><div class="hero-steps"><span class="on"></span><span></span><span></span><span class="on"></span><span></span><span class="on"></span><span></span><span></span><span class="on"></span><span></span><span class="on"></span><span></span><span></span><span class="on"></span><span></span><span class="on"></span></div><div class="visual-foot"><span>ACCENT</span><span>SLIDE</span><span>RHYTHM</span><span>MIDI</span></div></div>
+      <div class="hero-visual" aria-hidden="true"><div class="visual-head"><span data-i18n="signalLabel">303box / SIGNAL</span><span class="signal-live" data-i18n="liveLabel">LIVE</span></div><div class="scope"><svg viewBox="0 0 600 210" preserveAspectRatio="none"><path class="scope-grid" d="M0 42H600M0 84H600M0 126H600M0 168H600M100 0V210M200 0V210M300 0V210M400 0V210M500 0V210"/><path class="scope-wave" d="M0 105 C35 55 65 155 100 105 S165 55 200 105 S265 155 300 105 S365 55 400 105 S465 155 500 105 S565 55 600 105"/></svg></div><div class="hero-steps"><span class="on"></span><span></span><span></span><span class="on"></span><span></span><span class="on"></span><span></span><span></span><span class="on"></span><span></span><span class="on"></span><span></span><span></span><span class="on"></span><span></span><span class="on"></span></div><div class="visual-foot"><span data-i18n="visualAccent">ACCENT</span><span data-i18n="visualSlide">SLIDE</span><span data-i18n="visualRhythm">RHYTHM</span><span>MIDI</span></div></div>
     </section>
 
     <section class="product-band"><div class="shell product-band-inner"><article><span>01</span><div><strong data-i18n="bandOneTitle">Write the idea faster</strong><p data-i18n="bandOneText">Use the browser as a readable pattern notebook.</p></div></article><article><span>02</span><div><strong data-i18n="bandTwoTitle">Audition the sketch</strong><p data-i18n="bandTwoText">Listen before committing the pattern to hardware.</p></div></article><article><span>03</span><div><strong data-i18n="bandThreeTitle">Take it to the machine</strong><p data-i18n="bandThreeText">Transfer the useful idea, then perform and save it on the device.</p></div></article></div></section>
@@ -98,10 +98,10 @@
       <div class="shell section-intro compact-intro"><div><p class="eyebrow" data-i18n="sequencerEyebrow">Pattern workspace</p><h2 id="sequencerHeading" data-i18n="sequencerTitle">Write the pattern clearly. Then take it to the instrument.</h2></div><p data-i18n="sequencerIntro">The grid is a practical notation and audition surface for 16-step ideas. Random is only a rule-based starting point; every musical decision can be edited by hand.</p></div>
       <div class="workspace shell">
         <section class="acid-console static-console" id="acidConsole" data-html2canvas-ignore="true" aria-label="Acid Console">
-          <div class="acid-console-head"><span>ACID CONSOLE</span><small><span class="lang-en">ONE CLOCK / BASS + RHYTHM</span><span class="lang-tr">TEK CLOCK / BASS + RİTİM</span></small></div>
+          <div class="acid-console-head"><span data-i18n="acidConsoleTitle">ACID CONSOLE</span><small><span class="lang-en">ONE CLOCK / BASS + RHYTHM</span><span class="lang-tr">TEK CLOCK / BASS + RİTİM</span></small></div>
           <div class="acid-console-grid">
             <div class="acid-console-cell acid-console-play-cell"><button type="button" class="acid-master-play" id="acidPlayAll"><span class="lang-en">PLAY BASS + RHYTHM</span><span class="lang-tr">303 + RİTMİ ÇAL</span></button></div>
-            <div class="acid-console-cell"><label>MASTER<output>88%</output></label><input id="consoleMaster" type="range" min="0" max="100" value="88"></div>
+            <div class="acid-console-cell"><label><span data-i18n="consoleMaster">MASTER</span><output>88%</output></label><input id="consoleMaster" type="range" min="0" max="100" value="88"></div>
             <div class="acid-console-cell"><label>303<output>80%</output></label><div class="acid-part-row"><input id="consoleBass" type="range" min="0" max="100" value="80"><button id="consoleBassMute" class="acid-mute" type="button"><span class="lang-en">MUTE</span><span class="lang-tr">KIS</span></button></div></div>
             <div class="acid-console-cell"><label><span class="lang-en">RHYTHM</span><span class="lang-tr">RİTİM</span><output>80%</output></label><div class="acid-part-row"><input id="consoleRhythm" type="range" min="0" max="100" value="80"><button id="consoleRhythmMute" class="acid-mute" type="button"><span class="lang-en">MUTE</span><span class="lang-tr">KIS</span></button></div></div>
             <div class="acid-console-cell acid-swing-cell"><label class="acid-console-label">SWING<output>0%</output></label><input id="consoleSwing" type="range" min="0" max="60" value="0"></div>

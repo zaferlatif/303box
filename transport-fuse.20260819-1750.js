@@ -8,7 +8,6 @@
   const legacyContexts = new Set();
   const unifiedContexts = new Set();
   const silentSinks = new WeakMap();
-  let actionLocked = false;
 
   const LEGACY = ['/app.js','studio.20260818-0912.js','rhythm-exact.20260818-1030.js'];
   const UNIFIED = ['acid-console.20260818-1340.js'];
@@ -71,13 +70,10 @@
   function closeUnified(){closeSet(unifiedContexts)}
   const engine=()=>window.__303boxUnifiedEngine;
 
-  function unlockSoon(){setTimeout(()=>{actionLocked=false},90)}
   function run(action){
-    if(actionLocked) return;
-    actionLocked=true;
     closeLegacy();
     const e=engine();
-    if(!e){unlockSoon();return}
+    if(!e)return;
 
     if(action==='bass'){
       e.toggleBass?.();
@@ -92,7 +88,6 @@
     }else if(action==='panic'){
       e.stopAll?.();
     }
-    unlockSoon();
   }
 
   function typing(){
@@ -148,5 +143,5 @@
   else neutralizeLegacySync();
   window.addEventListener('pagehide',()=>{closeLegacy();closeUnified()});
 
-  window.__303boxTransportFuse={version:'2000',run,closeLegacy,closeUnified};
+  window.__303boxTransportFuse={version:'2205',run,closeLegacy,closeUnified};
 })();

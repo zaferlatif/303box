@@ -21,14 +21,38 @@
   settings.rhythmMute = !!settings.rhythmMute;
 
   const engine = {
-    ctx:null, state:'stopped', timer:null, generation:0,
+    ctx:null, pendingCtx:null, state:'stopped', timer:null, generation:0,
     step:0, absoluteStep:0, nextAt:0, continuationUntil:-1,
     bassOn:false, drumsOn:false, drumPending:false,
     master:null, bassPart:null, drumPart:null, pumpGain:null, comp:null,
     bassInput:null, bassDry:null, drivePre:null, shaper:null, driveWet:null,
     delaySend:null, delay:null, feedback:null, delayWet:null,
-    noise:null, bassSources:new Set(), drumSources:new Set(), openHatGains:new Set()
+    noise:null, bassVoice:null, bassSources:new Set(), drumSources:new Set(), openHatGains:new Set()
   };
+
+  const setEngineTimer=(fn,delay)=>window.__303boxStableAudioTimer?.set?.(fn,delay)??setTimeout(fn,delay);
+  const clearEngineTimer=id=>{
+    if(id==null)return;
+    if(window.__303boxStableAudioTimer?.clear)window.__303boxStableAudioTimer.clear(id);
+    else clearTimeout(id);
+  };
+
+  function audioToPerformance(when){
+    const c=engine.ctx;
+    if(!c)return performance.now();
+    try{
+      const stamp=c.getOutputTimestamp?.();
+      if(Number.isFinite(stamp?.contextTime)&&Number.isFinite(stamp?.performanceTime)){
+        return stamp.performanceTime+(when-stamp.contextTime)*1000;
+      }
+    }catch(_){}
+    return performance.now()+(when-c.currentTime)*1000;
+  }
+  function publishPlayback(type,detail={}){
+    window.dispatchEvent(new CustomEvent(`303box:playback-${type}`,{detail:{
+      generation:engine.generation,state:engine.state,bassOn:engine.bassOn,drumsOn:engine.drumsOn,...detail
+    }}));
+  }
 
   function saveSettings(){ localStorage.setItem(STORE, JSON.stringify(settings)); }
   function knob(id, fallback=0){ const v=Number($(`[data-knob-id="${id}"]`)?.getAttribute('aria-valuenow')); return clamp(Number.isFinite(v)?v:fallback,0,100)/100; }
@@ -78,14 +102,20 @@
     return o;
   }
 
-  async function ensureAudio(){
+  async function ensureAudio(expectedGeneration=null){
     if(engine.ctx && engine.ctx.state!=='closed'){
       if(engine.ctx.state==='suspended')await engine.ctx.resume();
       updateMix(true); updateFx(true); return engine.ctx;
     }
     const AC=window.AudioContext||window.webkitAudioContext; if(!AC)return null;
     const ctx=new AC();
-    if(ctx.state==='suspended')await ctx.resume();
+    engine.pendingCtx=ctx;
+    if(ctx.state==='suspended'){
+      try{await ctx.resume()}catch(_){if(engine.pendingCtx===ctx)engine.pendingCtx=null;try{await ctx.close()}catch(__){}return null}
+    }
+    if((expectedGeneration!=null&&expectedGeneration!==engine.generation)||engine.pendingCtx!==ctx){
+      try{await ctx.close()}catch(_){}return null;
+    }
 
     const master=ctx.createGain(),comp=ctx.createDynamicsCompressor();
     const bassPart=ctx.createGain(),pumpGain=ctx.createGain(),drumPart=ctx.createGain();
@@ -106,7 +136,7 @@
     const noise=ctx.createBuffer(1,ctx.sampleRate,ctx.sampleRate);
     const nd=noise.getChannelData(0); for(let i=0;i<nd.length;i++)nd[i]=Math.random()*2-1;
 
-    Object.assign(engine,{ctx,master,comp,bassPart,pumpGain,drumPart,bassInput,bassDry,drivePre,shaper,driveWet,delaySend,delay,feedback,delayWet,noise});
+    Object.assign(engine,{ctx,pendingCtx:null,master,comp,bassPart,pumpGain,drumPart,bassInput,bassDry,drivePre,shaper,driveWet,delaySend,delay,feedback,delayWet,noise});
     updateMix(true); updateFx(true);
     return ctx;
   }
@@ -124,15 +154,31 @@
   function updateFx(immediate=false){
     if(!engine.ctx)return;
     const now=engine.ctx.currentTime,tc=immediate?.001:.025;
-    const dist=knob('distortion',0),del=knob('delay',0);
+    const dist=knob('distortion',0),del=knob('delay',0),fb=knob('feedback',32);
     const set=(p,v)=>{try{p.setTargetAtTime(v,now,tc)}catch(_){p.value=v}};
     set(engine.bassDry.gain,1-dist*.22);
     set(engine.drivePre.gain,1+dist*7.5);
     set(engine.driveWet.gain,dist*.52);
     set(engine.delaySend.gain,del*.48);
     set(engine.delayWet.gain,.66);
-    set(engine.feedback.gain,del<.002?0:.12+del*.42);
+    // The feedback control is the single source of truth. The previous delay-derived
+    // value fought the feedback module every 320 ms and audibly changed the patch.
+    set(engine.feedback.gain,del<.002?0:fb*.78);
     try{engine.delay.delayTime.setTargetAtTime(clamp(baseStepDur()*3,.11,.72),now,.02)}catch(_){}
+  }
+
+  function resetFxTail(){
+    const c=engine.ctx;if(!c||c.state==='closed')return;
+    try{
+      engine.delaySend?.disconnect();engine.delay?.disconnect();engine.feedback?.disconnect();engine.delayWet?.disconnect();
+      const delay=c.createDelay(2),feedback=c.createGain(),delayWet=c.createGain();
+      engine.delaySend.connect(delay);delay.connect(delayWet);delayWet.connect(engine.bassPart);delay.connect(feedback);feedback.connect(delay);
+      Object.assign(engine,{delay,feedback,delayWet});
+      const now=c.currentTime;
+      engine.pumpGain?.gain.cancelScheduledValues(now);engine.pumpGain?.gain.setValueAtTime(1,now);
+      updateFx(true);
+      window.__303boxMasterReverb?.flush?.();
+    }catch(_){}
   }
 
   function filterShape(accented){
@@ -142,55 +188,74 @@
     return{base,peak,res,dec,acc};
   }
 
-  function scheduleBassSegment(start,when){
-    const first=readBassStep(start); if(!playable(first))return 1;
-    const f0=freqFor(first); if(!f0)return 1;
-    const seg=legatoSegment(start),ctx=engine.ctx;
-    const osc=cleanOsc(ctx,waveform()),filter=ctx.createBiquadFilter(),amp=ctx.createGain();
-    osc.frequency.setValueAtTime(f0,when);
-    filter.type='lowpass';
-    const fs=filterShape(first.expr.includes('A'));
-    filter.Q.setValueAtTime(1.1+fs.res*17.5,when);
-    const ny=Math.max(600,ctx.sampleRate*.46);
-    filter.frequency.setValueAtTime(Math.min(ny,fs.peak),when);
-    filter.frequency.exponentialRampToValueAtTime(Math.max(70,fs.base),when+Math.min(stepDur(start)*.92,.045+fs.dec*.31));
-    const normal=.14,startVol=normal+(first.expr.includes('A')?.045+fs.acc*.07:0);
-    amp.gain.setValueAtTime(.0001,when); amp.gain.exponentialRampToValueAtTime(startVol,when+.007);
-    if(first.expr.includes('A'))amp.gain.setTargetAtTime(normal,when+.05,.022);
+  function releaseBassVoice(voice,when,release=knob('decay',34)){
+    if(!voice||voice.released)return;
+    const at=Math.max(engine.ctx?.currentTime||0,when);
+    voice.released=true;
+    try{
+      voice.amp.gain.cancelScheduledValues(at);
+      voice.amp.gain.setTargetAtTime(.0001,at,.03+release*.085);
+      voice.osc.stop(at+.32);
+    }catch(_){try{voice.osc.stop()}catch(__){}}
+    if(engine.bassVoice===voice)engine.bassVoice=null;
+  }
 
-    let offset=0;
-    for(let pos=0;pos<seg.length;pos++){
-      const idx=seg[pos],cur=readBassStep(idx),dur=stepDur(idx),at=when+offset;
-      if(pos>0){
-        const sh=filterShape(cur.expr.includes('A'));
-        if(cur.expr.includes('A')){
-          amp.gain.setTargetAtTime(normal+.045+sh.acc*.07,at,.006); amp.gain.setTargetAtTime(normal,at+.055,.024);
-          filter.frequency.setValueAtTime(Math.max(70,sh.base),at);
-          filter.frequency.exponentialRampToValueAtTime(Math.min(ny,sh.peak),at+.01);
-          filter.frequency.exponentialRampToValueAtTime(Math.max(70,sh.base),at+Math.min(dur*.72,.095));
-        }
-      }
-      if(pos<seg.length-1){
-        const next=readBassStep(seg[pos+1]),nf=freqFor(next),cf=freqFor(cur),boundary=at+dur;
-        if(nf&&cf){
-          if(cur.expr.includes('S')){
-            const glide=clamp(dur*.52,.04,.085);
-            osc.frequency.setValueAtTime(cf,boundary);
-            osc.frequency.exponentialRampToValueAtTime(nf,boundary+glide);
-          }else osc.frequency.setValueAtTime(nf,boundary);
-        }
-      }
-      offset+=dur;
+  // Schedule one step at a time. The previous implementation expanded an entire
+  // slide/tie chain (sometimes all 16 steps) in advance, so a live BPM change left
+  // seconds of old-tempo automation queued in the audio graph.
+  function scheduleBassStep(step,absoluteStep,when,dur){
+    const current=readBassStep(step);
+    if(!playable(current))return;
+    const frequency=freqFor(current);if(!frequency)return;
+    const previous=readBassStep((step+15)%16),next=readBassStep((step+1)%16);
+    const voice=engine.bassVoice;
+    const continues=!!(voice&&voice.lastAbsoluteStep===absoluteStep-1&&connects(previous,current));
+    const ctx=engine.ctx,normal=.14;
+    let active=voice;
+
+    if(!continues){
+      if(active)releaseBassVoice(active,when);
+      const osc=cleanOsc(ctx,waveform()),filter=ctx.createBiquadFilter(),amp=ctx.createGain();
+      osc.frequency.setValueAtTime(frequency,when);filter.type='lowpass';
+      osc.connect(filter);filter.connect(amp);amp.connect(engine.bassInput);osc.start(when);
+      active={osc,filter,amp,lastAbsoluteStep:absoluteStep,released:false};
+      engine.bassVoice=active;engine.bassSources.add(osc);
+      osc.addEventListener('ended',()=>{engine.bassSources.delete(osc);if(engine.bassVoice===active)engine.bassVoice=null},{once:true});
+    }else{
+      const previousFrequency=freqFor(previous);
+      try{
+        active.osc.frequency.cancelScheduledValues(when);
+        if(previous.expr.includes('S')&&previousFrequency){
+          active.osc.frequency.setValueAtTime(previousFrequency,when);
+          active.osc.frequency.exponentialRampToValueAtTime(frequency,when+clamp(dur*.52,.04,.085));
+        }else active.osc.frequency.setValueAtTime(frequency,when);
+      }catch(_){}
+      active.lastAbsoluteStep=absoluteStep;
     }
-    const end=when+offset,release=knob('decay',34);
-    const detached=seg.length===1;
-    const releaseAt=detached?when+stepDur(start)*(first.gate==='○'?.92:.64):end-Math.min(.018,stepDur(seg[seg.length-1])*.1);
-    amp.gain.setTargetAtTime(.0001,Math.max(when+.015,releaseAt),.03+release*.085);
 
-    osc.connect(filter); filter.connect(amp); amp.connect(engine.bassInput);
-    osc.start(when); osc.stop(Math.max(end,releaseAt)+.32);
-    engine.bassSources.add(osc); osc.addEventListener('ended',()=>engine.bassSources.delete(osc),{once:true});
-    return seg.length;
+    const accented=current.expr.includes('A'),shape=filterShape(accented),ny=Math.max(600,ctx.sampleRate*.46);
+    try{
+      active.filter.Q.setValueAtTime(1.1+shape.res*17.5,when);
+      if(!continues||accented){
+        active.filter.frequency.cancelScheduledValues(when);
+        active.filter.frequency.setValueAtTime(Math.min(ny,shape.peak),when);
+        active.filter.frequency.exponentialRampToValueAtTime(Math.max(70,shape.base),when+Math.min(dur*.92,.045+shape.dec*.31));
+      }
+      if(!continues){
+        const startVol=normal+(accented?.045+shape.acc*.07:0);
+        active.amp.gain.setValueAtTime(.0001,when);
+        active.amp.gain.exponentialRampToValueAtTime(startVol,when+.007);
+      }else if(accented){
+        active.amp.gain.setTargetAtTime(normal+.045+shape.acc*.07,when,.006);
+      }
+      if(accented)active.amp.gain.setTargetAtTime(normal,when+.055,.024);
+    }catch(_){}
+
+    active.lastAbsoluteStep=absoluteStep;
+    if(!connects(current,next)){
+      const releaseAt=when+dur*(current.gate==='○'?.92:.64);
+      releaseBassVoice(active,releaseAt);
+    }
   }
 
   function noiseSource(){ const s=engine.ctx.createBufferSource(); s.buffer=engine.noise; return s; }
@@ -259,53 +324,71 @@
     },delay);
   }
 
+  function recoverLateClock(generation){
+    const now=engine.ctx.currentTime;
+    if(engine.nextAt>=now-.055)return;
+    stopBassVoices();
+    let skipped=0;
+    while(engine.nextAt<now+.035&&skipped<128){
+      engine.nextAt+=stepDur(engine.step);
+      engine.step=(engine.step+1)%16;engine.absoluteStep++;skipped++;
+    }
+    if(skipped>=128)engine.nextAt=now+.035;
+    publishPlayback('resync',{generation,skipped,nextStep:engine.step,absoluteStep:engine.absoluteStep,performanceTime:audioToPerformance(engine.nextAt)});
+  }
+
   function scheduler(generation){
     if(engine.state!=='playing'||!engine.ctx||generation!==engine.generation)return;
+    recoverLateClock(generation);
     updateFx(false); updateMix(false);
     while(engine.nextAt<engine.ctx.currentTime+.12){
-      const step=engine.step,abs=engine.absoluteStep,when=engine.nextAt;
+      const step=engine.step,abs=engine.absoluteStep,when=engine.nextAt,dur=stepDur(step);
       if(engine.drumPending&&step===0){engine.drumsOn=true;engine.drumPending=false;updateUi()}
-      if(engine.bassOn&&abs>engine.continuationUntil){
-        const d=readBassStep(step); if(playable(d)){const len=scheduleBassSegment(step,when);engine.continuationUntil=abs+Math.max(1,len)-1;}
-      }
+      publishPlayback('step',{step,absoluteStep:abs,audioTime:when,performanceTime:audioToPerformance(when),durationMs:dur*1000,bpm:bpm(),swing:settings.swing});
+      if(engine.bassOn)scheduleBassStep(step,abs,when,dur);
       if(engine.drumsOn){['bd','sd','cp','tm','ch','oh'].forEach(id=>{if(drumActive(id,step))playDrum(id,when)});}
       scheduleVisual(step,when,generation);
-      engine.nextAt+=stepDur(step); engine.step=(step+1)%16; engine.absoluteStep++;
+      engine.nextAt+=dur; engine.step=(step+1)%16; engine.absoluteStep++;
     }
-    engine.timer=setTimeout(()=>scheduler(generation),20);
+    engine.timer=setEngineTimer(()=>scheduler(generation),20);
   }
 
   async function startClock({bass=true,drums=true}={}){
     if(engine.state==='playing'){
-      engine.bassOn=bass||engine.bassOn; engine.drumsOn=drums||engine.drumsOn; updateUi(); return;
+      engine.bassOn=bass||engine.bassOn; engine.drumsOn=drums||engine.drumsOn; updateUi();publishPlayback('state',{reason:'parts'});return;
     }
     if(engine.state!=='stopped')return;
     const generation=++engine.generation; engine.state='starting';
-    const c=await ensureAudio(); if(!c||generation!==engine.generation)return;
-    engine.bassOn=bass;engine.drumsOn=drums;engine.drumPending=false;engine.step=0;engine.absoluteStep=0;engine.continuationUntil=-1;engine.nextAt=c.currentTime+.07;engine.state='playing';updateUi();scheduler(generation);
+    const c=await ensureAudio(generation); if(!c||generation!==engine.generation)return;
+    engine.bassOn=bass;engine.drumsOn=drums;engine.drumPending=false;engine.step=0;engine.absoluteStep=0;engine.continuationUntil=-1;engine.nextAt=c.currentTime+.07;engine.state='playing';updateUi();
+    publishPlayback('start',{reason:'user',step:0,absoluteStep:0,performanceTime:audioToPerformance(engine.nextAt)});
+    scheduler(generation);
   }
   function stopAll(){
     if(engine.state==='stopped')return;
-    ++engine.generation;clearTimeout(engine.timer);engine.timer=null;engine.state='stopped';engine.bassOn=false;engine.drumsOn=false;engine.drumPending=false;engine.continuationUntil=-1;
-    engine.bassSources.forEach(s=>{try{s.stop()}catch(_){}});engine.drumSources.forEach(s=>{try{s.stop()}catch(_){}});engine.bassSources.clear();engine.drumSources.clear();engine.openHatGains.clear();
+    ++engine.generation;clearEngineTimer(engine.timer);engine.timer=null;engine.state='stopped';engine.bassOn=false;engine.drumsOn=false;engine.drumPending=false;engine.continuationUntil=-1;engine.nextAt=0;
+    const pending=engine.pendingCtx;engine.pendingCtx=null;if(pending){try{pending.close()}catch(_){}}
+    engine.bassSources.forEach(s=>{try{s.stop()}catch(_){}});engine.drumSources.forEach(s=>{try{s.stop()}catch(_){}});engine.bassVoice=null;engine.bassSources.clear();engine.drumSources.clear();engine.openHatGains.clear();
+    resetFxTail();
     $$('[data-playing="true"]').forEach(x=>x.removeAttribute('data-playing'));$$('.drum-step[data-current]').forEach(x=>x.removeAttribute('data-current'));updateUi();
+    publishPlayback('stop',{reason:'user'});
   }
-  function stopBassVoices(){engine.bassSources.forEach(s=>{try{s.stop()}catch(_){}});engine.bassSources.clear();engine.continuationUntil=-1;}
+  function stopBassVoices(){engine.bassSources.forEach(s=>{try{s.stop()}catch(_){}});engine.bassVoice=null;engine.bassSources.clear();engine.continuationUntil=-1;}
   function toggleBass(){
     if(engine.state==='playing'){
-      engine.bassOn=!engine.bassOn;if(!engine.bassOn)stopBassVoices();if(!engine.bassOn&&!engine.drumsOn&&!engine.drumPending)stopAll();else updateUi();
+      engine.bassOn=!engine.bassOn;if(!engine.bassOn)stopBassVoices();if(!engine.bassOn&&!engine.drumsOn&&!engine.drumPending)stopAll();else{updateUi();publishPlayback('state',{reason:'parts'})}
     }else startClock({bass:true,drums:false});
   }
   function toggleDrums(){
     if(engine.state==='playing'){
-      if(engine.drumsOn||engine.drumPending){engine.drumsOn=false;engine.drumPending=false;if(!engine.bassOn)stopAll();else updateUi();return;}
-      if($('#drumSync')?.checked&&engine.bassOn&&engine.step!==0){engine.drumPending=true;updateUi();return;}
-      engine.drumsOn=true;updateUi();
+      if(engine.drumsOn||engine.drumPending){engine.drumsOn=false;engine.drumPending=false;if(!engine.bassOn)stopAll();else{updateUi();publishPlayback('state',{reason:'parts'})}return;}
+      if($('#drumSync')?.checked&&engine.bassOn&&engine.step!==0){engine.drumPending=true;updateUi();publishPlayback('state',{reason:'parts'});return;}
+      engine.drumsOn=true;updateUi();publishPlayback('state',{reason:'parts'});
     }else startClock({bass:false,drums:true});
   }
   function toggleAll(){
     if(engine.state==='playing'&&engine.bassOn&&engine.drumsOn)return stopAll();
-    if(engine.state==='playing'){engine.bassOn=true;engine.drumsOn=true;engine.drumPending=false;updateUi();return;}
+    if(engine.state==='playing'){engine.bassOn=true;engine.drumsOn=true;engine.drumPending=false;updateUi();publishPlayback('state',{reason:'parts'});return;}
     startClock({bass:true,drums:true});
   }
 
@@ -396,7 +479,11 @@
     },true);
     document.addEventListener('click',e=>{if(e.target.closest?.('#clearButton')&&engine.bassOn){engine.bassOn=false;stopBassVoices();if(!engine.drumsOn)stopAll();else updateUi()}if(e.target.closest?.('#drumClear')&&engine.drumsOn){/* grid clears while clock may keep running */}},true);
     window.addEventListener('303box:fxchange',()=>updateFx(false));
-    document.addEventListener('visibilitychange',()=>{if(!document.hidden&&engine.ctx?.state==='suspended')engine.ctx.resume().catch(()=>{})});
+    // Background timer/audio policies differ by browser. Continuing here can make
+    // Web Audio and external MIDI advance on different clocks, so hiding the page
+    // is a deterministic safety stop rather than an implicit, desynchronised pause.
+    document.addEventListener('visibilitychange',()=>{if(document.hidden)stopAll()});
+    window.addEventListener('pagehide',stopAll);
   }
 
   function rewriteShortcutCopy(){
@@ -415,9 +502,9 @@
   }
 
   function init(){
-    if(window.__303boxUnifiedEngine?.version==='1340')return;
+    if(window.__303boxUnifiedEngine?.version==='2205')return;
     installOwnership();rewriteShortcutCopy();
-    window.__303boxUnifiedEngine={version:'1340',toggleAll,toggleBass,toggleDrums,stopAll,get state(){return engine.state},get bassOn(){return engine.bassOn},get drumsOn(){return engine.drumsOn}};
+    window.__303boxUnifiedEngine={version:'2205',toggleAll,toggleBass,toggleDrums,stopAll,get state(){return engine.state},get bassOn(){return engine.bassOn},get drumsOn(){return engine.drumsOn},get timeline(){return{generation:engine.generation,step:engine.step,absoluteStep:engine.absoluteStep,nextAudioTime:engine.nextAt,nextPerformanceTime:engine.ctx?audioToPerformance(engine.nextAt):0}}};
     if(document.readyState==='loading')window.addEventListener('DOMContentLoaded',settle,{once:true});else settle();
     window.addEventListener('load',()=>setTimeout(settle,180));
   }

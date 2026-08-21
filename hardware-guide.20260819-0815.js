@@ -9,9 +9,14 @@
   const TD3_PRODUCT=[...TD3_PREFIX,0x06,0xF7];
   const TD3_FIRMWARE=[...TD3_PREFIX,0x08,0x00,0xF7];
   const TD3_BACKUP='303box-td3-last-pattern-backup-v1';
+  const TD3_PATTERN_BYTES=123;
+  const TD3_PATTERN_TIMEOUT=2200;
+  const TD3_WRITE_SETTLE=500;
+  const TD3_VERIFY_RETRIES=3;
+  const TD3_VERIFY_RETRY_DELAY=450;
   const NOTE={C:0,'C#':1,D:2,'D#':3,E:4,F:5,'F#':6,G:7,'G#':8,A:9,'A#':10,B:11};
 
-  const td3={access:null,input:null,output:null,product:'',firmware:'',verified:false};
+  const td3={access:null,input:null,output:null,product:'',firmware:'',profile:'',verified:false,sysexEnabled:false,busy:false,stateListener:null};
 
   function selectedDevice(){
     const v=$('#midiDeviceProfile')?.value||'auto';
@@ -79,17 +84,17 @@
     const card=$('[data-device="td3 td3mo"]');if(!card||$('#td3DirectBox'))return;
     const box=document.createElement('div');box.id='td3DirectBox';box.className='td3-direct-box';
     box.innerHTML=`
-      <div class="td3-direct-head"><strong>TD-3 DIRECT WRITE</strong><small>EXPERIMENTAL / USB ONLY</small></div>
+      <div class="td3-direct-head"><strong data-i18n="td3DirectTitle">TD-3 DIRECT WRITE</strong><small data-i18n="td3DirectUsbOnly">EXPERIMENTAL / USB ONLY</small></div>
       <div class="td3-direct-target">
-        <label><span>GROUP</span><select id="td3WriteGroup"><option value="0">I</option><option value="1">II</option><option value="2">III</option><option value="3">IV</option></select></label>
-        <label><span>SECTION</span><select id="td3WriteSection"><option value="A">A</option><option value="B">B</option></select></label>
-        <label><span>PATTERN</span><select id="td3WritePattern">${Array.from({length:8},(_,i)=>`<option value="${i+1}">${i+1}</option>`).join('')}</select></label>
+        <label><span data-i18n="td3Group">GROUP</span><select id="td3WriteGroup"><option value="0">I</option><option value="1">II</option><option value="2">III</option><option value="3">IV</option></select></label>
+        <label><span data-i18n="td3Section">SECTION</span><select id="td3WriteSection"><option value="A">A</option><option value="B">B</option></select></label>
+        <label><span data-i18n="td3Pattern">PATTERN</span><select id="td3WriteNumber">${Array.from({length:8},(_,i)=>`<option value="${i+1}">${i+1}</option>`).join('')}</select></label>
       </div>
       <div class="td3-direct-actions">
-        <button id="td3ArmSysex" type="button">VERIFY USB / SYSEX</button>
-        <button id="td3WritePattern" class="primary" type="button">BACKUP + WRITE</button>
-        <button id="td3RestorePattern" class="danger" type="button">RESTORE LAST BACKUP</button>
-        <button id="td3ReadPattern" type="button">READ TARGET ONLY</button>
+        <button id="td3ArmSysex" data-i18n="td3Verify" type="button">VERIFY USB / SYSEX</button>
+        <button id="td3WritePattern" data-i18n="td3BackupWrite" class="primary" type="button">BACKUP + WRITE</button>
+        <button id="td3RestorePattern" data-i18n="td3Restore" class="danger" type="button">RESTORE LAST BACKUP</button>
+        <button id="td3ReadPattern" data-i18n="td3ReadOnly" type="button">READ TARGET ONLY</button>
       </div>
       <p id="td3DirectStatus" class="td3-direct-status"></p>
       <p class="td3-direct-warning"><span class="lang-en">Safety flow: identify the TD-3 over USB → read the target slot → save a browser backup → write → read it again and compare. Use a disposable pattern slot first.</span><span class="lang-tr">Güvenlik akışı: TD-3’ü USB üzerinden doğrula → hedef slotu oku → tarayıcıya yedekle → yaz → tekrar okuyup karşılaştır. İlk denemede önemsiz bir pattern slotu kullan.</span></p>`;
@@ -104,10 +109,33 @@
     const el=$('#td3DirectStatus');if(!el)return;el.textContent=msg;el.className=`td3-direct-status ${kind}`.trim();
   }
 
+  function setTd3Busy(busy){
+    td3.busy=busy;
+    const box=$('#td3DirectBox');
+    if(!box)return;
+    box.setAttribute('aria-busy',busy?'true':'false');
+    $$('button, select',box).forEach(el=>{el.disabled=busy});
+  }
+
+  async function runTd3Operation(operation){
+    if(td3.busy){
+      td3Status(say('Another TD-3 operation is still running.','Başka bir TD-3 işlemi hâlâ sürüyor.'),'warn');
+      return false;
+    }
+    setTd3Busy(true);
+    try{return await operation()}
+    catch(_){
+      td3Status(say('The TD-3 operation stopped unexpectedly. Nothing else was sent.','TD-3 işlemi beklenmedik biçimde durdu. Başka veri gönderilmedi.'),'bad');
+      return false;
+    }finally{setTd3Busy(false)}
+  }
+
   function target(){
-    const group=Number($('#td3WriteGroup')?.value||0);
+    const rawGroup=Number($('#td3WriteGroup')?.value||0);
+    const group=Number.isInteger(rawGroup)&&rawGroup>=0&&rawGroup<=3?rawGroup:0;
     const section=$('#td3WriteSection')?.value==='B'?'B':'A';
-    const number=Math.max(1,Math.min(8,Number($('#td3WritePattern')?.value||1)));
+    const rawNumber=Number($('#td3WriteNumber')?.value||1);
+    const number=Number.isInteger(rawNumber)&&rawNumber>=1&&rawNumber<=8?rawNumber:1;
     // Reverse-engineered TD-3 request uses raw slots 0..15: A1..A8, B1..B8.
     const requestSlot=(section==='B'?8:0)+(number-1);
     return{group,section,number,requestSlot,label:`${['I','II','III','IV'][group]} / ${section}${number}`};
@@ -117,6 +145,35 @@
   const norm=s=>String(s||'').toLowerCase().replace(/[^a-z0-9]+/g,'');
   const isTd3Name=s=>/td\s*-?\s*3/i.test(String(s||''));
   const samePrefix=a=>TD3_PREFIX.every((v,i)=>a[i]===v);
+  const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+
+  function td3Error(code,cause){
+    const err=new Error(code);err.td3Code=code;
+    if(cause)err.cause=cause;
+    return err;
+  }
+
+  function td3ErrorCode(err){
+    if(err?.td3Code)return err.td3Code;
+    if(err?.name==='NotAllowedError')return 'permission-denied';
+    if(err?.name==='SecurityError')return 'security-error';
+    if(err?.name==='NotSupportedError')return 'sysex-unsupported';
+    if(err?.name==='InvalidAccessError')return 'sysex-send-denied';
+    if(err?.name==='InvalidStateError')return 'port-disconnected';
+    return String(err?.message||'unknown');
+  }
+
+  function portIsConnected(port){return !!port&&port.state==='connected'}
+  function connectionIsReady(){
+    return td3.verified&&td3.sysexEnabled&&td3.access?.sysexEnabled===true&&
+      portIsConnected(td3.input)&&portIsConnected(td3.output)&&
+      td3.input.connection==='open'&&td3.output.connection==='open'&&
+      td3.profile===selectedDevice();
+  }
+
+  function clearVerification(){
+    td3.verified=false;td3.sysexEnabled=false;td3.profile='';
+  }
 
   function pickPorts(access){
     const router=window.__303boxMidiRouter?.state||{};
@@ -124,32 +181,61 @@
     const inputs=[...access.inputs.values()].filter(p=>p.state==='connected'&&isTd3Name(portName(p)));
     let output=outputs.find(p=>p.id===router.outputId);
     if(!output&&router.outputName)output=outputs.find(p=>norm(portName(p))===norm(router.outputName));
-    if(!output)output=outputs[0];
-    if(!output)return{};
+    if(!output&&outputs.length===1)output=outputs[0];
+    if(!output)return{error:outputs.length?'ambiguous-output':'usb-port'};
     const outKey=norm(portName(output));
-    let input=inputs.find(p=>norm(portName(p))===outKey)||inputs.find(p=>norm(p.name)===norm(output.name))||inputs[0];
+    const exactInputs=inputs.filter(p=>norm(portName(p))===outKey||norm(p.name)===norm(output.name));
+    let input=exactInputs.length===1?exactInputs[0]:null;
+    if(!input&&inputs.length===1)input=inputs[0];
+    if(!input)return{output,error:inputs.length?'ambiguous-input':'usb-port'};
     return{input,output};
   }
 
-  function waitMessage(input,test,timeout=1500){
+  function transact(message,test,timeout=1500,label='request'){
     return new Promise((resolve,reject)=>{
       let timer=0;
+      const input=td3.input,output=td3.output;
+      if(!portIsConnected(input)||!portIsConnected(output)){reject(td3Error('port-disconnected'));return}
       const done=()=>{clearTimeout(timer);input.removeEventListener('midimessage',onMsg)};
-      const onMsg=e=>{const a=[...e.data];if(test(a)){done();resolve(a)}};
+      const onMsg=e=>{
+        const a=[...e.data];
+        try{if(test(a)){done();resolve(a)}}catch(err){done();reject(err)}
+      };
       input.addEventListener('midimessage',onMsg);
-      timer=setTimeout(()=>{done();reject(new Error('timeout'))},timeout);
+      timer=setTimeout(()=>{done();reject(td3Error(`${label}-timeout`))},timeout);
+      try{output.send(message)}catch(cause){done();reject(td3Error('send-failed',cause))}
     });
-  }
-
-  async function transact(message,test,timeout=1500){
-    const pending=waitMessage(td3.input,test,timeout);
-    td3.output.send(message);
-    return pending;
   }
 
   function asciiFrom(a,start){return String.fromCharCode(...a.slice(start,-1).filter(v=>v>0&&v<128)).trim()}
 
-  async function armTd3(verbose=false){
+  function armFailureMessage(err){
+    const code=td3ErrorCode(err);
+    if(code==='usb-port')return say('A connected TD-3 USB MIDI input + output pair was not found. Generic DIN adapters cannot perform direct SysEx writes.','Bağlı bir TD-3 USB MIDI giriş + çıkış çifti bulunamadı. Genel DIN adaptörleri doğrudan SysEx yazamaz.');
+    if(code==='ambiguous-output'||code==='ambiguous-input')return say('More than one TD-3 USB endpoint is connected and the correct pair could not be selected safely. Select the intended TD-3 MIDI output, disconnect the other unit, then retry.','Birden fazla TD-3 USB uç noktası bağlı ve doğru çift güvenle seçilemedi. İstenen TD-3 MIDI çıkışını seç, diğer cihazı çıkar ve yeniden dene.');
+    if(code==='permission-denied')return say('The browser did not grant MIDI SysEx permission. Allow MIDI device access (including SysEx) in the site permissions, then retry.','Tarayıcı MIDI SysEx izni vermedi. Site izinlerinden MIDI cihazı erişimine (SysEx dâhil) izin verip yeniden dene.');
+    if(code==='security-error')return say('The browser blocked SysEx for this page. Open 303box from HTTPS in a supported desktop browser and retry from a button click.','Tarayıcı bu sayfada SysEx erişimini engelledi. 303box’ı desteklenen bir masaüstü tarayıcıda HTTPS üzerinden açıp düğmeye yeniden bas.');
+    if(code==='sysex-disabled'||code==='sysex-unsupported')return say('Web MIDI opened without SysEx capability. Direct write is unavailable in this browser/session.','Web MIDI, SysEx yetkisi olmadan açıldı. Bu tarayıcı/oturumda doğrudan yazma kullanılamaz.');
+    if(code==='identity')return say('The connected SysEx device did not identify itself as TD-3 / TD-3-MO. Aborted.','Bağlı SysEx cihazı kendini TD-3 / TD-3-MO olarak tanıtmadı. İşlem iptal edildi.');
+    if(code==='port-open')return say('The TD-3 USB MIDI ports are present but could not be opened. Close other MIDI software, reconnect the TD-3, and retry.','TD-3 USB MIDI portları görünüyor ancak açılamadı. Diğer MIDI yazılımlarını kapat, TD-3’ü yeniden bağla ve tekrar dene.');
+    if(code==='product-timeout')return say('The TD-3 USB ports opened, but the device did not answer the product SysEx request. Close other MIDI software and check the direct USB connection.','TD-3 USB portları açıldı ancak cihaz ürün SysEx sorgusuna yanıt vermedi. Diğer MIDI yazılımlarını kapatıp doğrudan USB bağlantısını kontrol et.');
+    if(code==='pattern-timeout'||code==='pattern-probe')return say('The TD-3 was identified, but the selected pattern slot did not return a matching SysEx response. WRITE remains blocked.','TD-3 tanındı ancak seçilen pattern slotundan eşleşen SysEx yanıtı gelmedi. WRITE engellenmiş durumda.');
+    if(code==='port-disconnected'||code==='send-failed')return say('The TD-3 USB MIDI connection was interrupted. Reconnect it and verify USB / SysEx again.','TD-3 USB MIDI bağlantısı kesildi. Yeniden bağlayıp USB / SysEx doğrulamasını tekrarla.');
+    return say(`Could not verify TD-3 SysEx (${code}). Check the direct USB connection and browser permissions.`,`TD-3 SysEx doğrulanamadı (${code}). Doğrudan USB bağlantısını ve tarayıcı izinlerini kontrol et.`);
+  }
+
+  function watchAccess(access){
+    if(td3.access&&td3.stateListener)td3.access.removeEventListener?.('statechange',td3.stateListener);
+    td3.access=access;
+    td3.stateListener=()=>{
+      if(portIsConnected(td3.input)&&portIsConnected(td3.output))return;
+      clearVerification();
+      if(!td3.busy)td3Status(say('TD-3 USB connection changed. Verify USB / SysEx again.','TD-3 USB bağlantısı değişti. USB / SysEx doğrulamasını yeniden yap.'),'warn');
+    };
+    access.addEventListener?.('statechange',td3.stateListener);
+  }
+
+  async function verifyTd3(verbose=false,probeTarget=target()){
     const device=selectedDevice();
     if(device!=='td3'&&device!=='td3mo'){
       td3Status(say('Select Behringer TD-3 or TD-3-MO in DEVICE first.','Önce CİHAZ bölümünden Behringer TD-3 veya TD-3-MO seç.'),'warn');
@@ -159,48 +245,56 @@
     try{
       td3Status(say('Requesting SysEx permission…','SysEx izni isteniyor…'));
       const access=await navigator.requestMIDIAccess({sysex:true});
-      const {input,output}=pickPorts(access);
-      if(!input||!output)throw new Error('usb-port');
-      await Promise.all([input.open(),output.open()]);
-      td3.access=access;td3.input=input;td3.output=output;td3.verified=false;
+      if(access?.sysexEnabled!==true)throw td3Error('sysex-disabled');
+      const {input,output,error}=pickPorts(access);
+      if(error)throw td3Error(error);
+      try{await Promise.all([input.open(),output.open()])}catch(cause){throw td3Error('port-open',cause)}
+      td3.input=input;td3.output=output;td3.verified=false;td3.sysexEnabled=true;td3.profile=device;
+      watchAccess(access);
 
-      const prod=await transact(TD3_PRODUCT,a=>samePrefix(a)&&a[7]===0x07,1800);
+      const prod=await transact(TD3_PRODUCT,a=>samePrefix(a)&&a[7]===0x07,1800,'product');
       td3.product=asciiFrom(prod,8);
-      if(!/^TD-3(?:-MO)?/i.test(td3.product))throw new Error('identity');
+      if(!/^TD-3(?:-MO)?/i.test(td3.product))throw td3Error('identity');
 
       try{
-        const fw=await transact(TD3_FIRMWARE,a=>samePrefix(a)&&a[7]===0x09,900);
+        const fw=await transact(TD3_FIRMWARE,a=>samePrefix(a)&&a[7]===0x09,900,'firmware');
         td3.firmware=[fw[9],fw[10],fw[11]].filter(Number.isFinite).join('.');
       }catch(_){td3.firmware=''}
 
-      // Non-destructive compatibility probe: a valid pattern response must arrive before WRITE is ever enabled.
-      const tg=target();
-      const raw=await requestPattern(tg);
-      if(!validPattern(raw,tg.group))throw new Error('pattern-probe');
+      // Non-destructive compatibility probe: a valid response must arrive before any WRITE packet is sent.
+      const raw=await requestPattern(probeTarget);
+      if(!validPattern(raw,probeTarget))throw td3Error('pattern-probe');
       td3.verified=true;
       const mo=/MO/i.test(td3.product);
-      td3Status(`${td3.product}${td3.firmware?` v${td3.firmware}`:''} — ${tg.label} ${say('read OK','okundu')} ${mo?' / MO COMPATIBLE PROBE OK':''}`,'good');
+      td3Status(`${td3.product}${td3.firmware?` v${td3.firmware}`:''} — ${probeTarget.label} ${say('read OK','okundu')} ${mo?' / MO COMPATIBLE PROBE OK':''}`,'good');
       if(verbose)markCurrent();
       return true;
     }catch(err){
-      td3.verified=false;
-      const code=err?.message||'';
-      const msg=code==='usb-port'
-        ? say('TD-3 USB MIDI input + output were not found. Direct SysEx does not work through a generic DIN adapter.','TD-3 USB MIDI giriş + çıkışı bulunamadı. Direct SysEx genel DIN adaptörü üzerinden çalışmaz.')
-        : code==='identity'
-          ? say('The connected SysEx device did not identify itself as TD-3 / TD-3-MO. Aborted.','Bağlı SysEx cihazı kendini TD-3 / TD-3-MO olarak tanıtmadı. İşlem iptal edildi.')
-          : code==='pattern-probe'
-            ? say('Product detected, but the TD-3 pattern read protocol did not match. WRITE remains disabled.','Ürün bulundu ancak TD-3 pattern okuma protokolü eşleşmedi. WRITE kapalı kalıyor.')
-            : say('Could not verify TD-3 SysEx. Check USB connection and browser SysEx permission.','TD-3 SysEx doğrulanamadı. USB bağlantısını ve tarayıcı SysEx iznini kontrol et.');
-      td3Status(msg,'bad');return false;
+      clearVerification();
+      td3Status(armFailureMessage(err),'bad');return false;
     }
   }
 
-  function validPattern(a,group){return Array.isArray(a)&&a.length>=123&&samePrefix(a)&&a[7]===0x78&&a[8]===group&&a[a.length-1]===0xF7}
+  function armTd3(verbose=false){return runTd3Operation(()=>verifyTd3(verbose,target()))}
 
-  async function requestPattern(tg,timeout=1800){
+  function validTarget(tg){return Number.isInteger(tg?.group)&&tg.group>=0&&tg.group<=3&&Number.isInteger(tg?.requestSlot)&&tg.requestSlot>=0&&tg.requestSlot<=15}
+
+  function validPattern(a,tg){
+    return Array.isArray(a)&&a.length===TD3_PATTERN_BYTES&&validTarget(tg)&&samePrefix(a)&&
+      a[7]===0x78&&a[8]===tg.group&&a[9]===tg.requestSlot&&a[a.length-1]===0xF7&&
+      a.slice(1,-1).every(v=>Number.isInteger(v)&&v>=0&&v<0x80);
+  }
+
+  async function requestPattern(tg,timeout=TD3_PATTERN_TIMEOUT){
+    if(!validTarget(tg))throw td3Error('invalid-target');
     const req=[...TD3_PREFIX,0x77,tg.group,tg.requestSlot,0xF7];
-    return transact(req,a=>validPattern(a,tg.group),timeout);
+    return transact(req,a=>validPattern(a,tg),timeout,'pattern');
+  }
+
+  async function ensureTd3(tg){
+    if(connectionIsReady())return true;
+    clearVerification();
+    return verifyTd3(false,tg);
   }
 
   function patternSteps(){
@@ -234,8 +328,8 @@
   }
 
   function encodePattern(backup){
+    if(!Array.isArray(backup)||backup.length!==TD3_PATTERN_BYTES)throw td3Error('short-pattern');
     const out=backup.slice();
-    if(out.length<123)throw new Error('short-pattern');
     const steps=patternSteps();
     const ties=[],rests=[];
     for(let i=0;i<16;i++){
@@ -264,71 +358,161 @@
   }
 
   function comparable(a,b){
-    if(!a||!b||a.length<123||b.length<123)return false;
+    if(!a||!b||a.length!==TD3_PATTERN_BYTES||b.length!==TD3_PATTERN_BYTES||a[8]!==b[8]||a[9]!==b[9])return false;
     const ranges=[[0x0C,0x70],[0x72,0x7A]];
     return ranges.every(([from,to])=>{for(let i=from;i<to;i++)if(a[i]!==b[i])return false;return true});
   }
 
+  function sameBytes(a,b){return Array.isArray(a)&&Array.isArray(b)&&a.length===b.length&&a.every((v,i)=>v===b[i])}
+
+  function targetFromAddress(group,requestSlot){
+    const tg={group:Number(group),requestSlot:Number(requestSlot)};
+    if(!validTarget(tg))return null;
+    tg.section=tg.requestSlot>=8?'B':'A';
+    tg.number=(tg.requestSlot%8)+1;
+    tg.label=`${['I','II','III','IV'][tg.group]} / ${tg.section}${tg.number}`;
+    return tg;
+  }
+
+  function normalizeBackup(value){
+    if(!value||typeof value!=='object'||!Array.isArray(value.bytes))return null;
+    const tg=targetFromAddress(value.requestGroup,value.requestSlot);
+    if(!tg||!validPattern(value.bytes,tg))return null;
+    return{...value,bytes:value.bytes.slice(),product:String(value.product||''),target:tg};
+  }
+
   function saveBackup(bytes,tg){
-    try{localStorage.setItem(TD3_BACKUP,JSON.stringify({time:Date.now(),product:td3.product,firmware:td3.firmware,requestGroup:tg.group,requestSlot:tg.requestSlot,label:tg.label,bytes}))}catch(_){}
+    if(!validPattern(bytes,tg))throw td3Error('backup-invalid');
+    const record={version:1,time:Date.now(),product:td3.product,firmware:td3.firmware,requestGroup:tg.group,requestSlot:tg.requestSlot,label:tg.label,bytes:bytes.slice()};
+    try{
+      localStorage.setItem(TD3_BACKUP,JSON.stringify(record));
+      const saved=loadBackup();
+      if(saved.reason||!sameBytes(saved.backup.bytes,record.bytes))throw td3Error('backup-save');
+      return saved.backup;
+    }catch(cause){
+      if(td3ErrorCode(cause)==='backup-save')throw cause;
+      throw td3Error('backup-save',cause);
+    }
   }
-  function loadBackup(){try{return JSON.parse(localStorage.getItem(TD3_BACKUP)||'null')}catch(_){return null}}
 
-  async function readOnly(){
-    if(!td3.verified&&!(await armTd3(false)))return;
-    try{const tg=target(),raw=await requestPattern(tg);td3Status(`${tg.label} — ${raw.length} bytes ${say('read successfully. No write was performed.','başarıyla okundu. Yazma yapılmadı.')}`,'good')}
-    catch(_){td3Status(say('Pattern read failed. Nothing was written.','Pattern okuma başarısız. Hiçbir şey yazılmadı.'),'bad')}
+  function loadBackup(){
+    try{
+      const raw=localStorage.getItem(TD3_BACKUP);
+      if(!raw)return{backup:null,reason:'missing'};
+      const backup=normalizeBackup(JSON.parse(raw));
+      return backup?{backup,reason:''}:{backup:null,reason:'invalid'};
+    }catch(_){return{backup:null,reason:'storage'}}
   }
 
-  async function writeTd3(){
+  async function verifyReadBack(expected,tg){
+    await sleep(TD3_WRITE_SETTLE);
+    let lastError=null,sawMismatch=false;
+    for(let attempt=1;attempt<=TD3_VERIFY_RETRIES;attempt++){
+      try{
+        const actual=await requestPattern(tg,TD3_PATTERN_TIMEOUT);
+        if(comparable(expected,actual))return actual;
+        sawMismatch=true;lastError=td3Error('verify-mismatch');
+      }catch(err){
+        lastError=err;
+        if(!['pattern-timeout'].includes(td3ErrorCode(err)))throw err;
+      }
+      if(attempt<TD3_VERIFY_RETRIES){
+        td3Status(`${tg.label} — ${say(`read-back retry ${attempt+1}/${TD3_VERIFY_RETRIES}…`,`geri okuma yeniden deneniyor ${attempt+1}/${TD3_VERIFY_RETRIES}…`)}`,'warn');
+        await sleep(TD3_VERIFY_RETRY_DELAY);
+      }
+    }
+    throw sawMismatch?td3Error('verify-mismatch'):(lastError||td3Error('verify-mismatch'));
+  }
+
+  function readOnly(){return runTd3Operation(async()=>{
+    const tg=target();
+    if(!(await ensureTd3(tg)))return false;
+    try{
+      const raw=await requestPattern(tg);
+      td3Status(`${tg.label} — ${raw.length} bytes ${say('read successfully. No write was performed.','başarıyla okundu. Yazma yapılmadı.')}`,'good');
+      return true;
+    }catch(err){
+      if(['port-disconnected','send-failed'].includes(td3ErrorCode(err)))clearVerification();
+      td3Status(say(`Pattern read failed (${td3ErrorCode(err)}). Nothing was written.`,`Pattern okuma başarısız (${td3ErrorCode(err)}). Hiçbir şey yazılmadı.`),'bad');
+      return false;
+    }
+  })}
+
+  function writeFailureMessage(err,writeSent){
+    const code=td3ErrorCode(err);
+    if(code.startsWith('pitch-range-'))return say(`Step ${code.split('-').pop()} is outside the conservative TD-3 pitch range. Adjust D/U and try again.`,`Adım ${code.split('-').pop()} güvenli TD-3 perde aralığının dışında. D/U ayarını değiştirip tekrar dene.`);
+    if(code.startsWith('bad-note-'))return say(`Step ${code.split('-').pop()} contains a note the TD-3 writer cannot encode. Correct it and retry.`,`Adım ${code.split('-').pop()} TD-3 yazıcısının kodlayamadığı bir nota içeriyor. Düzeltip yeniden dene.`);
+    if(code==='backup-save')return say('The target was read, but its safety backup could not be saved and verified in this browser. WRITE was not sent. Check site storage permissions.','Hedef okundu ancak güvenlik yedeği bu tarayıcıya kaydedilip doğrulanamadı. WRITE gönderilmedi. Site depolama izinlerini kontrol et.');
+    if(code==='backup-invalid'||code==='encoded-packet-invalid'||code==='short-pattern')return say('The target data did not form a safe TD-3 pattern packet. WRITE was blocked before anything was sent.','Hedef verisi güvenli bir TD-3 pattern paketi oluşturmadı. Herhangi bir veri gönderilmeden WRITE engellendi.');
+    if(code==='verify-mismatch')return say('WRITE was sent, but three read-back checks did not match. Do not trust this slot; use RESTORE LAST BACKUP.','WRITE gönderildi ancak üç geri okuma kontrolü eşleşmedi. Bu slota güvenme; RESTORE LAST BACKUP kullan.');
+    if(code==='pattern-timeout'&&!writeSent)return say('The target slot did not answer the safety-backup read. WRITE was not sent. Verify USB / SysEx and retry.','Hedef slot güvenlik yedeği okumasına yanıt vermedi. WRITE gönderilmedi. USB / SysEx doğrulamasını yapıp yeniden dene.');
+    if(code==='pattern-timeout')return say('WRITE was sent, but the TD-3 did not answer the read-back checks. Do not trust this slot; use RESTORE LAST BACKUP after reconnecting.','WRITE gönderildi ancak TD-3 geri okuma kontrollerine yanıt vermedi. Bu slota güvenme; yeniden bağlandıktan sonra RESTORE LAST BACKUP kullan.');
+    if(code==='port-disconnected'||code==='send-failed')return say('The TD-3 USB connection was interrupted. The last pre-write backup is still stored when available. Reconnect and verify before restoring.','TD-3 USB bağlantısı kesildi. Varsa yazma öncesi son yedek hâlâ saklanıyor. Geri yüklemeden önce yeniden bağlanıp doğrula.');
+    return say(`TD-3 direct write failed (${code}). The last pre-write backup was kept when available.`,`TD-3 doğrudan yazma başarısız (${code}). Varsa yazma öncesi son yedek korundu.`);
+  }
+
+  function writeTd3(){return runTd3Operation(async()=>{
     const device=selectedDevice();
-    if(device!=='td3'&&device!=='td3mo'){td3Status(say('Select TD-3 / TD-3-MO first.','Önce TD-3 / TD-3-MO seç.'),'warn');return}
-    if(!td3.verified&&!(await armTd3(false)))return;
+    if(device!=='td3'&&device!=='td3mo'){td3Status(say('Select TD-3 / TD-3-MO first.','Önce TD-3 / TD-3-MO seç.'),'warn');return false}
+    const tg=target();
+    if(!(await ensureTd3(tg)))return false;
+    let writeSent=false;
     try{
       window.__303boxMidiRouter?.panic?.();
       window.__303boxUnifiedEngine?.stopAll?.();
-      const tg=target();
       td3Status(`${tg.label} — ${say('reading backup…','yedek okunuyor…')}`);
       const backup=await requestPattern(tg);
       saveBackup(backup,tg);
       const packet=encodePattern(backup);
+      if(!validPattern(packet,tg))throw td3Error('encoded-packet-invalid');
       const warning=say(
         `${td3.product} ${tg.label} will be overwritten. A raw backup has been saved in this browser first. This protocol is reverse-engineered and experimental. Continue?`,
         `${td3.product} ${tg.label} üzerine yazılacak. Önce ham yedek bu tarayıcıya kaydedildi. Bu protokol tersine mühendislik ve deneyseldir. Devam edilsin mi?`);
-      if(!window.confirm(warning)){td3Status(say('Cancelled. Backup kept; nothing written.','İptal edildi. Yedek saklandı; hiçbir şey yazılmadı.'),'warn');return}
-      td3.output.send(packet);
+      if(!window.confirm(warning)){td3Status(say('Cancelled. Backup kept; nothing written.','İptal edildi. Yedek saklandı; hiçbir şey yazılmadı.'),'warn');return false}
+      try{td3.output.send(packet);writeSent=true}catch(cause){throw td3Error('send-failed',cause)}
       td3Status(`${tg.label} — ${say('written; verifying read-back…','yazıldı; geri okuma doğrulanıyor…')}`);
-      await new Promise(r=>setTimeout(r,260));
-      const verify=await requestPattern(tg,2200);
-      if(!comparable(packet,verify))throw new Error('verify');
+      await verifyReadBack(packet,tg);
       td3Status(`${td3.product} ${tg.label} — ${say('DIRECT WRITE VERIFIED. Pattern memory matches the 303box sheet.','DIRECT WRITE DOĞRULANDI. Pattern hafızası 303box sayfasıyla eşleşiyor.')}`,'good');
+      return true;
     }catch(err){
-      const m=String(err?.message||'');
-      const msg=m.startsWith('pitch-range-')
-        ? say(`Step ${m.split('-').pop()} is outside the conservative TD-3 pitch range. Adjust D/U and try again.`,`Adım ${m.split('-').pop()} güvenli TD-3 perde aralığının dışında. D/U ayarını değiştirip tekrar dene.`)
-        : m==='verify'
-          ? say('WRITE was sent, but read-back did not match. Do not trust this slot; use RESTORE LAST BACKUP.','WRITE gönderildi ancak geri okuma eşleşmedi. Bu slota güvenme; RESTORE LAST BACKUP kullan.')
-          : say('TD-3 direct write failed. The last pre-write backup was kept when available.','TD-3 direct write başarısız. Varsa yazma öncesi son yedek korundu.');
-      td3Status(msg,'bad');
+      if(['port-disconnected','send-failed'].includes(td3ErrorCode(err)))clearVerification();
+      td3Status(writeFailureMessage(err,writeSent),'bad');
+      return false;
     }
-  }
+  })}
 
-  async function restoreTd3(){
-    const backup=loadBackup();
-    if(!backup?.bytes?.length){td3Status(say('No TD-3 backup is stored in this browser yet.','Bu tarayıcıda henüz TD-3 yedeği yok.'),'warn');return}
-    if(!td3.verified&&!(await armTd3(false)))return;
-    const label=backup.label||`G${backup.requestGroup} / P${backup.requestSlot}`;
-    if(!window.confirm(say(`Restore the saved backup to ${label}?`,`Kayıtlı yedek ${label} slotuna geri yüklensin mi?`)))return;
+  function restoreTd3(){return runTd3Operation(async()=>{
+    const stored=loadBackup();
+    if(stored.reason){
+      const msg=stored.reason==='missing'
+        ? say('No TD-3 backup is stored in this browser yet.','Bu tarayıcıda henüz TD-3 yedeği yok.')
+        : say('The stored TD-3 backup is unavailable or invalid. It will not be sent.','Kayıtlı TD-3 yedeği kullanılamıyor veya geçersiz. Cihaza gönderilmeyecek.');
+      td3Status(msg,stored.reason==='missing'?'warn':'bad');return false;
+    }
+    const backup=stored.backup,tg=backup.target,label=tg.label;
+    if(!(await ensureTd3(tg)))return false;
+    if(backup.product&&norm(backup.product)!==norm(td3.product)){
+      td3Status(say(`This backup belongs to ${backup.product}, but the connected device reports ${td3.product}. Restore was blocked.`,`Bu yedek ${backup.product} cihazına ait; bağlı cihaz kendini ${td3.product} olarak tanıtıyor. Geri yükleme engellendi.`),'bad');
+      return false;
+    }
+    if(!window.confirm(say(`Restore the saved backup to ${td3.product} ${label}? The backup's original slot address will be used.`,`Kayıtlı yedek ${td3.product} ${label} slotuna geri yüklensin mi? Yedeğin özgün slot adresi kullanılacak.`)))return false;
     try{
       window.__303boxMidiRouter?.panic?.();
-      td3.output.send(backup.bytes);
-      await new Promise(r=>setTimeout(r,260));
-      const tg={group:backup.requestGroup,requestSlot:backup.requestSlot,label};
-      const verify=await requestPattern(tg,2200);
-      if(!comparable(backup.bytes,verify))throw new Error('verify');
+      window.__303boxUnifiedEngine?.stopAll?.();
+      try{td3.output.send(backup.bytes)}catch(cause){throw td3Error('send-failed',cause)}
+      td3Status(`${label} — ${say('restoring; verifying read-back…','geri yükleniyor; geri okuma doğrulanıyor…')}`);
+      await verifyReadBack(backup.bytes,tg);
       td3Status(`${label} — ${say('backup restored and verified.','yedek geri yüklendi ve doğrulandı.')}`,'good');
-    }catch(_){td3Status(say('Backup restore could not be verified.','Yedek geri yükleme doğrulanamadı.'),'bad')}
-  }
+      return true;
+    }catch(err){
+      if(['port-disconnected','send-failed'].includes(td3ErrorCode(err)))clearVerification();
+      const code=td3ErrorCode(err);
+      const msg=code==='verify-mismatch'
+        ? say('The backup was sent, but three read-back checks did not match. Stop using this slot and recheck the USB connection.','Yedek gönderildi ancak üç geri okuma kontrolü eşleşmedi. Bu slotu kullanmayı bırakıp USB bağlantısını yeniden kontrol et.')
+        : say(`Backup restore could not be verified (${code}).`,`Yedek geri yükleme doğrulanamadı (${code}).`);
+      td3Status(msg,'bad');return false;
+    }
+  })}
 
   function openGuide(){
     const d=$('#hardwareGuideDialog');
@@ -348,8 +532,9 @@
     $('#midiHardwareGuide')?.addEventListener('click',openGuide);
     $('#hardwareGuideClose')?.addEventListener('click',closeGuide);
     $('#hardwareGuideDialog')?.addEventListener('click',e=>{if(e.target===e.currentTarget)closeGuide()});
-    $('#midiDeviceProfile')?.addEventListener('change',()=>{td3.verified=false;markCurrent()});
-    window.__303boxHardwareGuide={version:'0830',open:openGuide,close:closeGuide,armTd3,writeTd3,restoreTd3,get td3(){return{product:td3.product,firmware:td3.firmware,verified:td3.verified}}};
+    $('#midiDeviceProfile')?.addEventListener('change',()=>{clearVerification();markCurrent()});
+    document.addEventListener('303box:languagechange',()=>{if(!td3.busy)td3Status('');markCurrent()});
+    window.__303boxHardwareGuide={version:'0900',open:openGuide,close:closeGuide,armTd3,writeTd3,restoreTd3,get td3(){return{product:td3.product,firmware:td3.firmware,profile:td3.profile,verified:td3.verified,sysexEnabled:td3.sysexEnabled,busy:td3.busy,input:portName(td3.input),output:portName(td3.output)}}};
   }
 
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
