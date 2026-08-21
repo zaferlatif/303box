@@ -34,8 +34,13 @@ const helpers=new Function(`
   ${functionSource('boolPair')}
   ${functionSource('packByRests')}
   ${functionSource('mask16')}
+  ${functionSource('unpackMask16')}
+  ${functionSource('td3Pitch')}
+  ${functionSource('patternSemantics')}
+  ${functionSource('decodePatternSemantics')}
+  ${functionSource('samePatternSemantics')}
   ${functionSource('encodePattern')}
-  return {validPattern,comparable,targetFromAddress,pair,mask16,packByRests,encodePattern,setSteps:v=>{currentSteps=v}};
+  return {validPattern,comparable,targetFromAddress,pair,mask16,unpackMask16,td3Pitch,patternSemantics,decodePatternSemantics,samePatternSemantics,packByRests,encodePattern,setSteps:v=>{currentSteps=v}};
 `)();
 
 function packet(group=0,slot=0){
@@ -84,6 +89,7 @@ test('stored raw addresses map back to the original A/B target',()=>{
 test('pitch nibbles and tie/rest masks follow the reverse-engineered TD-3 packet layout',()=>{
   assert.deepEqual(helpers.pair(0x18),[0x01,0x08]);
   assert.deepEqual(helpers.pair(0x2F),[0x02,0x0F]);
+  assert.deepEqual(helpers.pair(0xA4),[0x0A,0x04],'the logical upper-C flag must survive nibble splitting');
   const flags=Array(16).fill(false);
   flags[0]=true;flags[7]=true;flags[8]=true;flags[15]=true;
   assert.deepEqual(helpers.mask16(flags),[0x08,0x01,0x08,0x01]);
@@ -108,16 +114,24 @@ test('visual steps are compacted around rests before TD-3 serialization',()=>{
   assert.equal(combined(0x0C),0x18,'step 1 C must be the first packed pitch');
   assert.equal(combined(0x0E),0x1C,'step 3 E must move into the second packed pitch');
   assert.equal(combined(0x10),0x1F,'a tied G step still owns and serializes its pitch');
-  assert.equal(combined(0x12),0x24,'the note picker upper-C flag must add one octave');
+  assert.equal(combined(0x12),0xA4,'the note picker upper-C must add one octave and the TD-3 upper-C flag');
   assert.equal(combined(0x14),0x18,'unused pitch entries must use canonical C padding');
   assert.deepEqual(encoded.slice(0x2C,0x34),[0,1,0,0,0,1,0,0],
     'accent values must be compacted in the same order as pitches');
   assert.deepEqual(encoded.slice(0x4C,0x54),[0,0,0,1,0,1,0,0],
     'slide values must be compacted in the same order as pitches');
-  assert.equal(encoded[0x72],0);
-  assert.equal(encoded[0x73],0b1000,'the visual step 4 tie must stay on timing step 4');
+  assert.deepEqual(encoded.slice(0x72,0x76),[0b1111,0b0111,0b1111,0b1111],
+    'TD-3 trigger/tie field must use 1 for notes/rests and 0 only for a visual tie');
   assert.equal(encoded[0x76],0b1101,'rest mask steps 5-8 must remain positional');
   assert.equal(encoded[0x77],0b0010,'rest mask steps 1-4 must remain positional');
+
+  const intended=helpers.patternSemantics(steps);
+  const decoded=helpers.decodePatternSemantics(encoded);
+  assert.equal(helpers.samePatternSemantics(intended,decoded),true,
+    'the complete TD-3 packet must decode to the exact visible notes, gates, accents and slides');
+  assert.equal(decoded[0].gate,'note');
+  assert.equal(decoded[3].gate,'tie');
+  assert.equal(decoded[5].pitch,0x24,'upper-C must sound at the intended pitch after stripping its format flag');
 });
 
 test('writer enforces SysEx capability, durable backup, serialization, and retry verification',()=>{
@@ -134,7 +148,7 @@ test('writer enforces SysEx capability, durable backup, serialization, and retry
   const prepareBody=source.slice(prepareStart,commitStart);
   const commitBody=source.slice(commitStart,writeStart);
   assert.match(prepareBody,/saveBackup\(backup,tg\)/,'a verified browser backup must be stored before confirmation');
-  assert.match(prepareBody,/armPendingWrite\(packet,tg\)/,'the first click must arm, not send, the write');
+  assert.match(prepareBody,/armPendingWrite\(packet,tg,intended\)/,'the first click must arm, not send, the write');
   assert.doesNotMatch(prepareBody,/output\.send\(/,'the first click must never write to the device');
   assert.doesNotMatch(prepareBody,/window\.confirm/,'write confirmation must stay inside the panel');
   assert.match(commitBody,/patternSignature\(\)!==pending\.signature/,'pattern edits after backup must cancel the write');
