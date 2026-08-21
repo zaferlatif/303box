@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION='20260821-2300';
+  const VERSION='20260821-2330';
   const BOOT_STARTED=performance.now();
   const MIN_HIDDEN_BOOT=2250;
   let revealed=false;

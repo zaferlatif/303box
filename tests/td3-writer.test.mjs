@@ -20,14 +20,22 @@ function functionSource(name){
 const helpers=new Function(`
   const TD3_PATTERN_BYTES=123;
   const TD3_PREFIX=[0xF0,0x00,0x20,0x32,0x00,0x01,0x0A];
+  const NOTE={C:0,'C#':1,D:2,'D#':3,E:4,F:5,'F#':6,G:7,'G#':8,A:9,'A#':10,B:11};
   const samePrefix=a=>TD3_PREFIX.every((v,i)=>a[i]===v);
+  const td3Error=code=>Object.assign(new Error(code),{td3Code:code});
+  let currentSteps=[];
+  const patternSteps=()=>currentSteps;
   ${functionSource('validTarget')}
   ${functionSource('validPattern')}
   ${functionSource('comparable')}
   ${functionSource('targetFromAddress')}
   ${functionSource('pair')}
+  ${functionSource('writePair')}
+  ${functionSource('boolPair')}
+  ${functionSource('packByRests')}
   ${functionSource('mask16')}
-  return {validPattern,comparable,targetFromAddress,pair,mask16};
+  ${functionSource('encodePattern')}
+  return {validPattern,comparable,targetFromAddress,pair,mask16,packByRests,encodePattern,setSteps:v=>{currentSteps=v}};
 `)();
 
 function packet(group=0,slot=0){
@@ -79,12 +87,37 @@ test('pitch nibbles and tie/rest masks follow the reverse-engineered TD-3 packet
   const flags=Array(16).fill(false);
   flags[0]=true;flags[7]=true;flags[8]=true;flags[15]=true;
   assert.deepEqual(helpers.mask16(flags),[0x08,0x01,0x08,0x01]);
-  assert.match(source,/writePair\(out,0x0C\+i\*2,stored\)/);
+  assert.match(source,/writePair\(out,0x0C\+i\*2,packedPitches\[i\]\)/);
   assert.match(source,/boolPair\(out,0x2C\+i\*2/);
   assert.match(source,/boolPair\(out,0x4C\+i\*2/);
   assert.match(source,/out\[0x6E\]=1;out\[0x6F\]=0/);
   assert.match(source,/out\[0x72\+i\]/);
   assert.match(source,/out\[0x76\+i\]/);
+});
+
+test('visual steps are compacted around rests before TD-3 serialization',()=>{
+  const steps=Array.from({length:16},()=>({note:'C',baseOct:0,oct:'',expr:'',gate:'-'}));
+  steps[0]={note:'C',baseOct:0,oct:'',expr:'A',gate:'●'};
+  steps[2]={note:'E',baseOct:0,oct:'',expr:'S',gate:'●'};
+  steps[3]={note:'G',baseOct:0,oct:'',expr:'AS',gate:'○'};
+  steps[5]={note:'C',baseOct:1,oct:'',expr:'',gate:'●'};
+  helpers.setSteps(steps);
+  const encoded=helpers.encodePattern(packet());
+
+  const combined=index=>(encoded[index]<<4)|encoded[index+1];
+  assert.equal(combined(0x0C),0x18,'step 1 C must be the first packed pitch');
+  assert.equal(combined(0x0E),0x1C,'step 3 E must move into the second packed pitch');
+  assert.equal(combined(0x10),0x1F,'a tied G step still owns and serializes its pitch');
+  assert.equal(combined(0x12),0x24,'the note picker upper-C flag must add one octave');
+  assert.equal(combined(0x14),0x18,'unused pitch entries must use canonical C padding');
+  assert.deepEqual(encoded.slice(0x2C,0x34),[0,1,0,0,0,1,0,0],
+    'accent values must be compacted in the same order as pitches');
+  assert.deepEqual(encoded.slice(0x4C,0x54),[0,0,0,1,0,1,0,0],
+    'slide values must be compacted in the same order as pitches');
+  assert.equal(encoded[0x72],0);
+  assert.equal(encoded[0x73],0b1000,'the visual step 4 tie must stay on timing step 4');
+  assert.equal(encoded[0x76],0b1101,'rest mask steps 5-8 must remain positional');
+  assert.equal(encoded[0x77],0b0010,'rest mask steps 1-4 must remain positional');
 });
 
 test('writer enforces SysEx capability, durable backup, serialization, and retry verification',()=>{

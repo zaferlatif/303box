@@ -304,6 +304,7 @@
     const gates=$$('#patternSheet .gate-cell');
     return Array.from({length:16},(_,i)=>({
       note:(notes[i]?.value||'').trim().toUpperCase(),
+      baseOct:Number(notes[i]?.dataset?.baseOctave||0)?1:0,
       oct:(octs[i]?.textContent||'').trim().toUpperCase(),
       expr:(exprs[i]?.textContent||'').trim().toUpperCase(),
       gate:(gates[i]?.textContent||'').trim()
@@ -313,6 +314,12 @@
   function pair(v){v=Math.max(0,Math.min(127,Math.round(v)));return[(v>>4)&0x0F,v&0x0F]}
   function writePair(a,index,v){const p=pair(v);a[index]=p[0];a[index+1]=p[1]}
   function boolPair(a,index,v){a[index]=0;a[index+1]=v?1:0}
+  function packByRests(values,rests,off){
+    const packed=[];
+    for(let i=0;i<16;i++)if(!rests[i])packed.push(values[i]);
+    while(packed.length<16)packed.push(off);
+    return packed;
+  }
   function mask16(flags){
     const b=[0,0,0,0];
     flags.forEach((on,step)=>{
@@ -331,22 +338,30 @@
     if(!Array.isArray(backup)||backup.length!==TD3_PATTERN_BYTES)throw td3Error('short-pattern');
     const out=backup.slice();
     const steps=patternSteps();
-    const ties=[],rests=[];
+    const ties=[],rests=[],pitches=Array(16).fill(0x18),accents=Array(16).fill(false),slides=Array(16).fill(false);
     for(let i=0;i<16;i++){
       const s=steps[i],isRest=!s.note||s.gate==='-'||!s.gate,isTie=!isRest&&s.gate==='○';
       rests[i]=isRest;ties[i]=isTie;
-      let stored=0x18; // canonical inactive / base C value used by the reverse-engineered format.
-      if(!isRest&&!isTie){
+      if(!isRest){
         const semitone=NOTE[s.note];
         if(semitone==null)throw new Error(`bad-note-${i+1}`);
-        // TD-3 pattern pitch bytes are one octave below standard MIDI numbering.
-        // Map the sheet's neutral octave to TD-3 C, then honor visible D/U only.
-        stored=0x18+semitone+(s.oct==='D'?-12:s.oct==='U'?12:0);
+        // The TD-3 consumes pitch/accent/slide entries sequentially for every
+        // non-rest timing step. They are packed at the front of the dump rather
+        // than stored at the matching visual step offset.
+        const stored=0x18+semitone+(s.baseOct?12:0)+(s.oct==='D'?-12:s.oct==='U'?12:0);
         if(stored<0||stored>0x2F)throw new Error(`pitch-range-${i+1}`);
+        pitches[i]=stored;
+        accents[i]=s.expr.includes('A');
+        slides[i]=s.expr.includes('S');
       }
-      writePair(out,0x0C+i*2,stored);
-      boolPair(out,0x2C+i*2,!isRest&&!isTie&&s.expr.includes('A'));
-      boolPair(out,0x4C+i*2,!isRest&&!isTie&&s.expr.includes('S'));
+    }
+    const packedPitches=packByRests(pitches,rests,0x18);
+    const packedAccents=packByRests(accents,rests,false);
+    const packedSlides=packByRests(slides,rests,false);
+    for(let i=0;i<16;i++){
+      writePair(out,0x0C+i*2,packedPitches[i]);
+      boolPair(out,0x2C+i*2,packedAccents[i]);
+      boolPair(out,0x4C+i*2,packedSlides[i]);
     }
     out[0x6C]=0;out[0x6D]=0;       // straight 16th mode
     out[0x6E]=1;out[0x6F]=0;       // 0x10 = 16 steps, nibble-pair encoded

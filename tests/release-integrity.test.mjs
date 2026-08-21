@@ -6,7 +6,7 @@ import {fileURLToPath} from 'node:url';
 
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const read=file=>readFileSync(path.join(root,file),'utf8');
-const release='20260821-2300';
+const release='20260821-2330';
 
 test('the production entry point cache-busts every directly loaded script',()=>{
   const index=read('index.html');
