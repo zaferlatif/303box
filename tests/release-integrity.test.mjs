@@ -6,7 +6,12 @@ import {fileURLToPath} from 'node:url';
 
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const read=file=>readFileSync(path.join(root,file),'utf8');
-const release='20260821-2350';
+const release='20260821-2440';
+const siteVersion='2026.08.21.1';
+const htmlFiles=[
+  'index.html','privacy.html','303-pattern-guide.html','acid-house-guide.html',
+  'tr/index.html','tr/303-pattern-rehberi.html','tr/acid-house-rehberi.html'
+];
 
 test('the production entry point cache-busts every directly loaded script',()=>{
   const index=read('index.html');
@@ -32,6 +37,32 @@ test('the dynamic loader and cache-reset epoch match the release',()=>{
       assert.ok(existsSync(path.join(root,file)),`missing runtime asset: ${file}`);
     }
   }
+});
+
+test('every public page shares one footer and one visible site version',()=>{
+  const footers=htmlFiles.map(file=>{
+    const html=read(file);
+    assert.match(html,new RegExp(`site-shell\\.20260821-2440\\.js\\?v=${release}`),`${file} must load the shared site shell`);
+    assert.match(html,new RegExp(`data-site-version>v${siteVersion.replaceAll('.','\\.')}`),`${file} must expose the current version`);
+    const footer=html.match(/<footer class="site-footer">[\s\S]*?<\/footer>/)?.[0];
+    assert.ok(footer,`${file} must have the shared footer`);
+    for(const required of ['data-disclaimer-link','data-shortcuts-link','/privacy.html','data-site-version'])assert.ok(footer.includes(required),`${file} footer is missing ${required}`);
+    return footer;
+  });
+  for(const footer of footers.slice(1))assert.equal(footer,footers[0],'public footers must be structurally identical');
+
+  const shell=read('site-shell.20260821-2440.js');
+  assert.match(shell,new RegExp(`const SITE_VERSION='${siteVersion.replaceAll('.','\\.')}'`));
+  assert.match(shell,/footerCredit:'303box is an independent music tool built by Z3Z\.'/);
+  assert.match(shell,/footerCredit:'303box, Z3Z tarafından geliştirilen bağımsız bir müzik aracıdır\.'/);
+});
+
+test('home and privacy use the same translated header shell',()=>{
+  const header=html=>html.match(/<header class="site-header">[\s\S]*?<\/header>/)?.[0];
+  assert.equal(header(read('privacy.html')),header(read('index.html')));
+  const privacy=read('privacy.html');
+  assert.match(privacy,/document\.dispatchEvent\(new CustomEvent\('303box:languagechange'/);
+  assert.doesNotMatch(privacy,/privacyLanguageButton|privacyFooterText/);
 });
 
 test('active modules use the shared language-change event',()=>{

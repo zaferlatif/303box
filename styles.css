@@ -212,8 +212,13 @@ h1 { margin: 20px 0 22px; max-width: 720px; font-size: clamp(3.2rem, 6.3vw, 6.25
 .footer-inner { min-height: 150px; display: flex; justify-content: space-between; align-items: center; gap: 30px; }
 .footer-inner strong { font-size: 1rem; }
 .footer-inner p { margin: 7px 0 0; color: var(--muted-2); font-size: .78rem; }
+.z3z-credit { display:flex; flex-direction:column; gap:7px; color:var(--muted-2); font-size:.74rem; }
+.z3z-credit a { width:max-content; color:var(--text); font-weight:850; }
+.z3z-credit a:hover { color:var(--acid); }
 .footer-links { display: flex; gap: 22px; color: #8f8f95; font-size: .76rem; font-weight: 700; }
 .footer-links a:hover { color: var(--text); }
+.footer-links a[aria-current="page"] { color: var(--acid); }
+.site-version { width:max-content; margin-top:3px; padding:5px 8px; border:1px solid #464d28; border-radius:999px; background:#171a10; color:var(--acid); font:800 .58rem/1 JetBrains Mono,ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; letter-spacing:.06em; }
 
 .tempo-dialog { width: min(360px, calc(100% - 30px)); padding: 0; border: 1px solid #303036; border-radius: 16px; background: #111114; color: var(--text); box-shadow: 0 35px 120px #000; }
 .tempo-dialog::backdrop { background: rgba(0,0,0,.72); backdrop-filter: blur(7px); }

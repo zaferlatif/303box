@@ -48,6 +48,12 @@ Rhythm voices:
 | CH | 606 closed hi-hat | `CH` |
 | OH | 606 open hi-hat | `OH` |
 
+## Site version 2026.08.21.1 / Runtime 2440
+
+Every public page now exposes the same visible site version in the footer. The version source is `site-shell.20260821-2440.js`; release integrity tests require every public page to load that shell, use the same footer markup, and share the `20260821-2440` cache epoch. Bump the human-readable site version and cache epoch together whenever production code changes.
+
+The shared shell also owns header/footer copy across the home, privacy and guide pages. It keeps Disclaimer, Shortcuts, Privacy, Cookie settings and social links structurally consistent while translating the visible labels.
+
 ## Runtime 2300
 
 Runtime 2300 fixes three production paths together:
@@ -56,7 +62,7 @@ Runtime 2300 fixes three production paths together:
 - Visible English/Turkish copy uses one `303box:languagechange` event and one final copy pass, including late hardware, scope, consent and T-8 controls.
 - Browser audio and external MIDI share step timestamps. BPM changes no longer clear scheduled Note Off messages, long tie/slide chains are scheduled one step at a time, TD-3 live-note playback does not also start its stored sequencer, and stop flushes queued notes and effect tails.
 
-The `20260821-2350` query/loader epoch is intentional: it prevents a cached pre-fix writer or playback router from surviving the release.
+The original `20260821-2350` query/loader epoch prevented a cached pre-fix writer or playback router from surviving that release; Runtime 2440 supersedes it.
 
 ## Runtime 2202
 

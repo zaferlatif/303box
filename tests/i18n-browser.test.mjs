@@ -60,7 +60,31 @@ try{
   await page.waitForFunction(()=>document.documentElement.lang==='en');
   await page.waitForFunction(()=>document.querySelector('#td3WritePattern')?.textContent.trim()==='BACKUP + WRITE');
   assert.equal(await text('#midiPlaybackLabel'),'PLAYBACK');
-  console.log('browser i18n OK: EN → TR → EN, including late TD-3 UI');
+  assert.equal(await text('[data-site-version]'),'v2026.08.21.1');
+  const mainFooterLinks=await page.locator('.site-footer .footer-links a').allTextContents();
+  await page.locator('[data-shortcuts-link]').click();
+  await page.waitForSelector('#shortcutOverlay.open');
+  await page.locator('#shortcutX').click();
+
+  await page.goto(pathToFileURL(path.join(root,'privacy.html')).href,{waitUntil:'domcontentloaded'});
+  await page.waitForSelector('[data-privacy-lang="en"].active');
+  assert.equal(await text('.brand-copy small'),'Acid pattern laboratory');
+  assert.equal(await text('.mini-cta'),'Open sequencer');
+  assert.equal(await text('.z3z-credit > span'),'303box is an independent music tool built by Z3Z.');
+  assert.equal(await text('[data-site-version]'),'v2026.08.21.1');
+  assert.deepEqual(await page.locator('.site-footer .footer-links a').allTextContents(),mainFooterLinks);
+  assert.equal(await page.locator('[data-disclaimer-link]').getAttribute('href'),'/' + '#disclaimer');
+  assert.equal(await page.locator('[data-shortcuts-link]').getAttribute('href'),'/' + '#shortcuts');
+
+  await page.locator('#languageButton').click({force:true});
+  await page.waitForSelector('[data-privacy-lang="tr"].active');
+  assert.equal(await text('.brand-copy small'),'Acid pattern laboratuvarı');
+  assert.equal(await text('.mini-cta'),'Sequencer’ı aç');
+  assert.equal(await text('[data-disclaimer-link]'),'Sorumluluk');
+  assert.equal(await text('[data-shortcuts-link]'),'Kısayollar');
+  assert.equal(await text('.z3z-credit > span'),'303box, Z3Z tarafından geliştirilen bağımsız bir müzik aracıdır.');
+  assert.equal(await page.title(),'Gizlilik Politikası — 303box');
+  console.log('browser i18n OK: main + privacy EN → TR → EN, shared header/footer and late TD-3 UI');
 }finally{
   await browser.close();
 }
