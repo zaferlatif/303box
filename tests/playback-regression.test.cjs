@@ -40,9 +40,9 @@ async function inspectMidiBounds(page,width,height=900){
   });
 }
 
-test('MIDI UI cannot overflow at phone, tablet or compact desktop widths and only T-8 / TD-3 remain',{timeout:60000},async t=>{
+test('MIDI UI cannot overflow viewport or a narrow component and only T-8 / TD-3 remain',{timeout:60000},async t=>{
   const web=await server();t.after(()=>{web.closeAllConnections?.();return new Promise(resolve=>web.close(resolve))});const browser=await launch(t);const page=await browser.newPage({viewport:{width:390,height:844}});await instrumentPage(page);
-  await page.goto(`http://127.0.0.1:${web.address().port}/`,{waitUntil:'domcontentloaded'});await page.waitForFunction(()=>window.__303boxMidiRouter?.version==='2402'&&window.__303boxSiteShell?.version==='2026.08.24.3');
+  await page.goto(`http://127.0.0.1:${web.address().port}/`,{waitUntil:'domcontentloaded'});await page.waitForFunction(()=>window.__303boxMidiRouter?.version==='2402'&&window.__303boxSiteShell?.version==='2026.08.24.4');
   const deviceState=await page.evaluate(()=>({profiles:[...document.querySelectorAll('#midiDeviceProfile option')].map(x=>x.value),devices:[...document.querySelectorAll('.hardware-device-card')].map(x=>x.dataset.device)}));
   assert.deepEqual(deviceState.profiles,['auto','t8','td3']);assert.deepEqual(deviceState.devices.sort(),['t8','td3']);
   for(const width of [390,430,768,1024]){
@@ -52,6 +52,21 @@ test('MIDI UI cannot overflow at phone, tablet or compact desktop widths and onl
     }
     assert.ok(result.scroll<=result.viewport,`document horizontal overflow at ${width}px: ${result.scroll} > ${result.viewport}`);
   }
+
+  await page.setViewportSize({width:1440,height:900});
+  await page.evaluate(()=>{const router=document.querySelector('#midiRouter');router.style.setProperty('width','420px','important');router.style.setProperty('max-width','420px','important')});
+  await page.waitForTimeout(50);
+  const compact=await page.evaluate(()=>{
+    const rect=el=>{const r=el.getBoundingClientRect();return{x:r.x,right:r.right,width:r.width}};
+    const router=document.querySelector('#midiRouter'),playback=document.querySelector('.midi-playback'),panic=document.querySelector('#midiPanic'),primary=document.querySelector('.midi-router-primary'),secondary=document.querySelector('.midi-router-secondary');
+    return{router:rect(router),playback:rect(playback),panic:rect(panic),primaryColumns:getComputedStyle(primary).gridTemplateColumns,secondaryColumns:getComputedStyle(secondary).gridTemplateColumns,scroll:document.documentElement.scrollWidth,viewport:innerWidth};
+  });
+  for(const [name,r] of Object.entries({playback:compact.playback,panic:compact.panic})){
+    assert.ok(r.x>=compact.router.x-.5,`${name} must stay inside a 420px MIDI component`);assert.ok(r.right<=compact.router.right+.5,`${name} must not escape a 420px MIDI component`);
+  }
+  assert.equal(compact.primaryColumns.trim().split(/\s+/).length,1,'420px MIDI primary must collapse to one column');
+  assert.equal(compact.secondaryColumns.trim().split(/\s+/).length,1,'420px MIDI secondary must collapse to one column');
+  assert.ok(compact.scroll<=compact.viewport,'narrow MIDI component must not create document overflow on a wide viewport');
 });
 
 test('TD-3 live playback uses accent velocity and tempo-aware overlapping slide',{timeout:60000},async t=>{
@@ -69,6 +84,6 @@ test('TD-3 live playback uses accent velocity and tempo-aware overlapping slide'
 
 test('home and privacy render the same responsive footer shell',{timeout:60000},async t=>{
   const web=await server();t.after(()=>{web.closeAllConnections?.();return new Promise(resolve=>web.close(resolve))});const browser=await launch(t);const page=await browser.newPage({viewport:{width:390,height:844}});await page.route('https://**/*',route=>route.abort());
-  const inspect=async url=>{await page.goto(`http://127.0.0.1:${web.address().port}${url}`,{waitUntil:'domcontentloaded'});await page.waitForFunction(()=>window.__303boxSiteShell?.version==='2026.08.24.3');return page.evaluate(()=>{const footer=document.querySelector('.site-footer .footer-inner'),style=getComputedStyle(footer),r=footer.getBoundingClientRect();return{html:document.querySelector('.site-footer').innerHTML.replace(/v2026\.08\.\d+\.\d+/g,'VERSION'),direction:style.flexDirection,align:style.alignItems,width:Math.round(r.width),viewport:innerWidth}})};
+  const inspect=async url=>{await page.goto(`http://127.0.0.1:${web.address().port}${url}`,{waitUntil:'domcontentloaded'});await page.waitForFunction(()=>window.__303boxSiteShell?.version==='2026.08.24.4');return page.evaluate(()=>{const footer=document.querySelector('.site-footer .footer-inner'),style=getComputedStyle(footer),r=footer.getBoundingClientRect();return{html:document.querySelector('.site-footer').innerHTML.replace(/v2026\.08\.\d+\.\d+/g,'VERSION'),direction:style.flexDirection,align:style.alignItems,width:Math.round(r.width),viewport:innerWidth}})};
   const home=await inspect('/'),privacy=await inspect('/privacy.html');assert.equal(home.html,privacy.html);assert.equal(home.direction,'column');assert.equal(privacy.direction,'column');assert.equal(home.align,'center');assert.equal(privacy.align,'center');assert.equal(home.width,privacy.width);assert.ok(home.width<=home.viewport-28);
 });
