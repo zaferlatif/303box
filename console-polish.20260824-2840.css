@@ -1,4 +1,4 @@
-/* 303box 2840 — focused REC + scope polish. Keep MIDI geometry untouched. */
+/* 303box 2850 — focused REC + scope polish. Keep MIDI geometry untouched. */
 
 html body #acidConsole #midiRouter #midiRecAssist:not([hidden]){
   display:grid!important;
@@ -13,6 +13,9 @@ html body #acidConsole #midiRouter #midiRecAssist:not([hidden]){
   align-items:stretch!important;
 }
 html body #acidConsole #midiRouter #midiRecAssist .midi-rec-title{
+  display:none!important;
+}
+html body #acidConsole #midiRouter #midiRecAssist #midiRecRhythm[hidden]{
   display:none!important;
 }
 html body #acidConsole #midiRouter #midiRecAssist .midi-rec-button{
@@ -31,6 +34,11 @@ html body #acidConsole #midiRouter #midiRecAssist .midi-rec-button{
 }
 html body #acidConsole #midiRouter #midiRecAssist .midi-rec-button:disabled{
   opacity:.42!important;
+}
+html body #acidConsole #midiRouter #midiRecAssist #midiRhythmPrm{
+  border-color:#66741a!important;
+  background:#151b0b!important;
+  color:#ddff37!important;
 }
 
 html body #acidConsole .scope-panel .mini-tabs{
