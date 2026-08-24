@@ -1,5 +1,4 @@
-/* 303box 2820 — single MIDI geometry authority.
-   Bind directly to the real ACID CONSOLE DOM; do not depend on a runtime .machine-suite wrapper. */
+/* 303box 2830 — MIDI UI polish and component-width geometry authority. */
 
 html body #acidConsole #midiRouter.midi-router-v10{
   container-type:inline-size!important;
@@ -16,33 +15,30 @@ html body #acidConsole #midiRouter.midi-router-v10 *::after{box-sizing:border-bo
 
 html body #acidConsole #midiRouter.midi-router-v10 .midi-compact-head{
   display:grid!important;
-  grid-template-columns:minmax(0,1fr) minmax(150px,.8fr) 92px!important;
+  grid-template-columns:minmax(0,1fr)!important;
   grid-template-rows:auto!important;
-  gap:8px!important;
+  gap:0!important;
   align-items:center!important;
   width:100%!important;
   min-width:0!important;
-  height:auto!important;
-  min-height:0!important;
+  min-height:24px!important;
   margin:0 0 10px!important;
   overflow:visible!important;
 }
-html body #acidConsole #midiRouter.midi-router-v10 .midi-compact-head>strong,
-html body #acidConsole #midiRouter.midi-router-v10 #midiHardwareGuide,
-html body #acidConsole #midiRouter.midi-router-v10 .midi-badge{
+html body #acidConsole #midiRouter.midi-router-v10 .midi-compact-head>strong{
+  grid-column:1!important;
   grid-row:1!important;
   position:static!important;
   transform:none!important;
-  min-width:0!important;
-  max-width:100%!important;
   margin:0!important;
 }
-html body #acidConsole #midiRouter.midi-router-v10 .midi-compact-head>strong{grid-column:1!important}
-html body #acidConsole #midiRouter.midi-router-v10 #midiHardwareGuide{grid-column:2!important;width:100%!important}
-html body #acidConsole #midiRouter.midi-router-v10 .midi-badge{grid-column:3!important;width:92px!important;justify-self:end!important}
+html body #acidConsole #midiRouter.midi-router-v10 .midi-badge{
+  display:none!important;
+}
 
 html body #acidConsole #midiRouter.midi-router-v10 .midi-router-primary,
-html body #acidConsole #midiRouter.midi-router-v10 .midi-router-secondary{
+html body #acidConsole #midiRouter.midi-router-v10 .midi-router-secondary,
+html body #acidConsole #midiRouter.midi-router-v10 .midi-router-actions{
   display:grid!important;
   width:100%!important;
   max-width:100%!important;
@@ -52,7 +48,6 @@ html body #acidConsole #midiRouter.midi-router-v10 .midi-router-secondary{
   overflow:hidden!important;
 }
 
-/* Normal ACID CONSOLE geometry: one compact row for each MIDI group. */
 html body #acidConsole #midiRouter.midi-router-v10 .midi-router-primary{
   grid-template-columns:minmax(0,.82fr) minmax(0,1.22fr) minmax(0,1fr) minmax(0,1.08fr)!important;
   grid-template-rows:auto!important;
@@ -63,7 +58,7 @@ html body #acidConsole #midiRouter.midi-router-v10 .midi-profile{grid-column:3!i
 html body #acidConsole #midiRouter.midi-router-v10 .midi-playback{grid-column:4!important;grid-row:1!important}
 
 html body #acidConsole #midiRouter.midi-router-v10 .midi-router-secondary{
-  grid-template-columns:minmax(0,.72fr) minmax(0,.72fr) minmax(0,1.02fr) minmax(0,1.18fr) minmax(0,.82fr)!important;
+  grid-template-columns:minmax(0,.72fr) minmax(0,.72fr) minmax(0,1fr) minmax(0,1.15fr)!important;
   grid-template-rows:auto!important;
   margin:8px 0 0!important;
 }
@@ -71,7 +66,43 @@ html body #acidConsole #midiRouter.midi-router-v10 .midi-router-secondary>:nth-c
 html body #acidConsole #midiRouter.midi-router-v10 .midi-router-secondary>:nth-child(2){grid-column:2!important;grid-row:1!important}
 html body #acidConsole #midiRouter.midi-router-v10 .midi-router-secondary>:nth-child(3){grid-column:3!important;grid-row:1!important}
 html body #acidConsole #midiRouter.midi-router-v10 .midi-router-secondary>:nth-child(4){grid-column:4!important;grid-row:1!important}
-html body #acidConsole #midiRouter.midi-router-v10 .midi-router-secondary>:nth-child(5){grid-column:5!important;grid-row:1!important}
+
+html body #acidConsole #midiRouter.midi-router-v10 .midi-router-actions{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  grid-template-rows:auto!important;
+  margin:10px 0 0!important;
+}
+html body #acidConsole #midiRouter.midi-router-v10 .midi-router-actions #midiHardwareGuide,
+html body #acidConsole #midiRouter.midi-router-v10 .midi-router-actions #midiPanic{
+  grid-row:1!important;
+  width:100%!important;
+  min-width:0!important;
+  max-width:100%!important;
+  height:38px!important;
+  min-height:38px!important;
+  margin:0!important;
+  position:static!important;
+  transform:none!important;
+  justify-self:stretch!important;
+  border-radius:8px!important;
+}
+html body #acidConsole #midiRouter.midi-router-v10 .midi-router-actions #midiHardwareGuide{
+  grid-column:1!important;
+  border:1px solid #6f7f19!important;
+  background:#151a0b!important;
+  color:#ddff37!important;
+  font:850 .5rem/1 JetBrains Mono,monospace!important;
+  letter-spacing:.06em!important;
+}
+html body #acidConsole #midiRouter.midi-router-v10 .midi-router-actions #midiPanic{
+  grid-column:2!important;
+  border:1px solid #7b3733!important;
+  background:#261415!important;
+  color:#ff746e!important;
+  font:900 .54rem/1 JetBrains Mono,monospace!important;
+  letter-spacing:.06em!important;
+  overflow:hidden!important;
+}
 
 html body #acidConsole #midiRouter.midi-router-v10 .midi-router-primary>*,
 html body #acidConsole #midiRouter.midi-router-v10 .midi-router-secondary>*,
@@ -85,22 +116,46 @@ html body #acidConsole #midiRouter.midi-router-v10 label{
   margin-right:0!important;
   justify-self:stretch!important;
 }
-html body #acidConsole #midiRouter.midi-router-v10 select,
+
+/* Replace native select arrows with a centered, inset chevron. */
+html body #acidConsole #midiRouter.midi-router-v10 select{
+  -webkit-appearance:none!important;
+  appearance:none!important;
+  display:block!important;
+  box-sizing:border-box!important;
+  width:100%!important;
+  min-width:0!important;
+  max-width:100%!important;
+  padding-left:12px!important;
+  padding-right:48px!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  white-space:nowrap!important;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='9' viewBox='0 0 14 9'%3E%3Cpath d='M1.5 1.5L7 7L12.5 1.5' fill='none' stroke='%23c8cbd2' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")!important;
+  background-repeat:no-repeat!important;
+  background-position:right 16px center!important;
+  background-size:14px 9px!important;
+}
+html body #acidConsole #midiRouter.midi-router-v10 select:hover{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='9' viewBox='0 0 14 9'%3E%3Cpath d='M1.5 1.5L7 7L12.5 1.5' fill='none' stroke='%23ddff37' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")!important;
+}
+html body #acidConsole #midiRouter.midi-router-v10 select:focus-visible{
+  outline:none!important;
+  border-color:#76851f!important;
+  box-shadow:0 0 0 1px rgba(221,255,55,.18)!important;
+}
+html body #acidConsole #midiRouter.midi-router-v10 select:disabled{
+  opacity:.56!important;
+}
+
 html body #acidConsole #midiRouter.midi-router-v10 button,
-html body #acidConsole #midiRouter.midi-router-v10 .midi-toggle,
-html body #acidConsole #midiRouter.midi-router-v10 #midiPanic{
+html body #acidConsole #midiRouter.midi-router-v10 .midi-toggle{
   box-sizing:border-box!important;
   width:100%!important;
   min-width:0!important;
   max-width:100%!important;
   margin-left:0!important;
   margin-right:0!important;
-}
-html body #acidConsole #midiRouter.midi-router-v10 select{
-  display:block!important;
-  overflow:hidden!important;
-  text-overflow:ellipsis!important;
-  white-space:nowrap!important;
 }
 html body #acidConsole #midiRouter.midi-router-v10 .midi-toggle{
   overflow:hidden!important;
@@ -112,15 +167,7 @@ html body #acidConsole #midiRouter.midi-router-v10 .midi-toggle b{
   text-overflow:ellipsis!important;
   white-space:nowrap!important;
 }
-html body #acidConsole #midiRouter.midi-router-v10 #midiPanic{
-  display:block!important;
-  justify-self:stretch!important;
-  position:static!important;
-  transform:none!important;
-  overflow:hidden!important;
-}
 
-/* Medium component: two useful rows, without giant full-width fields. */
 @container midi-router (max-width:719px){
   html body #acidConsole #midiRouter.midi-router-v10 .midi-router-primary{
     grid-template-columns:repeat(2,minmax(0,1fr))!important;
@@ -130,29 +177,17 @@ html body #acidConsole #midiRouter.midi-router-v10 #midiPanic{
   html body #acidConsole #midiRouter.midi-router-v10 .midi-playback{grid-column:2!important;grid-row:1!important}
   html body #acidConsole #midiRouter.midi-router-v10 .midi-output{grid-column:1!important;grid-row:2!important}
   html body #acidConsole #midiRouter.midi-router-v10 .midi-profile{grid-column:2!important;grid-row:2!important}
-
   html body #acidConsole #midiRouter.midi-router-v10 .midi-router-secondary{
     grid-template-columns:repeat(2,minmax(0,1fr))!important;
-    grid-template-rows:auto auto auto!important;
+    grid-template-rows:auto auto!important;
   }
   html body #acidConsole #midiRouter.midi-router-v10 .midi-router-secondary>:nth-child(1){grid-column:1!important;grid-row:1!important}
   html body #acidConsole #midiRouter.midi-router-v10 .midi-router-secondary>:nth-child(2){grid-column:2!important;grid-row:1!important}
   html body #acidConsole #midiRouter.midi-router-v10 .midi-router-secondary>:nth-child(3){grid-column:1!important;grid-row:2!important}
   html body #acidConsole #midiRouter.midi-router-v10 .midi-router-secondary>:nth-child(4){grid-column:2!important;grid-row:2!important}
-  html body #acidConsole #midiRouter.midi-router-v10 .midi-router-secondary>:nth-child(5){grid-column:1/-1!important;grid-row:3!important}
 }
 
-/* Phone-sized component: keep the useful first pair, then full-width selectors. */
 @container midi-router (max-width:559px){
-  html body #acidConsole #midiRouter.midi-router-v10 .midi-compact-head{
-    grid-template-columns:minmax(0,1fr) 86px!important;
-    grid-template-rows:auto 38px!important;
-    min-height:76px!important;
-  }
-  html body #acidConsole #midiRouter.midi-router-v10 .midi-compact-head>strong{grid-column:1!important;grid-row:1!important}
-  html body #acidConsole #midiRouter.midi-router-v10 .midi-badge{grid-column:2!important;grid-row:1!important;width:86px!important}
-  html body #acidConsole #midiRouter.midi-router-v10 #midiHardwareGuide{grid-column:1/-1!important;grid-row:2!important;width:100%!important}
-
   html body #acidConsole #midiRouter.midi-router-v10 .midi-router-primary{
     grid-template-columns:repeat(2,minmax(0,1fr))!important;
     grid-template-rows:auto auto auto!important;
@@ -161,24 +196,24 @@ html body #acidConsole #midiRouter.midi-router-v10 #midiPanic{
   html body #acidConsole #midiRouter.midi-router-v10 .midi-playback{grid-column:2!important;grid-row:1!important}
   html body #acidConsole #midiRouter.midi-router-v10 .midi-output{grid-column:1/-1!important;grid-row:2!important}
   html body #acidConsole #midiRouter.midi-router-v10 .midi-profile{grid-column:1/-1!important;grid-row:3!important}
-  html body #acidConsole #midiRouter.midi-router-v10 .midi-playback select{padding-right:30px!important;font-size:.6rem!important}
+  html body #acidConsole #midiRouter.midi-router-v10 .midi-playback select{padding-right:42px!important;font-size:.6rem!important}
 }
 
-/* Very narrow phones: readability wins over compactness. */
 @container midi-router (max-width:359px){
   html body #acidConsole #midiRouter.midi-router-v10 .midi-router-primary,
-  html body #acidConsole #midiRouter.midi-router-v10 .midi-router-secondary{
+  html body #acidConsole #midiRouter.midi-router-v10 .midi-router-secondary,
+  html body #acidConsole #midiRouter.midi-router-v10 .midi-router-actions{
     grid-template-columns:minmax(0,1fr)!important;
     grid-template-rows:auto!important;
   }
   html body #acidConsole #midiRouter.midi-router-v10 .midi-router-primary>*,
-  html body #acidConsole #midiRouter.midi-router-v10 .midi-router-secondary>*{
+  html body #acidConsole #midiRouter.midi-router-v10 .midi-router-secondary>*,
+  html body #acidConsole #midiRouter.midi-router-v10 .midi-router-actions>*{
     grid-column:1!important;
     grid-row:auto!important;
   }
 }
 
-/* Viewport fallback for engines without container queries. */
 @media(max-width:760px){
   html body #acidConsole #midiRouter.midi-router-v10 .midi-router-primary{
     grid-template-columns:repeat(2,minmax(0,1fr))!important;
@@ -190,11 +225,10 @@ html body #acidConsole #midiRouter.midi-router-v10 #midiPanic{
   html body #acidConsole #midiRouter.midi-router-v10 .midi-profile{grid-column:1/-1!important;grid-row:3!important}
   html body #acidConsole #midiRouter.midi-router-v10 .midi-router-secondary{
     grid-template-columns:repeat(2,minmax(0,1fr))!important;
-    grid-template-rows:auto auto auto!important;
+    grid-template-rows:auto auto!important;
   }
   html body #acidConsole #midiRouter.midi-router-v10 .midi-router-secondary>:nth-child(1){grid-column:1!important;grid-row:1!important}
   html body #acidConsole #midiRouter.midi-router-v10 .midi-router-secondary>:nth-child(2){grid-column:2!important;grid-row:1!important}
   html body #acidConsole #midiRouter.midi-router-v10 .midi-router-secondary>:nth-child(3){grid-column:1!important;grid-row:2!important}
   html body #acidConsole #midiRouter.midi-router-v10 .midi-router-secondary>:nth-child(4){grid-column:2!important;grid-row:2!important}
-  html body #acidConsole #midiRouter.midi-router-v10 .midi-router-secondary>:nth-child(5){grid-column:1/-1!important;grid-row:3!important}
 }
