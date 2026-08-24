@@ -38,7 +38,7 @@
     document.querySelectorAll('[data-language-current]').forEach(element=>{element.textContent=lang.toUpperCase()});
     document.querySelectorAll('[data-language-next]').forEach(element=>{element.textContent=lang==='en'?'TR':'EN'});
     document.querySelectorAll('[data-site-version]').forEach(element=>{element.textContent=`v${SITE_VERSION}`;element.setAttribute('aria-label',`${text('versionLabel',lang)} ${SITE_VERSION}`);element.title=`${text('versionLabel',lang)} ${SITE_VERSION}`});
-    document.querySelectorAll('.footer-links a[href="/privacy.html"]').forEach(link=>{if(document.body?.dataset.page==='privacy')link.setAttribute('aria-current','page');else link.removeAttribute('aria-current')});
+    document.querySelectorAll('.footer-links a[href="/privacy.html"]').forEach(link=>link.removeAttribute('aria-current'));
   }
   document.addEventListener('303box:languagechange',render);document.addEventListener('303box:content-refresh',render);
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',render,{once:true});else render();
