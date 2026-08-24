@@ -31,28 +31,44 @@ async function instrumentPage(page){
   });
 }
 
-test('mobile MIDI UI cannot overflow and only T-8 / TD-3 remain',{timeout:60000},async t=>{
+async function inspectMidiBounds(page,width,height=900){
+  await page.setViewportSize({width,height});
+  await page.waitForTimeout(30);
+  return page.evaluate(()=>{
+    const bounds=selector=>{const el=document.querySelector(selector),r=el?.getBoundingClientRect();return r?{x:r.x,right:r.right,width:r.width}:null};
+    return{playback:bounds('.midi-playback'),panic:bounds('#midiPanic'),router:bounds('#midiRouter'),viewport:innerWidth,scroll:document.documentElement.scrollWidth};
+  });
+}
+
+test('MIDI UI cannot overflow at phone, tablet or compact desktop widths and only T-8 / TD-3 remain',{timeout:60000},async t=>{
   const web=await server();t.after(()=>{web.closeAllConnections?.();return new Promise(resolve=>web.close(resolve))});const browser=await launch(t);const page=await browser.newPage({viewport:{width:390,height:844}});await instrumentPage(page);
-  await page.goto(`http://127.0.0.1:${web.address().port}/`,{waitUntil:'domcontentloaded'});await page.waitForFunction(()=>window.__303boxMidiRouter?.version==='2401'&&window.__303boxSiteShell?.version==='2026.08.24.1');
-  const result=await page.evaluate(()=>({profiles:[...document.querySelectorAll('#midiDeviceProfile option')].map(x=>x.value),devices:[...document.querySelectorAll('.hardware-device-card')].map(x=>x.dataset.device),playback:(()=>{const r=document.querySelector('.midi-playback').getBoundingClientRect();return{x:r.x,right:r.right,width:r.width,viewport:innerWidth,scroll:document.documentElement.scrollWidth}})()}));
-  assert.deepEqual(result.profiles,['auto','t8','td3']);assert.deepEqual(result.devices.sort(),['t8','td3']);assert.ok(result.playback.x>=0);assert.ok(result.playback.right<=result.playback.viewport+.5);assert.ok(result.playback.scroll<=result.playback.viewport);
+  await page.goto(`http://127.0.0.1:${web.address().port}/`,{waitUntil:'domcontentloaded'});await page.waitForFunction(()=>window.__303boxMidiRouter?.version==='2402'&&window.__303boxSiteShell?.version==='2026.08.24.3');
+  const deviceState=await page.evaluate(()=>({profiles:[...document.querySelectorAll('#midiDeviceProfile option')].map(x=>x.value),devices:[...document.querySelectorAll('.hardware-device-card')].map(x=>x.dataset.device)}));
+  assert.deepEqual(deviceState.profiles,['auto','t8','td3']);assert.deepEqual(deviceState.devices.sort(),['t8','td3']);
+  for(const width of [390,430,768,1024]){
+    const result=await inspectMidiBounds(page,width);
+    for(const [name,r] of Object.entries({playback:result.playback,panic:result.panic,router:result.router})){
+      assert.ok(r,`${name} must exist at ${width}px`);assert.ok(r.x>=-.5,`${name} left edge overflow at ${width}px`);assert.ok(r.right<=result.viewport+.5,`${name} right edge overflow at ${width}px`);
+    }
+    assert.ok(result.scroll<=result.viewport,`document horizontal overflow at ${width}px: ${result.scroll} > ${result.viewport}`);
+  }
 });
 
-test('TD-3 live playback uses accent velocity and real overlapping slide',{timeout:60000},async t=>{
+test('TD-3 live playback uses accent velocity and tempo-aware overlapping slide',{timeout:60000},async t=>{
   const web=await server();t.after(()=>{web.closeAllConnections?.();return new Promise(resolve=>web.close(resolve))});const browser=await launch(t);const page=await browser.newPage();await instrumentPage(page);
-  await page.goto(`http://127.0.0.1:${web.address().port}/`,{waitUntil:'domcontentloaded'});await page.waitForFunction(()=>window.__303boxUnifiedEngine&&window.__303boxMidiRouter?.version==='2401');
+  await page.goto(`http://127.0.0.1:${web.address().port}/`,{waitUntil:'domcontentloaded'});await page.waitForFunction(()=>window.__303boxUnifiedEngine&&window.__303boxMidiRouter?.version==='2402');
   await page.click('#midiRouterConnect');await page.waitForFunction(()=>window.__303boxMidiRouter?.state?.enabled===true);await page.selectOption('#midiDeviceProfile','td3');await page.selectOption('#midiRouterMode','both');
   await page.evaluate(()=>{const notes=[...document.querySelectorAll('.note-input')],expr=[...document.querySelectorAll('.accentSlide-cell')],gate=[...document.querySelectorAll('.gate-cell')],oct=[...document.querySelectorAll('.octave-cell')];for(let i=0;i<16;i++){notes[i].value='';notes[i].dataset.baseOctave='0';expr[i].textContent='';gate[i].textContent='-';oct[i].textContent=''}notes[0].value='C';gate[0].textContent='●';expr[0].textContent='S';notes[1].value='G';gate[1].textContent='●';expr[1].textContent='A'});
-  await page.click('#playButton',{force:true});await page.waitForFunction(()=>window.__midiLog.messages.filter(x=>(x.data[0]&0xF0)===0x90).length>=2);await page.waitForTimeout(50);
+  await page.click('#playButton',{force:true});await page.waitForFunction(()=>window.__midiLog.messages.filter(x=>(x.data[0]&0xF0)===0x90).length>=2);await page.waitForTimeout(90);
   const result=await page.evaluate(()=>({messages:window.__midiLog.messages,ramps:window.__slideRamps}));
   assert.equal(result.messages.some(x=>x.data[0]===0xFA),false,'TD-3 live notes must not start the stored sequencer');
   const ons=result.messages.filter(x=>(x.data[0]&0xF0)===0x90);const cOn=ons.find(x=>x.data[1]===60),gOn=ons.find(x=>x.data[1]===67),cOff=result.messages.find(x=>(x.data[0]&0xF0)===0x80&&x.data[1]===60&&x.at>=gOn.at);
-  assert.ok(cOn&&gOn&&cOff,'C -> G slide needs both Note Ons and the old-note Note Off');assert.equal(gOn.data[2],112,'TD-3 accent must use its accented velocity');assert.ok(cOff.at>gOn.at,'new slide target Note On must precede old-note Note Off');assert.ok(cOff.at-gOn.at>=8&&cOff.at-gOn.at<=20,'slide overlap must remain deliberate and short');assert.ok(result.ramps.some(x=>x.value>380&&x.value<405),'browser audio must schedule a pitch ramp for the same slide');
+  assert.ok(cOn&&gOn&&cOff,'C -> G slide needs both Note Ons and the old-note Note Off');assert.equal(gOn.data[2],112,'TD-3 accent must use its accented velocity');assert.ok(cOff.at>gOn.at,'new slide target Note On must precede old-note Note Off');assert.ok(cOff.at-gOn.at>=24&&cOff.at-gOn.at<=72,`TD-3 overlap must stay inside the tempo-aware 24-72ms safety window, got ${cOff.at-gOn.at}`);assert.ok(result.ramps.some(x=>x.value>380&&x.value<405),'browser audio must schedule a pitch ramp for the same slide');
   await page.evaluate(()=>window.__303boxUnifiedEngine.stopAll());
 });
 
 test('home and privacy render the same responsive footer shell',{timeout:60000},async t=>{
   const web=await server();t.after(()=>{web.closeAllConnections?.();return new Promise(resolve=>web.close(resolve))});const browser=await launch(t);const page=await browser.newPage({viewport:{width:390,height:844}});await page.route('https://**/*',route=>route.abort());
-  const inspect=async url=>{await page.goto(`http://127.0.0.1:${web.address().port}${url}`,{waitUntil:'domcontentloaded'});await page.waitForFunction(()=>window.__303boxSiteShell?.version==='2026.08.24.1');return page.evaluate(()=>{const footer=document.querySelector('.site-footer .footer-inner'),style=getComputedStyle(footer),r=footer.getBoundingClientRect();return{html:document.querySelector('.site-footer').innerHTML.replace(/v2026\.08\.\d+\.\d+/g,'VERSION'),direction:style.flexDirection,align:style.alignItems,width:Math.round(r.width),viewport:innerWidth}})};
+  const inspect=async url=>{await page.goto(`http://127.0.0.1:${web.address().port}${url}`,{waitUntil:'domcontentloaded'});await page.waitForFunction(()=>window.__303boxSiteShell?.version==='2026.08.24.3');return page.evaluate(()=>{const footer=document.querySelector('.site-footer .footer-inner'),style=getComputedStyle(footer),r=footer.getBoundingClientRect();return{html:document.querySelector('.site-footer').innerHTML.replace(/v2026\.08\.\d+\.\d+/g,'VERSION'),direction:style.flexDirection,align:style.alignItems,width:Math.round(r.width),viewport:innerWidth}})};
   const home=await inspect('/'),privacy=await inspect('/privacy.html');assert.equal(home.html,privacy.html);assert.equal(home.direction,'column');assert.equal(privacy.direction,'column');assert.equal(home.align,'center');assert.equal(privacy.align,'center');assert.equal(home.width,privacy.width);assert.ok(home.width<=home.viewport-28);
 });
