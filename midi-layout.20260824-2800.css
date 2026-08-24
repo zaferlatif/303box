@@ -1,7 +1,7 @@
-/* 303box 2800 — component-width MIDI layout authority.
-   The MIDI router is responsive to its own width, not only the browser viewport. */
+/* 303box 2810 — single MIDI geometry authority.
+   The router responds to its own width and explicitly overrides legacy viewport grids. */
 
-html body .machine-suite #midiRouter{
+html body .machine-suite #midiRouter.midi-router-v10{
   container-type:inline-size!important;
   container-name:midi-router;
   box-sizing:border-box!important;
@@ -10,28 +10,85 @@ html body .machine-suite #midiRouter{
   min-width:0!important;
   overflow:hidden!important;
 }
-html body .machine-suite #midiRouter *,
-html body .machine-suite #midiRouter *::before,
-html body .machine-suite #midiRouter *::after{box-sizing:border-box!important}
-html body .machine-suite #midiRouter .midi-router-primary,
-html body .machine-suite #midiRouter .midi-router-secondary{
+html body .machine-suite #midiRouter.midi-router-v10 *,
+html body .machine-suite #midiRouter.midi-router-v10 *::before,
+html body .machine-suite #midiRouter.midi-router-v10 *::after{box-sizing:border-box!important}
+
+html body .machine-suite #midiRouter.midi-router-v10 .midi-compact-head{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) minmax(150px,.8fr) 92px!important;
+  grid-template-rows:auto!important;
+  gap:8px!important;
+  align-items:center!important;
+  width:100%!important;
+  min-width:0!important;
+  height:auto!important;
+  min-height:0!important;
+  margin:0 0 10px!important;
+  overflow:visible!important;
+}
+html body .machine-suite #midiRouter.midi-router-v10 .midi-compact-head>strong,
+html body .machine-suite #midiRouter.midi-router-v10 #midiHardwareGuide,
+html body .machine-suite #midiRouter.midi-router-v10 .midi-badge{
+  grid-row:1!important;
+  position:static!important;
+  transform:none!important;
+  min-width:0!important;
+  max-width:100%!important;
+  margin:0!important;
+}
+html body .machine-suite #midiRouter.midi-router-v10 .midi-compact-head>strong{grid-column:1!important}
+html body .machine-suite #midiRouter.midi-router-v10 #midiHardwareGuide{grid-column:2!important;width:100%!important}
+html body .machine-suite #midiRouter.midi-router-v10 .midi-badge{grid-column:3!important;width:92px!important;justify-self:end!important}
+
+html body .machine-suite #midiRouter.midi-router-v10 .midi-router-primary,
+html body .machine-suite #midiRouter.midi-router-v10 .midi-router-secondary{
+  display:grid!important;
   width:100%!important;
   max-width:100%!important;
   min-width:0!important;
+  gap:8px!important;
+  align-items:end!important;
   overflow:hidden!important;
 }
-html body .machine-suite #midiRouter .midi-router-primary>*,
-html body .machine-suite #midiRouter .midi-router-secondary>*,
-html body .machine-suite #midiRouter .midi-field,
-html body .machine-suite #midiRouter .midi-playback,
-html body .machine-suite #midiRouter label{
+
+/* Compact desktop: this is the normal ACID CONSOLE geometry. */
+html body .machine-suite #midiRouter.midi-router-v10 .midi-router-primary{
+  grid-template-columns:minmax(0,.82fr) minmax(0,1.22fr) minmax(0,1fr) minmax(0,1.08fr)!important;
+  grid-template-rows:auto!important;
+}
+html body .machine-suite #midiRouter.midi-router-v10 .midi-connect{grid-column:1!important;grid-row:1!important}
+html body .machine-suite #midiRouter.midi-router-v10 .midi-output{grid-column:2!important;grid-row:1!important}
+html body .machine-suite #midiRouter.midi-router-v10 .midi-profile{grid-column:3!important;grid-row:1!important}
+html body .machine-suite #midiRouter.midi-router-v10 .midi-playback{grid-column:4!important;grid-row:1!important}
+
+html body .machine-suite #midiRouter.midi-router-v10 .midi-router-secondary{
+  grid-template-columns:minmax(0,.72fr) minmax(0,.72fr) minmax(0,1.02fr) minmax(0,1.18fr) minmax(0,.82fr)!important;
+  grid-template-rows:auto!important;
+  margin:8px 0 0!important;
+}
+html body .machine-suite #midiRouter.midi-router-v10 .midi-router-secondary>:nth-child(1){grid-column:1!important;grid-row:1!important}
+html body .machine-suite #midiRouter.midi-router-v10 .midi-router-secondary>:nth-child(2){grid-column:2!important;grid-row:1!important}
+html body .machine-suite #midiRouter.midi-router-v10 .midi-router-secondary>:nth-child(3){grid-column:3!important;grid-row:1!important}
+html body .machine-suite #midiRouter.midi-router-v10 .midi-router-secondary>:nth-child(4){grid-column:4!important;grid-row:1!important}
+html body .machine-suite #midiRouter.midi-router-v10 .midi-router-secondary>:nth-child(5){grid-column:5!important;grid-row:1!important}
+
+html body .machine-suite #midiRouter.midi-router-v10 .midi-router-primary>*,
+html body .machine-suite #midiRouter.midi-router-v10 .midi-router-secondary>*,
+html body .machine-suite #midiRouter.midi-router-v10 .midi-field,
+html body .machine-suite #midiRouter.midi-router-v10 .midi-playback,
+html body .machine-suite #midiRouter.midi-router-v10 label{
+  width:100%!important;
   min-width:0!important;
   max-width:100%!important;
+  margin-left:0!important;
+  margin-right:0!important;
+  justify-self:stretch!important;
 }
-html body .machine-suite #midiRouter select,
-html body .machine-suite #midiRouter button,
-html body .machine-suite #midiRouter .midi-toggle,
-html body .machine-suite #midiRouter #midiPanic{
+html body .machine-suite #midiRouter.midi-router-v10 select,
+html body .machine-suite #midiRouter.midi-router-v10 button,
+html body .machine-suite #midiRouter.midi-router-v10 .midi-toggle,
+html body .machine-suite #midiRouter.midi-router-v10 #midiPanic{
   box-sizing:border-box!important;
   width:100%!important;
   min-width:0!important;
@@ -39,88 +96,105 @@ html body .machine-suite #midiRouter #midiPanic{
   margin-left:0!important;
   margin-right:0!important;
 }
-html body .machine-suite #midiRouter select{
+html body .machine-suite #midiRouter.midi-router-v10 select{
   display:block!important;
   overflow:hidden!important;
   text-overflow:ellipsis!important;
   white-space:nowrap!important;
 }
-html body .machine-suite #midiRouter #midiPanic{
+html body .machine-suite #midiRouter.midi-router-v10 .midi-toggle{
+  overflow:hidden!important;
+  justify-self:stretch!important;
+}
+html body .machine-suite #midiRouter.midi-router-v10 .midi-toggle b{
+  min-width:0!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  white-space:nowrap!important;
+}
+html body .machine-suite #midiRouter.midi-router-v10 #midiPanic{
   display:block!important;
   justify-self:stretch!important;
-  transform:none!important;
   position:static!important;
+  transform:none!important;
   overflow:hidden!important;
 }
 
-/* Medium MIDI component: two columns where there is genuinely room. */
-@container midi-router (min-width:681px) and (max-width:1000px){
-  html body .machine-suite #midiRouter .midi-router-primary{
-    display:grid!important;
+/* Medium component: two useful rows, without giant full-width fields. */
+@container midi-router (max-width:719px){
+  html body .machine-suite #midiRouter.midi-router-v10 .midi-router-primary{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    grid-template-rows:auto auto!important;
+  }
+  html body .machine-suite #midiRouter.midi-router-v10 .midi-connect{grid-column:1!important;grid-row:1!important}
+  html body .machine-suite #midiRouter.midi-router-v10 .midi-playback{grid-column:2!important;grid-row:1!important}
+  html body .machine-suite #midiRouter.midi-router-v10 .midi-output{grid-column:1!important;grid-row:2!important}
+  html body .machine-suite #midiRouter.midi-router-v10 .midi-profile{grid-column:2!important;grid-row:2!important}
+
+  html body .machine-suite #midiRouter.midi-router-v10 .midi-router-secondary{
     grid-template-columns:repeat(2,minmax(0,1fr))!important;
     grid-template-rows:auto auto auto!important;
-    gap:8px!important;
   }
-  html body .machine-suite #midiRouter .midi-connect{grid-column:1!important;grid-row:1!important}
-  html body .machine-suite #midiRouter .midi-playback{grid-column:2!important;grid-row:1!important}
-  html body .machine-suite #midiRouter .midi-output{grid-column:1/-1!important;grid-row:2!important}
-  html body .machine-suite #midiRouter .midi-profile{grid-column:1/-1!important;grid-row:3!important}
-  html body .machine-suite #midiRouter .midi-router-secondary{
-    display:grid!important;
-    grid-template-columns:repeat(2,minmax(0,1fr))!important;
-    grid-template-rows:auto auto auto!important;
-    gap:8px!important;
-  }
-  html body .machine-suite #midiRouter .midi-router-secondary>:nth-child(1){grid-column:1!important;grid-row:1!important}
-  html body .machine-suite #midiRouter .midi-router-secondary>:nth-child(2){grid-column:2!important;grid-row:1!important}
-  html body .machine-suite #midiRouter .midi-router-secondary>:nth-child(3){grid-column:1!important;grid-row:2!important}
-  html body .machine-suite #midiRouter .midi-router-secondary>:nth-child(4){grid-column:2!important;grid-row:2!important}
-  html body .machine-suite #midiRouter .midi-router-secondary>:nth-child(5){grid-column:1/-1!important;grid-row:3!important}
+  html body .machine-suite #midiRouter.midi-router-v10 .midi-router-secondary>:nth-child(1){grid-column:1!important;grid-row:1!important}
+  html body .machine-suite #midiRouter.midi-router-v10 .midi-router-secondary>:nth-child(2){grid-column:2!important;grid-row:1!important}
+  html body .machine-suite #midiRouter.midi-router-v10 .midi-router-secondary>:nth-child(3){grid-column:1!important;grid-row:2!important}
+  html body .machine-suite #midiRouter.midi-router-v10 .midi-router-secondary>:nth-child(4){grid-column:2!important;grid-row:2!important}
+  html body .machine-suite #midiRouter.midi-router-v10 .midi-router-secondary>:nth-child(5){grid-column:1/-1!important;grid-row:3!important}
 }
 
-/* Narrow MIDI component: stack everything even when the browser viewport itself is wide. */
-@container midi-router (max-width:680px){
-  html body .machine-suite #midiRouter .midi-router-primary,
-  html body .machine-suite #midiRouter .midi-router-secondary{
-    display:grid!important;
+/* Phone-sized component: keep the useful first pair, then full-width selectors. */
+@container midi-router (max-width:559px){
+  html body .machine-suite #midiRouter.midi-router-v10 .midi-compact-head{
+    grid-template-columns:minmax(0,1fr) 86px!important;
+    grid-template-rows:auto 38px!important;
+    min-height:76px!important;
+  }
+  html body .machine-suite #midiRouter.midi-router-v10 .midi-compact-head>strong{grid-column:1!important;grid-row:1!important}
+  html body .machine-suite #midiRouter.midi-router-v10 .midi-badge{grid-column:2!important;grid-row:1!important;width:86px!important}
+  html body .machine-suite #midiRouter.midi-router-v10 #midiHardwareGuide{grid-column:1/-1!important;grid-row:2!important;width:100%!important}
+
+  html body .machine-suite #midiRouter.midi-router-v10 .midi-router-primary{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    grid-template-rows:auto auto auto!important;
+  }
+  html body .machine-suite #midiRouter.midi-router-v10 .midi-connect{grid-column:1!important;grid-row:1!important}
+  html body .machine-suite #midiRouter.midi-router-v10 .midi-playback{grid-column:2!important;grid-row:1!important}
+  html body .machine-suite #midiRouter.midi-router-v10 .midi-output{grid-column:1/-1!important;grid-row:2!important}
+  html body .machine-suite #midiRouter.midi-router-v10 .midi-profile{grid-column:1/-1!important;grid-row:3!important}
+  html body .machine-suite #midiRouter.midi-router-v10 .midi-playback select{padding-right:30px!important;font-size:.6rem!important}
+}
+
+/* Very narrow phones: readability wins over compactness. */
+@container midi-router (max-width:359px){
+  html body .machine-suite #midiRouter.midi-router-v10 .midi-router-primary,
+  html body .machine-suite #midiRouter.midi-router-v10 .midi-router-secondary{
     grid-template-columns:minmax(0,1fr)!important;
     grid-template-rows:auto!important;
-    gap:8px!important;
   }
-  html body .machine-suite #midiRouter .midi-connect{grid-column:1!important;grid-row:1!important}
-  html body .machine-suite #midiRouter .midi-playback{grid-column:1!important;grid-row:2!important}
-  html body .machine-suite #midiRouter .midi-output{grid-column:1!important;grid-row:3!important}
-  html body .machine-suite #midiRouter .midi-profile{grid-column:1!important;grid-row:4!important}
-  html body .machine-suite #midiRouter .midi-router-secondary>:nth-child(1),
-  html body .machine-suite #midiRouter .midi-router-secondary>:nth-child(2),
-  html body .machine-suite #midiRouter .midi-router-secondary>:nth-child(3),
-  html body .machine-suite #midiRouter .midi-router-secondary>:nth-child(4),
-  html body .machine-suite #midiRouter .midi-router-secondary>:nth-child(5){
+  html body .machine-suite #midiRouter.midi-router-v10 .midi-router-primary>*,
+  html body .machine-suite #midiRouter.midi-router-v10 .midi-router-secondary>*{
     grid-column:1!important;
     grid-row:auto!important;
-    width:100%!important;
   }
-  html body .machine-suite #midiRouter .midi-playback select{padding-right:34px!important}
 }
 
-/* Fallback for browsers without container queries. */
+/* Fallback for engines without container queries. */
 @media(max-width:760px){
-  html body .machine-suite #midiRouter .midi-router-primary,
-  html body .machine-suite #midiRouter .midi-router-secondary{
-    display:grid!important;
-    grid-template-columns:minmax(0,1fr)!important;
-    grid-template-rows:auto!important;
-    gap:8px!important;
+  html body .machine-suite #midiRouter.midi-router-v10 .midi-router-primary{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    grid-template-rows:auto auto auto!important;
   }
-  html body .machine-suite #midiRouter .midi-connect,
-  html body .machine-suite #midiRouter .midi-playback,
-  html body .machine-suite #midiRouter .midi-output,
-  html body .machine-suite #midiRouter .midi-profile,
-  html body .machine-suite #midiRouter .midi-router-secondary>*{
-    grid-column:1!important;
-    grid-row:auto!important;
-    width:100%!important;
-    min-width:0!important;
-    max-width:100%!important;
+  html body .machine-suite #midiRouter.midi-router-v10 .midi-connect{grid-column:1!important;grid-row:1!important}
+  html body .machine-suite #midiRouter.midi-router-v10 .midi-playback{grid-column:2!important;grid-row:1!important}
+  html body .machine-suite #midiRouter.midi-router-v10 .midi-output{grid-column:1/-1!important;grid-row:2!important}
+  html body .machine-suite #midiRouter.midi-router-v10 .midi-profile{grid-column:1/-1!important;grid-row:3!important}
+  html body .machine-suite #midiRouter.midi-router-v10 .midi-router-secondary{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    grid-template-rows:auto auto auto!important;
   }
+  html body .machine-suite #midiRouter.midi-router-v10 .midi-router-secondary>:nth-child(1){grid-column:1!important;grid-row:1!important}
+  html body .machine-suite #midiRouter.midi-router-v10 .midi-router-secondary>:nth-child(2){grid-column:2!important;grid-row:1!important}
+  html body .machine-suite #midiRouter.midi-router-v10 .midi-router-secondary>:nth-child(3){grid-column:1!important;grid-row:2!important}
+  html body .machine-suite #midiRouter.midi-router-v10 .midi-router-secondary>:nth-child(4){grid-column:2!important;grid-row:2!important}
+  html body .machine-suite #midiRouter.midi-router-v10 .midi-router-secondary>:nth-child(5){grid-column:1/-1!important;grid-row:3!important}
 }
