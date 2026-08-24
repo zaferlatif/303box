@@ -18,7 +18,9 @@
   const ALLOWED=new Set(['auto','t8','td3']);
   const TD3_NORMAL_VELOCITY=80;
   const TD3_ACCENT_VELOCITY=112;
-  const TD3_SLIDE_OVERLAP_MS=12;
+  const TD3_SLIDE_TICKS=3;
+  const TD3_SLIDE_MIN_OVERLAP_MS=24;
+  const TD3_SLIDE_MAX_OVERLAP_MS=72;
 
   function loadSaved(){
     for(const key of [STORE,...LEGACY]){
@@ -164,6 +166,7 @@
   }
 
   const bpm=()=>clamp(Number($('[data-knob-id="bpm"]')?.getAttribute('aria-valuenow'))||140,50,250);
+  const td3SlideOverlap=()=>clamp((60000/bpm()/24)*TD3_SLIDE_TICKS,TD3_SLIDE_MIN_OVERLAP_MS,TD3_SLIDE_MAX_OVERLAP_MS);
   function bassStep(i){
     const n=$$('#patternSheet .note-input')[i];
     return{note:n?.value?.trim().toUpperCase()||'',base:Number(n?.dataset?.baseOctave||0)?12:0,oct:$$('#patternSheet .octave-cell')[i]?.textContent.trim().toUpperCase()||'',expr:$$('#patternSheet .accentSlide-cell')[i]?.textContent.trim().toUpperCase()||'',gate:$$('#patternSheet .gate-cell')[i]?.textContent.trim()||''};
@@ -188,9 +191,12 @@
     const vel=state.effective==='td3'?(current.expr.includes('A')?TD3_ACCENT_VELOCITY:TD3_NORMAL_VELOCITY):(current.expr.includes('A')?126:92);
     if(incoming){
       const old=state.heldBassNote;
-      if(old!==n){
+      if(state.effective==='td3'){
         noteOn(state.bass,n,vel,transitionAt);
-        noteOff(state.bass,old,transitionAt+(state.effective==='td3'?TD3_SLIDE_OVERLAP_MS:8));
+        if(old!==n)noteOff(state.bass,old,transitionAt+td3SlideOverlap());
+      }else if(old!==n){
+        noteOn(state.bass,n,vel,transitionAt);
+        noteOff(state.bass,old,transitionAt+8);
       }
     }else{
       if(state.heldBassNote!=null)noteOff(state.bass,state.heldBassNote,transitionAt);
@@ -287,7 +293,7 @@
     if(!$('#midiRouter'))return;normalizeUi();applyProfile();bind();render();
     window.addEventListener('303box:playback-step',onPlaybackStep);window.addEventListener('303box:playback-state',onPlaybackState);window.addEventListener('303box:playback-start',onPlaybackState);window.addEventListener('303box:playback-stop',onPlaybackState);window.addEventListener('303box:playback-resync',onPlaybackResync);
     document.addEventListener('303box:languagechange',render);document.addEventListener('visibilitychange',()=>{if(document.hidden)emergencyStop({stopSite:true})});window.addEventListener('pagehide',()=>emergencyStop({block:true,stopSite:true}));
-    window.__303boxMidiRouter={version:'2401',panic:()=>emergencyStop({stopSite:true}),sendRecPass:recPass,beginExclusive,get state(){return{...state,noteKeys:new Set(state.noteKeys)}}};
+    window.__303boxMidiRouter={version:'2402',panic:()=>emergencyStop({stopSite:true}),sendRecPass:recPass,beginExclusive,get state(){return{...state,noteKeys:new Set(state.noteKeys)}}};
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
