@@ -1,0 +1,125 @@
+/* 303box 2840 — focused REC + scope polish. Keep MIDI geometry untouched. */
+
+html body #acidConsole #midiRouter #midiRecAssist:not([hidden]){
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  grid-template-rows:auto!important;
+  gap:10px!important;
+  width:100%!important;
+  max-width:100%!important;
+  min-width:0!important;
+  margin:10px 0 0!important;
+  padding:0!important;
+  align-items:stretch!important;
+}
+html body #acidConsole #midiRouter #midiRecAssist .midi-rec-title{
+  display:none!important;
+}
+html body #acidConsole #midiRouter #midiRecAssist .midi-rec-button{
+  width:100%!important;
+  min-width:0!important;
+  max-width:100%!important;
+  min-height:42px!important;
+  height:42px!important;
+  margin:0!important;
+  justify-self:stretch!important;
+  border-radius:8px!important;
+  box-sizing:border-box!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  white-space:nowrap!important;
+}
+html body #acidConsole #midiRouter #midiRecAssist .midi-rec-button:disabled{
+  opacity:.42!important;
+}
+
+html body #acidConsole .scope-panel .mini-tabs{
+  display:grid!important;
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  grid-auto-flow:column!important;
+  gap:10px!important;
+  width:100%!important;
+  max-width:100%!important;
+  min-width:0!important;
+  align-items:stretch!important;
+}
+html body #acidConsole .scope-panel .mini-tabs>button,
+html body #acidConsole .scope-panel .mini-tabs>.analyzer-tab,
+html body #acidConsole .scope-panel .mini-tabs>.scope-source-button{
+  width:100%!important;
+  min-width:0!important;
+  max-width:100%!important;
+  margin:0!important;
+  justify-self:stretch!important;
+  box-sizing:border-box!important;
+}
+
+html body #acidConsole .scope-panel .mini-analyzer-head{
+  display:grid!important;
+  grid-template-columns:auto minmax(0,1fr) auto auto!important;
+  grid-template-rows:auto!important;
+  align-items:center!important;
+  column-gap:10px!important;
+  width:100%!important;
+  min-width:0!important;
+}
+html body #acidConsole .scope-panel .mini-analyzer-head>span:first-child{
+  grid-column:1!important;
+  grid-row:1!important;
+}
+html body #acidConsole .scope-panel #scopeInputStatus.scope-hardware-status{
+  grid-column:2!important;
+  grid-row:1!important;
+  justify-self:end!important;
+  display:block!important;
+  width:auto!important;
+  max-width:min(260px,100%)!important;
+  min-width:0!important;
+  margin:0!important;
+  padding:4px 8px!important;
+  border:1px solid rgba(255,77,69,.48)!important;
+  border-radius:5px!important;
+  background:rgba(56,12,13,.58)!important;
+  color:#ff5c54!important;
+  font:900 .48rem/1 'JetBrains Mono',ui-monospace,monospace!important;
+  letter-spacing:.08em!important;
+  text-transform:uppercase!important;
+  text-shadow:0 0 10px rgba(255,76,67,.46)!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  white-space:nowrap!important;
+}
+html body #acidConsole .scope-panel #scopeInputStatus.scope-hardware-status:empty{
+  display:none!important;
+}
+html body #acidConsole .scope-panel .mini-analyzer-head #scopeNote{
+  grid-column:3!important;
+  grid-row:1!important;
+}
+html body #acidConsole .scope-panel .mini-analyzer-head #scopeHz{
+  grid-column:4!important;
+  grid-row:1!important;
+}
+
+@media(max-width:430px){
+  html body #acidConsole #midiRouter #midiRecAssist:not([hidden]){
+    grid-template-columns:minmax(0,1fr)!important;
+  }
+  html body #acidConsole .scope-panel .mini-tabs{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    grid-auto-flow:row!important;
+  }
+  html body #acidConsole .scope-panel .mini-analyzer-head{
+    grid-template-columns:auto minmax(0,1fr) auto!important;
+    grid-template-rows:auto auto!important;
+    row-gap:6px!important;
+  }
+  html body #acidConsole .scope-panel #scopeInputStatus.scope-hardware-status{
+    grid-column:1/-1!important;
+    grid-row:2!important;
+    justify-self:start!important;
+    max-width:100%!important;
+  }
+  html body #acidConsole .scope-panel .mini-analyzer-head #scopeNote{grid-column:2!important;grid-row:1!important;justify-self:end!important}
+  html body #acidConsole .scope-panel .mini-analyzer-head #scopeHz{grid-column:3!important;grid-row:1!important}
+}
