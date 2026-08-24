@@ -84,7 +84,7 @@
   function scheduled(msg,at){const o=out();if(!o||o.state!=='connected'||state.blocked||state.exclusive)return;try{o.send(msg,Math.max(performance.now(),Number(at)||0))}catch(_){}}
   function clearQueue(){try{out()?.clear()}catch(_){}state.clockNextAt=0}
   function noteOn(ch,n,vel,at){state.noteKeys.add(`${ch}:${n}`);scheduled([0x90+ch-1,n,clamp(Math.round(vel),1,127)],at)}
-  function noteOff(ch,n,at){state.noteKeys.delete(`${ch}:${n}`);scheduled([0x80+ch-1,n,0],at)}
+  function noteOff(ch,n,at){scheduled([0x80+ch-1,n,0],at)}
   function releaseKnownNotes(at=performance.now()){
     for(const key of [...state.noteKeys]){const[ch,n]=key.split(':').map(Number);if(ch>=1&&ch<=16&&n>=0&&n<=127)scheduled([0x80+ch-1,n,0],at)}
     state.noteKeys.clear();state.heldBassNote=null;
@@ -250,7 +250,7 @@
   }
   function recDrums(s,at,d){let k=0;for(const[id,n]of Object.entries(DRUM)){if(!drumOn(id,s))continue;const l=level(id);if(l<=0)continue;const on=at+28+(k++*2.2);noteOn(state.rhythm,n,drumVelocity(l,{record:true}),on);noteOff(state.rhythm,n,on+(id==='oh'?Math.min(150,d*.8):76))}}
   function finishRec(end,kind){
-    state.recTimer=setTimeout(()=>{immediate([0xFC]);releaseKnownNotes();state.rec=false;state.recTimer=0;render();status(kind==='rhythm'?t('Rhythm REC finished. Check the T-8 pattern, then WRITE on the device.','Ritim REC bitti. T-8 patternini kontrol et, sonra cihazda WRITE yap.'):t('Bass REC finished. Accent/Slide capture remains enabled; check the T-8 pattern, then WRITE on the device.','Bass REC bitti. Accent/Slide aktarımı korunuyor; T-8 patternini kontrol et, sonra cihazda WRITE yap.'))},Math.max(300,end-performance.now()+180));
+    state.recTimer=setTimeout(()=>{immediate([0xFC]);releaseKnownNotes();state.rec=false;state.recTimer=0;render();status(kind==='rhythm'?t('Rhythm REC finished. Check the T-8 pattern, then WRITE on the device.','Ritim REC bitti. T-8 patternini kontrol et, sonra cihazda WRITE yap.'):t('Bass REC finished. Accent/Slide capture remains enabled; check the recorded T-8 pattern, then WRITE on the device.','Bass REC bitti. Accent/Slide aktarımı korunuyor; T-8 patternini kontrol et, sonra cihazda WRITE yap.'))},Math.max(300,end-performance.now()+180));
   }
   function recPass(kind){
     const p=profile();if(!ready()||state.effective!=='t8'||!p?.rec||state.rec)return;
