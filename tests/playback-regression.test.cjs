@@ -35,14 +35,25 @@ async function inspectMidiBounds(page,width,height=900){
   await page.setViewportSize({width,height});
   await page.waitForTimeout(30);
   return page.evaluate(()=>{
-    const bounds=selector=>{const el=document.querySelector(selector),r=el?.getBoundingClientRect();return r?{x:r.x,right:r.right,width:r.width}:null};
+    const bounds=selector=>{const el=document.querySelector(selector),r=el?.getBoundingClientRect();return r?{x:r.x,right:r.right,width:r.width,height:r.height}:null};
     return{playback:bounds('.midi-playback'),panic:bounds('#midiPanic'),router:bounds('#midiRouter'),viewport:innerWidth,scroll:document.documentElement.scrollWidth};
   });
 }
 
-test('MIDI UI cannot overflow viewport or a narrow component and only T-8 / TD-3 remain',{timeout:60000},async t=>{
+async function inspectForcedMidi(page,width){
+  await page.setViewportSize({width:1440,height:900});
+  await page.evaluate(value=>{const router=document.querySelector('#midiRouter');router.style.setProperty('width',`${value}px`,'important');router.style.setProperty('max-width',`${value}px`,'important')},width);
+  await page.waitForTimeout(50);
+  return page.evaluate(()=>{
+    const rect=el=>{const r=el.getBoundingClientRect();return{x:r.x,right:r.right,width:r.width,height:r.height}};
+    const router=document.querySelector('#midiRouter'),playback=document.querySelector('.midi-playback'),panic=document.querySelector('#midiPanic'),primary=document.querySelector('.midi-router-primary'),secondary=document.querySelector('.midi-router-secondary');
+    return{router:rect(router),playback:rect(playback),panic:rect(panic),primary:rect(primary),secondary:rect(secondary),primaryColumns:getComputedStyle(primary).gridTemplateColumns.trim().split(/\s+/).length,secondaryColumns:getComputedStyle(secondary).gridTemplateColumns.trim().split(/\s+/).length,scroll:document.documentElement.scrollWidth,viewport:innerWidth};
+  });
+}
+
+test('MIDI UI stays bounded and compact at desktop, tablet and phone component widths',{timeout:60000},async t=>{
   const web=await server();t.after(()=>{web.closeAllConnections?.();return new Promise(resolve=>web.close(resolve))});const browser=await launch(t);const page=await browser.newPage({viewport:{width:390,height:844}});await instrumentPage(page);
-  await page.goto(`http://127.0.0.1:${web.address().port}/`,{waitUntil:'domcontentloaded'});await page.waitForFunction(()=>window.__303boxMidiRouter?.version==='2402'&&window.__303boxSiteShell?.version==='2026.08.24.4');
+  await page.goto(`http://127.0.0.1:${web.address().port}/`,{waitUntil:'domcontentloaded'});await page.waitForFunction(()=>window.__303boxMidiRouter?.version==='2402'&&window.__303boxSiteShell?.version==='2026.08.24.5');
   const deviceState=await page.evaluate(()=>({profiles:[...document.querySelectorAll('#midiDeviceProfile option')].map(x=>x.value),devices:[...document.querySelectorAll('.hardware-device-card')].map(x=>x.dataset.device)}));
   assert.deepEqual(deviceState.profiles,['auto','t8','td3']);assert.deepEqual(deviceState.devices.sort(),['t8','td3']);
   for(const width of [390,430,768,1024]){
@@ -53,20 +64,22 @@ test('MIDI UI cannot overflow viewport or a narrow component and only T-8 / TD-3
     assert.ok(result.scroll<=result.viewport,`document horizontal overflow at ${width}px: ${result.scroll} > ${result.viewport}`);
   }
 
-  await page.setViewportSize({width:1440,height:900});
-  await page.evaluate(()=>{const router=document.querySelector('#midiRouter');router.style.setProperty('width','420px','important');router.style.setProperty('max-width','420px','important')});
-  await page.waitForTimeout(50);
-  const compact=await page.evaluate(()=>{
-    const rect=el=>{const r=el.getBoundingClientRect();return{x:r.x,right:r.right,width:r.width}};
-    const router=document.querySelector('#midiRouter'),playback=document.querySelector('.midi-playback'),panic=document.querySelector('#midiPanic'),primary=document.querySelector('.midi-router-primary'),secondary=document.querySelector('.midi-router-secondary');
-    return{router:rect(router),playback:rect(playback),panic:rect(panic),primaryColumns:getComputedStyle(primary).gridTemplateColumns,secondaryColumns:getComputedStyle(secondary).gridTemplateColumns,scroll:document.documentElement.scrollWidth,viewport:innerWidth};
-  });
-  for(const [name,r] of Object.entries({playback:compact.playback,panic:compact.panic})){
-    assert.ok(r.x>=compact.router.x-.5,`${name} must stay inside a 420px MIDI component`);assert.ok(r.right<=compact.router.right+.5,`${name} must not escape a 420px MIDI component`);
+  const expectations=[
+    {width:824,primary:4,secondary:5,compact:true},
+    {width:640,primary:2,secondary:2},
+    {width:420,primary:2,secondary:2},
+    {width:340,primary:1,secondary:1}
+  ];
+  for(const expected of expectations){
+    const result=await inspectForcedMidi(page,expected.width);
+    for(const [name,r] of Object.entries({playback:result.playback,panic:result.panic})){
+      assert.ok(r.x>=result.router.x-.5,`${name} must stay inside a ${expected.width}px MIDI component`);assert.ok(r.right<=result.router.right+.5,`${name} must not escape a ${expected.width}px MIDI component`);
+    }
+    assert.equal(result.primaryColumns,expected.primary,`${expected.width}px MIDI primary column count`);
+    assert.equal(result.secondaryColumns,expected.secondary,`${expected.width}px MIDI secondary column count`);
+    if(expected.compact){assert.ok(result.primary.height<72,`desktop MIDI primary must stay compact, got ${result.primary.height}px`);assert.ok(result.secondary.height<72,`desktop MIDI secondary must stay compact, got ${result.secondary.height}px`)}
+    assert.ok(result.scroll<=result.viewport,`${expected.width}px MIDI component must not create document overflow`);
   }
-  assert.equal(compact.primaryColumns.trim().split(/\s+/).length,1,'420px MIDI primary must collapse to one column');
-  assert.equal(compact.secondaryColumns.trim().split(/\s+/).length,1,'420px MIDI secondary must collapse to one column');
-  assert.ok(compact.scroll<=compact.viewport,'narrow MIDI component must not create document overflow on a wide viewport');
 });
 
 test('TD-3 live playback uses accent velocity and tempo-aware overlapping slide',{timeout:60000},async t=>{
@@ -84,6 +97,6 @@ test('TD-3 live playback uses accent velocity and tempo-aware overlapping slide'
 
 test('home and privacy render the same responsive footer shell',{timeout:60000},async t=>{
   const web=await server();t.after(()=>{web.closeAllConnections?.();return new Promise(resolve=>web.close(resolve))});const browser=await launch(t);const page=await browser.newPage({viewport:{width:390,height:844}});await page.route('https://**/*',route=>route.abort());
-  const inspect=async url=>{await page.goto(`http://127.0.0.1:${web.address().port}${url}`,{waitUntil:'domcontentloaded'});await page.waitForFunction(()=>window.__303boxSiteShell?.version==='2026.08.24.4');return page.evaluate(()=>{const footer=document.querySelector('.site-footer .footer-inner'),style=getComputedStyle(footer),r=footer.getBoundingClientRect();return{html:document.querySelector('.site-footer').innerHTML.replace(/v2026\.08\.\d+\.\d+/g,'VERSION'),direction:style.flexDirection,align:style.alignItems,width:Math.round(r.width),viewport:innerWidth}})};
+  const inspect=async url=>{await page.goto(`http://127.0.0.1:${web.address().port}${url}`,{waitUntil:'domcontentloaded'});await page.waitForFunction(()=>window.__303boxSiteShell?.version==='2026.08.24.5');return page.evaluate(()=>{const footer=document.querySelector('.site-footer .footer-inner'),style=getComputedStyle(footer),r=footer.getBoundingClientRect();return{html:document.querySelector('.site-footer').innerHTML.replace(/v2026\.08\.\d+\.\d+/g,'VERSION'),direction:style.flexDirection,align:style.alignItems,width:Math.round(r.width),viewport:innerWidth}})};
   const home=await inspect('/'),privacy=await inspect('/privacy.html');assert.equal(home.html,privacy.html);assert.equal(home.direction,'column');assert.equal(privacy.direction,'column');assert.equal(home.align,'center');assert.equal(privacy.align,'center');assert.equal(home.width,privacy.width);assert.ok(home.width<=home.viewport-28);
 });
