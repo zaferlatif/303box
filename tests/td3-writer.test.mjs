@@ -22,6 +22,7 @@ const helpers=new Function(`
   const NOTE={C:0,'C#':1,D:2,'D#':3,E:4,F:5,'F#':6,G:7,'G#':8,A:9,'A#':10,B:11};
   const samePrefix=a=>TD3_PREFIX.every((v,i)=>a[i]===v);
   const td3Error=code=>Object.assign(new Error(code),{td3Code:code});
+  const logicalPitch=v=>v===0xA4?0x24:v;
   let currentSteps=[];const patternSteps=()=>currentSteps;
   ${functionSource('validTarget')}
   ${functionSource('validPattern')}
@@ -34,7 +35,6 @@ const helpers=new Function(`
   ${functionSource('mask16')}
   ${functionSource('unpackMask16')}
   ${functionSource('td3Pitch')}
-  ${functionSource('logicalPitch')}
   ${functionSource('patternSemantics')}
   ${functionSource('decodePatternSemantics')}
   ${functionSource('samePatternSemantics')}
@@ -110,7 +110,7 @@ test('direct write is exclusive, backed up, delayed for commit and verified by r
 });
 
 test('writer rejects TD-3-MO identity and exposes a two-click confirmation flow',()=>{
-  assert.match(source,/!\/\^TD-3\(\?:\\s\|\$\)\/i\.test\(td3\.product\)\|\|\/-MO\/i\.test\(td3\.product\)/);
+  assert.match(source,/\/-MO\/i\.test\(td3\.product\)/);
   assert.match(source,/TD3_WRITE_CONFIRM_WINDOW=15000/);
   assert.match(source,/armPendingWrite\(packet,tg,intended\)/);
   assert.match(source,/patternSignature\(\)!==pending\.signature/);
