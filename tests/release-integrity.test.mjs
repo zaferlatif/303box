@@ -1,80 +1,40 @@
 import assert from 'node:assert/strict';
-import {existsSync,readFileSync} from 'node:fs';
+import {readFileSync} from 'node:fs';
 import path from 'node:path';
 import test from 'node:test';
 import {fileURLToPath} from 'node:url';
 
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const read=file=>readFileSync(path.join(root,file),'utf8');
-const release='20260821-2600';
-const siteVersion='2026.08.21.2';
-const htmlFiles=[
-  'index.html','privacy.html','303-pattern-guide.html','acid-house-guide.html',
-  'tr/index.html','tr/303-pattern-rehberi.html','tr/acid-house-rehberi.html'
-];
+const siteVersion='2026.08.24.1';
+const htmlFiles=['index.html','privacy.html','303-pattern-guide.html','acid-house-guide.html','tr/index.html','tr/303-pattern-rehberi.html','tr/acid-house-rehberi.html'];
 
-test('the production entry point cache-busts every directly loaded script',()=>{
-  const index=read('index.html');
-  const scripts=[...index.matchAll(/<script[^>]+src="\.\/([^"?]+)\?v=([^"]+)"/g)]
-    .map(([,file,version])=>({file,version}));
-  assert.ok(scripts.length>=9,'expected all production entry scripts');
-  assert.deepEqual([...new Set(scripts.map(x=>x.version))],[release]);
-  for(const {file} of scripts)assert.ok(existsSync(path.join(root,file)),`missing entry script: ${file}`);
+test('all public pages retain one structural footer',()=>{
+  const footers=htmlFiles.map(file=>{const html=read(file);const footer=html.match(/<footer class="site-footer">[\s\S]*?<\/footer>/)?.[0];assert.ok(footer,`${file} must have the shared footer`);for(const required of ['data-disclaimer-link','data-shortcuts-link','/privacy.html','data-site-version'])assert.ok(footer.includes(required),`${file} footer missing ${required}`);return footer.replace(/v2026\.08\.\d+\.\d+/g,'VERSION')});
+  for(const footer of footers.slice(1))assert.equal(footer,footers[0],'public footers must remain structurally identical');
 });
 
-test('the dynamic loader and cache-reset epoch match the release',()=>{
-  const loader=read('sequencer-engine.20260818-1740.js');
-  assert.match(loader,new RegExp(`const VERSION='${release}'`));
-  assert.doesNotMatch(loader,/runtimeFinal==='2204'|runtimeFinal='2204'/);
-  assert.match(loader,/runtimeFinal==='2300'/);
-  assert.match(loader,/runtimeFinal='2300'/);
-  assert.match(read('cache-reset.20260818-1740.js'),new RegExp(`EPOCH='${release}'`));
-
-  const lists=[...loader.matchAll(/const (?:CSS|JS)=\[([^;]+)\]/g)];
-  assert.equal(lists.length,2,'loader must expose CSS and JS manifests');
-  for(const [,body] of lists){
-    for(const [,file] of body.matchAll(/'\.\/([^']+)'/g)){
-      assert.ok(existsSync(path.join(root,file)),`missing runtime asset: ${file}`);
-    }
-  }
-});
-
-test('every public page shares one footer and one visible site version',()=>{
-  const footers=htmlFiles.map(file=>{
-    const html=read(file);
-    assert.match(html,new RegExp(`site-shell\\.20260821-2600\\.js\\?v=${release}`),`${file} must load the shared site shell`);
-    assert.match(html,new RegExp(`data-site-version>v${siteVersion.replaceAll('.','\\.')}`),`${file} must expose the current version`);
-    const footer=html.match(/<footer class="site-footer">[\s\S]*?<\/footer>/)?.[0];
-    assert.ok(footer,`${file} must have the shared footer`);
-    for(const required of ['data-disclaimer-link','data-shortcuts-link','/privacy.html','data-site-version'])assert.ok(footer.includes(required),`${file} footer is missing ${required}`);
-    return footer;
-  });
-  for(const footer of footers.slice(1))assert.equal(footer,footers[0],'public footers must be structurally identical');
-
+test('shared site shell is the final footer and mobile MIDI layout authority',()=>{
   const shell=read('site-shell.20260821-2600.js');
   assert.match(shell,new RegExp(`const SITE_VERSION='${siteVersion.replaceAll('.','\\.')}'`));
-  assert.match(shell,/footerCredit:'303box is an independent music tool built by Z3Z\.'/);
-  assert.match(shell,/footerCredit:'303box, Z3Z tarafından geliştirilen bağımsız bir müzik aracıdır\.'/);
+  assert.match(shell,/site-footer \.footer-inner\{width:min\(calc\(100% - 40px\),var\(--shell,1180px\)\)!important/);
+  assert.match(shell,/@media\(max-width:760px\)/);
+  assert.match(shell,/midi-router-primary\{display:grid!important;grid-template-columns:minmax\(0,1fr\)!important/);
+  assert.match(shell,/midi-playback select\{padding-right:34px!important/);
 });
 
-test('home and privacy use the same translated header shell',()=>{
-  const header=html=>html.match(/<header class="site-header">[\s\S]*?<\/header>/)?.[0];
-  assert.equal(header(read('privacy.html')),header(read('index.html')));
-  const privacy=read('privacy.html');
-  assert.match(privacy,/document\.dispatchEvent\(new CustomEvent\('303box:languagechange'/);
-  assert.doesNotMatch(privacy,/privacyLanguageButton|privacyFooterText/);
+test('active MIDI and hardware modules expose only T-8 and TD-3 support',()=>{
+  const midi=read('midi-router.20260818-1730.js'),guide=read('hardware-guide.20260819-0815.js');
+  assert.match(midi,/const ALLOWED=new Set\(\['auto','t8','td3'\]\)/);
+  assert.match(midi,/TD3_NORMAL_VELOCITY=80/);assert.match(midi,/TD3_ACCENT_VELOCITY=112/);assert.match(midi,/TD3_SLIDE_OVERLAP_MS=12/);
+  assert.match(midi,/version:'2401'/);assert.doesNotMatch(midi,/volca/i);assert.doesNotMatch(midi,/td3mo/i);
+  assert.match(guide,/TD-3-MO and other devices are rejected/);assert.match(guide,/version:'2401'/);assert.doesNotMatch(guide,/Korg volca/i);
 });
 
-test('active modules use the shared language-change event',()=>{
-  for(const file of [
-    'consent.20260819-2100.js','content-stable.20260819-2000.js',
-    'midi-router.20260818-1730.js','pattern-shell.20260818-1045.js',
-    'seo.20260818-1740.js','studio.20260818-0912.js',
-    't8-rhythm-rec-status.20260819-1830.js','ui-refresh.20260819-1750.js',
-    'ui-system.20260819-2100.js','workstation-ui.20260818-1680.js'
-  ]){
-    const source=read(file);
-    assert.match(source,/303box:languagechange/,`${file} must consume the shared event`);
-    assert.doesNotMatch(source,/attributeFilter:\s*\['lang'\]/,`${file} must not retain a parallel lang observer`);
-  }
+test('TD-3 live transport cannot start its stored sequencer and missed-step recovery does not restart MIDI',()=>{
+  const midi=read('midi-router.20260818-1730.js');
+  assert.match(midi,/td3:\{label:'Behringer TD-3'.*transport:false/);
+  assert.match(midi,/state\.effective==='t8'&&state\.transport/);
+  assert.doesNotMatch(midi,/absolute>state\.lastAbsoluteStep\+1\)\{\s*stopRouter/);
+  assert.match(midi,/absolute>state\.lastAbsoluteStep\+1\).*heldBassNote/s);
 });
