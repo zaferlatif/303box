@@ -1,9 +1,9 @@
 (() => {
   'use strict';
 
-  const SITE_VERSION='2026.08.24.10';
-  const MIDI_LAYOUT_HREF='./midi-layout.20260824-2800.css?v=20260824-2860';
-  const CONSOLE_POLISH_HREF='./console-polish.20260824-2840.css?v=20260824-2860';
+  const SITE_VERSION='2026.08.24.11';
+  const MIDI_LAYOUT_HREF='./midi-layout.20260824-2800.css?v=20260824-2870';
+  const CONSOLE_POLISH_HREF='./console-polish.20260824-2840.css?v=20260824-2870';
   const COPY={
     en:{brandTag:'Acid pattern laboratory',primaryNavigation:'Primary navigation',rhythm:'Rhythm',guide:'Guide',history:'History',faq:'FAQ',openSequencer:'Open sequencer',changeLanguage:'Change language',footerCredit:'303box is an independent music tool built by Z3Z.',footerDisclaimer:'Disclaimer',footerShortcuts:'Shortcuts',footerPrivacy:'Privacy',versionLabel:'Site version'},
     tr:{brandTag:'Acid pattern laboratuvarı',primaryNavigation:'Ana navigasyon',rhythm:'Ritim',guide:'Rehber',history:'Tarihçe',faq:'SSS',openSequencer:'Sequencer’ı aç',changeLanguage:'Dili değiştir',footerCredit:'303box, Z3Z tarafından geliştirilen bağımsız bir müzik aracıdır.',footerDisclaimer:'Sorumluluk',footerShortcuts:'Kısayollar',footerPrivacy:'Gizlilik',versionLabel:'Site sürümü'}
@@ -19,10 +19,10 @@
   }
 
   function installSharedLayout(){
-    ['siteShellLayout2401','siteShellLayout2404','siteShellLayout2405','siteShellLayout2406','siteShellLayout2407','siteShellLayout2408','siteShellLayout2409'].forEach(id=>document.getElementById(id)?.remove());
-    const existing=document.getElementById('siteShellLayout2410');
+    ['siteShellLayout2401','siteShellLayout2404','siteShellLayout2405','siteShellLayout2406','siteShellLayout2407','siteShellLayout2408','siteShellLayout2409','siteShellLayout2410'].forEach(id=>document.getElementById(id)?.remove());
+    const existing=document.getElementById('siteShellLayout2411');
     if(existing){document.head.appendChild(existing);return}
-    const style=document.createElement('style');style.id='siteShellLayout2410';style.textContent=`
+    const style=document.createElement('style');style.id='siteShellLayout2411';style.textContent=`
       html body .site-footer .footer-inner{width:min(calc(100% - 40px),var(--shell,1180px))!important;max-width:var(--shell,1180px)!important;margin-inline:auto!important;min-height:150px!important;padding:0!important;display:flex!important;align-items:center!important;justify-content:space-between!important;gap:30px!important;text-align:left!important}
       html body .site-footer .z3z-credit{width:auto!important;display:flex!important;flex-direction:column!important;align-items:flex-start!important;justify-content:center!important;gap:7px!important;text-align:left!important}
       html body .site-footer .footer-links{width:auto!important;display:flex!important;align-items:center!important;justify-content:flex-end!important;flex-wrap:wrap!important;gap:22px!important;text-align:left!important}
@@ -37,8 +37,8 @@
 
   function installReleaseStyles(){
     document.querySelectorAll('link[data-midi-layout-release],link[data-console-polish-release]').forEach(link=>link.remove());
-    const midi=document.createElement('link');midi.rel='stylesheet';midi.href=MIDI_LAYOUT_HREF;midi.dataset.midiLayoutRelease='2860';document.head.appendChild(midi);
-    const polish=document.createElement('link');polish.rel='stylesheet';polish.href=CONSOLE_POLISH_HREF;polish.dataset.consolePolishRelease='2860';document.head.appendChild(polish);
+    const midi=document.createElement('link');midi.rel='stylesheet';midi.href=MIDI_LAYOUT_HREF;midi.dataset.midiLayoutRelease='2870';document.head.appendChild(midi);
+    const polish=document.createElement('link');polish.rel='stylesheet';polish.href=CONSOLE_POLISH_HREF;polish.dataset.consolePolishRelease='2870';document.head.appendChild(polish);
   }
 
   function installMidiActionRow(){
@@ -100,19 +100,22 @@
     }
   }
 
-  function installScopePolish(){
-    const panel=document.querySelector('#acidConsole .scope-panel');
-    if(!panel)return;
-    panel.querySelector('.mini-tabs')?.classList.add('scope-control-grid');
+  function applyScopePolish(panel){
+    const controls=panel.querySelector('#scopeSourceControls');
+    const tabs=panel.querySelector('.mini-tabs');
+    if(controls&&tabs&&tabs.parentElement!==controls)controls.prepend(tabs);
+    tabs?.classList.add('scope-control-grid');
     const head=panel.querySelector('.mini-analyzer-head');
     const status=document.getElementById('scopeInputStatus');
     if(head&&status){status.classList.add('scope-hardware-status');if(status.parentElement!==head)head.appendChild(status)}
+  }
+
+  function installScopePolish(){
+    const panel=document.querySelector('#acidConsole .scope-panel');
+    if(!panel)return;
+    applyScopePolish(panel);
     if(!scopePolishObserver){
-      scopePolishObserver=new MutationObserver(()=>{
-        const liveStatus=document.getElementById('scopeInputStatus'),liveHead=panel.querySelector('.mini-analyzer-head');
-        panel.querySelector('.mini-tabs')?.classList.add('scope-control-grid');
-        if(liveHead&&liveStatus){liveStatus.classList.add('scope-hardware-status');if(liveStatus.parentElement!==liveHead)liveHead.appendChild(liveStatus)}
-      });
+      scopePolishObserver=new MutationObserver(()=>applyScopePolish(panel));
       scopePolishObserver.observe(panel,{childList:true,subtree:true});
     }
   }
