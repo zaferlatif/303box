@@ -6,8 +6,8 @@ import {fileURLToPath} from 'node:url';
 
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const read=file=>readFileSync(path.join(root,file),'utf8');
-const siteVersion='2026.08.26.2';
-const releaseEpoch='20260826-2910';
+const siteVersion='2026.08.26.5';
+const releaseEpoch='20260826-2950';
 const htmlFiles=['index.html','privacy.html','303-pattern-guide.html','acid-house-guide.html','tr/index.html','tr/303-pattern-rehberi.html','tr/acid-house-rehberi.html'];
 
 test('all public pages retain one structural footer',()=>{
@@ -20,23 +20,27 @@ test('all public pages retain one structural footer',()=>{
   for(const footer of footers.slice(1))assert.equal(footer,footers[0],'public footers must remain structurally identical');
 });
 
-test('site shell publishes the current release and loads the hardware fidelity module',()=>{
+test('site shell publishes the current release and loads pitch plus hardware modules',()=>{
   const shell=read('site-shell.20260821-2600.js');
   assert.match(shell,new RegExp(`const SITE_VERSION='${siteVersion.replaceAll('.','\\.')}'`));
   assert.match(shell,new RegExp(`const RELEASE_EPOCH='${releaseEpoch}'`));
-  assert.match(shell,/hardware-fidelity\.20260826-2900\.js/);
-  assert.match(shell,/installMidiRegisterFix\(\)/);
+  assert.match(shell,/pitch-octave\.20260826-2940\.js/);
+  assert.match(shell,/hardware-fidelity\.20260826-2950\.js/);
+  assert.match(shell,/installPitchModel\(\)/);
   assert.match(shell,/installHardwareFidelity\(\)/);
   assert.match(shell,/visibilitychange.*stopImmediatePropagation/s);
 });
 
-test('hardware fidelity owns TD-3 family naming, bass register correction and verified writer',()=>{
-  const fidelity=read('hardware-fidelity.20260826-2900.js');
-  assert.match(fidelity,/TD-3 \/ TD-3-MO/);
-  assert.match(fidelity,/message\[1\]=clamp\(\(Number\(message\[1\]\)\|\|0\)-24,0,127\)/);
-  assert.match(fidelity,/TD3_WRITE_ATTEMPTS=3/);
+test('hardware fidelity uses one TD-3 family name and a bounded two-stage write flow',()=>{
+  const fidelity=read('hardware-fidelity.20260826-2950.js');
+  assert.match(fidelity,/const FAMILY='TD-3 \/ TD-3-MO'/);
+  assert.match(fidelity,/TD3_WRITE_ATTEMPTS=2/);
+  assert.match(fidelity,/TD3_READ_RETRIES=2/);
   assert.match(fidelity,/TD3_CONFIG=\[\.\.\.TD3_PREFIX,0x75,0xF7\]/);
-  assert.match(fidelity,/WRITE VERIFIED: notes, accents, slides and timing match/);
+  assert.match(fidelity,/operation\(prepareWrite,\{activeId:b\.id,exclusive:false,stopAudio:false,timeout:7000\}\)/);
+  assert.match(fidelity,/operation\(commitWrite,\{activeId:b\.id,exclusive:true,stopAudio:true,timeout:18000\}\)/);
+  assert.match(fidelity,/backup saved\. Nothing written yet/);
+  assert.match(fidelity,/WRITE VERIFIED: notes, accents and slides match/);
   assert.match(fidelity,/readPair\(packet,0x0C\+i\*2\)/);
   assert.doesNotMatch(fidelity,/packByRests/);
 });
