@@ -1,14 +1,14 @@
 (() => {
   'use strict';
 
-  const SITE_VERSION='2026.08.26.9';
-  const RELEASE_EPOCH='20260826-2990';
+  const SITE_VERSION='2026.08.26.10';
+  const RELEASE_EPOCH='20260826-3000';
   const MIDI_LAYOUT_HREF=`./midi-layout.20260824-2800.css?v=${RELEASE_EPOCH}`;
   const CONSOLE_POLISH_HREF=`./console-polish.20260824-2840.css?v=${RELEASE_EPOCH}`;
   const PITCH_MODEL_SRC=`./pitch-octave.20260826-2940.js?v=${RELEASE_EPOCH}`;
   const PATTERN_FORMAT_SRC=`./pattern-format.20260826-2970.js?v=${RELEASE_EPOCH}`;
   const HARDWARE_GUIDE_SRC=`./hardware-guide.20260826-2960.js?v=${RELEASE_EPOCH}`;
-  const HARDWARE_FIDELITY_SRC=`./hardware-fidelity.20260826-2950.js?v=${RELEASE_EPOCH}`;
+  const HARDWARE_FIDELITY_SRC=`./hardware-fidelity.20260826-2930.js?v=${RELEASE_EPOCH}`;
   const nativeMidiRequest=typeof navigator!=='undefined'&&typeof navigator.requestMIDIAccess==='function'?navigator.requestMIDIAccess.bind(navigator):null;
   const COPY={
     en:{brandTag:'Acid pattern laboratory',primaryNavigation:'Primary navigation',rhythm:'Rhythm',guide:'Guide',history:'History',faq:'FAQ',openSequencer:'Open sequencer',changeLanguage:'Change language',footerCredit:'303box is an independent music tool built by Z3Z.',footerDisclaimer:'Disclaimer',footerShortcuts:'Shortcuts',footerPrivacy:'Privacy',versionLabel:'Site version'},
@@ -48,14 +48,14 @@
     const script=document.createElement('script');script.src=HARDWARE_GUIDE_SRC;script.async=false;script.dataset.hardwareGuideRelease='2960';document.head.appendChild(script);
   }
   function installHardwareFidelity(){
-    if(window.__303boxHardwareFidelity?.version==='20260826-2950'||document.querySelector('script[data-hardware-fidelity-release="20260826-2950"]'))return;
-    const script=document.createElement('script');script.src=HARDWARE_FIDELITY_SRC;script.async=false;script.dataset.hardwareFidelityRelease='20260826-2950';document.head.appendChild(script);
+    if(window.__303boxHardwareFidelity?.version==='20260826-2930'||document.querySelector('script[data-hardware-fidelity-release="20260826-2930"]'))return;
+    const script=document.createElement('script');script.src=HARDWARE_FIDELITY_SRC;script.async=false;script.dataset.hardwareFidelityRelease='20260826-2930';document.head.appendChild(script);
   }
 
   function installSharedLayout(){
-    ['siteShellLayout2401','siteShellLayout2404','siteShellLayout2405','siteShellLayout2406','siteShellLayout2407','siteShellLayout2408','siteShellLayout2409','siteShellLayout2410','siteShellLayout2411','siteShellLayout2601','siteShellLayout2602','siteShellLayout2603','siteShellLayout2604','siteShellLayout2605','siteShellLayout2606','siteShellLayout2607','siteShellLayout2608'].forEach(id=>document.getElementById(id)?.remove());
-    const existing=document.getElementById('siteShellLayout2609');if(existing){document.head.appendChild(existing);return}
-    const style=document.createElement('style');style.id='siteShellLayout2609';style.textContent=`
+    ['siteShellLayout2401','siteShellLayout2404','siteShellLayout2405','siteShellLayout2406','siteShellLayout2407','siteShellLayout2408','siteShellLayout2409','siteShellLayout2410','siteShellLayout2411','siteShellLayout2601','siteShellLayout2602','siteShellLayout2603','siteShellLayout2604','siteShellLayout2605','siteShellLayout2606','siteShellLayout2607','siteShellLayout2608','siteShellLayout2609'].forEach(id=>document.getElementById(id)?.remove());
+    const existing=document.getElementById('siteShellLayout2610');if(existing){document.head.appendChild(existing);return}
+    const style=document.createElement('style');style.id='siteShellLayout2610';style.textContent=`
       html body .site-footer .footer-inner{width:min(calc(100% - 40px),var(--shell,1180px))!important;max-width:var(--shell,1180px)!important;margin-inline:auto!important;min-height:150px!important;padding:0!important;display:flex!important;align-items:center!important;justify-content:space-between!important;gap:30px!important;text-align:left!important}
       html body .site-footer .z3z-credit{width:auto!important;display:flex!important;flex-direction:column!important;align-items:flex-start!important;justify-content:center!important;gap:7px!important;text-align:left!important}
       html body .site-footer .footer-links{width:auto!important;display:flex!important;align-items:center!important;justify-content:flex-end!important;flex-wrap:wrap!important;gap:22px!important;text-align:left!important}
