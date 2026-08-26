@@ -1,8 +1,8 @@
 (() => {
   'use strict';
 
-  const SITE_VERSION='2026.08.26.1';
-  const RELEASE_EPOCH='20260826-2900';
+  const SITE_VERSION='2026.08.26.2';
+  const RELEASE_EPOCH='20260826-2910';
   const MIDI_LAYOUT_HREF=`./midi-layout.20260824-2800.css?v=${RELEASE_EPOCH}`;
   const CONSOLE_POLISH_HREF=`./console-polish.20260824-2840.css?v=${RELEASE_EPOCH}`;
   const HARDWARE_FIDELITY_SRC=`./hardware-fidelity.20260826-2900.js?v=${RELEASE_EPOCH}`;
@@ -12,15 +12,39 @@
   };
   const language=()=>document.documentElement.lang==='tr'?'tr':'en';
   const text=(key,lang=language())=>COPY[lang][key]??COPY.en[key]??key;
+  const midiOutputsPatched=new WeakSet();
   let scopePolishObserver=null,midiTransferObserver=null,rhythmTransferBusy=false;
+
+  function patchHardwareMidiOutput(output){
+    if(!output||midiOutputsPatched.has(output)||typeof output.send!=='function')return;
+    const nativeSend=output.send.bind(output);
+    try{
+      output.send=function(data,timestamp){
+        const message=Array.from(data||[]),state=window.__303boxMidiRouter?.state;
+        const status=(message[0]||0)&0xF0,channel=((message[0]||0)&0x0F)+1;
+        if(state&&(state.effective==='t8'||state.effective==='td3')&&(status===0x80||status===0x90)&&channel===state.bass&&message.length>=3){
+          message[1]=Math.min(127,Math.max(0,(Number(message[1])||0)-24));
+          if(state.effective==='t8'&&status===0x90&&message[2]>0)message[2]=message[2]>=120?127:64;
+        }
+        return timestamp==null?nativeSend(message):nativeSend(message,timestamp);
+      };
+      midiOutputsPatched.add(output);
+    }catch(_){}
+  }
+
+  function installMidiRegisterFix(){
+    if(window.__303boxMidiRegisterFixInstalled)return;
+    window.__303boxMidiRegisterFixInstalled=true;
+    const proto=Object.getPrototypeOf(navigator),nativeRequest=proto?.requestMIDIAccess;
+    if(typeof nativeRequest!=='function')return;
+    const wrapped=function(options){return nativeRequest.call(this,options).then(access=>{access?.outputs?.forEach?.(patchHardwareMidiOutput);access?.addEventListener?.('statechange',event=>{if(event?.port?.type==='output')patchHardwareMidiOutput(event.port)});return access})};
+    try{Object.defineProperty(proto,'requestMIDIAccess',{value:wrapped,configurable:true,writable:true})}
+    catch(_){try{navigator.requestMIDIAccess=wrapped.bind(navigator)}catch(__){}}
+  }
 
   function installHardwareFidelity(){
     if(window.__303boxHardwareFidelity||document.querySelector('script[data-hardware-fidelity-release]'))return;
-    const script=document.createElement('script');
-    script.src=HARDWARE_FIDELITY_SRC;
-    script.async=false;
-    script.dataset.hardwareFidelityRelease=RELEASE_EPOCH;
-    document.head.appendChild(script);
+    const script=document.createElement('script');script.src=HARDWARE_FIDELITY_SRC;script.async=false;script.dataset.hardwareFidelityRelease=RELEASE_EPOCH;document.head.appendChild(script);
   }
 
   function installBackgroundPlaybackPolicy(){
@@ -30,10 +54,10 @@
   }
 
   function installSharedLayout(){
-    ['siteShellLayout2401','siteShellLayout2404','siteShellLayout2405','siteShellLayout2406','siteShellLayout2407','siteShellLayout2408','siteShellLayout2409','siteShellLayout2410','siteShellLayout2411'].forEach(id=>document.getElementById(id)?.remove());
-    const existing=document.getElementById('siteShellLayout2601');
+    ['siteShellLayout2401','siteShellLayout2404','siteShellLayout2405','siteShellLayout2406','siteShellLayout2407','siteShellLayout2408','siteShellLayout2409','siteShellLayout2410','siteShellLayout2411','siteShellLayout2601'].forEach(id=>document.getElementById(id)?.remove());
+    const existing=document.getElementById('siteShellLayout2602');
     if(existing){document.head.appendChild(existing);return}
-    const style=document.createElement('style');style.id='siteShellLayout2601';style.textContent=`
+    const style=document.createElement('style');style.id='siteShellLayout2602';style.textContent=`
       html body .site-footer .footer-inner{width:min(calc(100% - 40px),var(--shell,1180px))!important;max-width:var(--shell,1180px)!important;margin-inline:auto!important;min-height:150px!important;padding:0!important;display:flex!important;align-items:center!important;justify-content:space-between!important;gap:30px!important;text-align:left!important}
       html body .site-footer .z3z-credit{width:auto!important;display:flex!important;flex-direction:column!important;align-items:flex-start!important;justify-content:center!important;gap:7px!important;text-align:left!important}
       html body .site-footer .footer-links{width:auto!important;display:flex!important;align-items:center!important;justify-content:flex-end!important;flex-wrap:wrap!important;gap:22px!important;text-align:left!important}
@@ -53,82 +77,42 @@
   }
 
   function installMidiActionRow(){
-    const router=document.getElementById('midiRouter');
-    const secondary=router?.querySelector('.midi-router-secondary');
-    const guide=document.getElementById('midiHardwareGuide');
-    const panic=document.getElementById('midiPanic');
-    const badge=document.getElementById('midiRouterBadge');
-    if(!router||!secondary||!guide||!panic)return;
-    badge?.setAttribute('aria-hidden','true');
-    let row=router.querySelector('.midi-router-actions');
-    if(!row){row=document.createElement('div');row.className='midi-router-actions';secondary.insertAdjacentElement('afterend',row)}
-    if(guide.parentElement!==row)row.appendChild(guide);
-    if(panic.parentElement!==row)row.appendChild(panic);
+    const router=document.getElementById('midiRouter'),secondary=router?.querySelector('.midi-router-secondary'),guide=document.getElementById('midiHardwareGuide'),panic=document.getElementById('midiPanic'),badge=document.getElementById('midiRouterBadge');
+    if(!router||!secondary||!guide||!panic)return;badge?.setAttribute('aria-hidden','true');
+    let row=router.querySelector('.midi-router-actions');if(!row){row=document.createElement('div');row.className='midi-router-actions';secondary.insertAdjacentElement('afterend',row)}
+    if(guide.parentElement!==row)row.appendChild(guide);if(panic.parentElement!==row)row.appendChild(panic);
   }
 
-  function t8Ready(){
-    const state=window.__303boxMidiRouter?.state;
-    const badge=document.getElementById('midiRouterBadge');
-    return !!(state?.enabled&&!state?.blocked&&state?.effective==='t8'&&badge?.classList.contains('ready'));
-  }
+  function t8Ready(){const state=window.__303boxMidiRouter?.state,badge=document.getElementById('midiRouterBadge');return !!(state?.enabled&&!state?.blocked&&state?.effective==='t8'&&badge?.classList.contains('ready'))}
 
   async function runRhythmPrm(button){
-    if(rhythmTransferBusy||!t8Ready())return;
-    const api=window.__303boxT8Prm;
+    if(rhythmTransferBusy||!t8Ready())return;const api=window.__303boxT8Prm;
     if(!api){button.textContent=language()==='tr'?'PRM HAZIR DEĞİL':'PRM NOT READY';setTimeout(syncRhythmTransferButton,1200);return}
     rhythmTransferBusy=true;syncRhythmTransferButton();
     try{
-      if(typeof window.showSaveFilePicker==='function'||typeof window.showDirectoryPicker==='function'){
-        await api.writeRhythmPrm('RHYTHM_PTN01_01.PRM');
-        button.textContent=language()==='tr'?'PRM YAZILDI':'PRM WRITTEN';
-      }else{
-        api.downloadRhythmPrm('RHYTHM_PTN01_01.PRM');
-        button.textContent=language()==='tr'?'PRM İNDİRİLDİ':'PRM DOWNLOADED';
-      }
-    }catch(err){
-      if(err?.name!=='AbortError'){console.warn('[303box] T-8 rhythm PRM transfer failed',err);button.textContent=language()==='tr'?'PRM BAŞARISIZ':'PRM FAILED'}
-    }finally{setTimeout(()=>{rhythmTransferBusy=false;syncRhythmTransferButton()},1300)}
+      if(typeof window.showSaveFilePicker==='function'||typeof window.showDirectoryPicker==='function'){await api.writeRhythmPrm('RHYTHM_PTN01_01.PRM');button.textContent=language()==='tr'?'PRM YAZILDI':'PRM WRITTEN'}
+      else{api.downloadRhythmPrm('RHYTHM_PTN01_01.PRM');button.textContent=language()==='tr'?'PRM İNDİRİLDİ':'PRM DOWNLOADED'}
+    }catch(err){if(err?.name!=='AbortError'){console.warn('[303box] T-8 rhythm PRM transfer failed',err);button.textContent=language()==='tr'?'PRM BAŞARISIZ':'PRM FAILED'}}
+    finally{setTimeout(()=>{rhythmTransferBusy=false;syncRhythmTransferButton()},1300)}
   }
 
   function syncRhythmTransferButton(){
-    const router=document.getElementById('midiRouter');
-    const assist=document.getElementById('midiRecAssist');
-    if(!router||!assist)return;
-    const legacy=document.getElementById('midiRecRhythm');
-    if(legacy){if(!legacy.hidden)legacy.hidden=true;if(legacy.getAttribute('aria-hidden')!=='true')legacy.setAttribute('aria-hidden','true')}
-    let button=document.getElementById('midiRhythmPrm');
-    if(!button){
-      button=document.createElement('button');button.id='midiRhythmPrm';button.type='button';button.className='midi-rec-button';assist.appendChild(button);
-      button.addEventListener('click',()=>runRhythmPrm(button));
-    }
-    const label=rhythmTransferBusy?(language()==='tr'?'RİTİM PRM…':'RHYTHM PRM…'):(language()==='tr'?'RİTİM → PRM':'RHYTHM → PRM');
-    if(button.textContent!==label)button.textContent=label;
-    const disabled=rhythmTransferBusy||!t8Ready();if(button.disabled!==disabled)button.disabled=disabled;
-    button.title=language()==='tr'?'T-8 ritim patternini PRM aktarım dosyasına yaz/indir.':'Write/download the current T-8 rhythm pattern as a PRM transfer file.';
-    if(!midiTransferObserver){
-      midiTransferObserver=new MutationObserver(syncRhythmTransferButton);
-      midiTransferObserver.observe(router,{subtree:true,childList:true,attributes:true,attributeFilter:['class','disabled','hidden']});
-    }
+    const router=document.getElementById('midiRouter'),assist=document.getElementById('midiRecAssist');if(!router||!assist)return;
+    const legacy=document.getElementById('midiRecRhythm');if(legacy){if(!legacy.hidden)legacy.hidden=true;if(legacy.getAttribute('aria-hidden')!=='true')legacy.setAttribute('aria-hidden','true')}
+    let button=document.getElementById('midiRhythmPrm');if(!button){button=document.createElement('button');button.id='midiRhythmPrm';button.type='button';button.className='midi-rec-button';assist.appendChild(button);button.addEventListener('click',()=>runRhythmPrm(button))}
+    const label=rhythmTransferBusy?(language()==='tr'?'RİTİM PRM…':'RHYTHM PRM…'):(language()==='tr'?'RİTİM → PRM':'RHYTHM → PRM');if(button.textContent!==label)button.textContent=label;
+    const disabled=rhythmTransferBusy||!t8Ready();if(button.disabled!==disabled)button.disabled=disabled;button.title=language()==='tr'?'T-8 ritim patternini PRM aktarım dosyasına yaz/indir.':'Write/download the current T-8 rhythm pattern as a PRM transfer file.';
+    if(!midiTransferObserver){midiTransferObserver=new MutationObserver(syncRhythmTransferButton);midiTransferObserver.observe(router,{subtree:true,childList:true,attributes:true,attributeFilter:['class','disabled','hidden']})}
   }
 
   function applyScopePolish(panel){
-    const controls=panel.querySelector('#scopeSourceControls');
-    const tabs=panel.querySelector('.mini-tabs');
-    if(controls&&tabs&&tabs.parentElement!==controls)controls.prepend(tabs);
-    tabs?.classList.add('scope-control-grid');
-    const head=panel.querySelector('.mini-analyzer-head');
-    const status=document.getElementById('scopeInputStatus');
-    if(head&&status){status.classList.add('scope-hardware-status');if(status.parentElement!==head)head.appendChild(status)}
+    const controls=panel.querySelector('#scopeSourceControls'),tabs=panel.querySelector('.mini-tabs');if(controls&&tabs&&tabs.parentElement!==controls)controls.prepend(tabs);tabs?.classList.add('scope-control-grid');
+    const head=panel.querySelector('.mini-analyzer-head'),status=document.getElementById('scopeInputStatus');if(head&&status){status.classList.add('scope-hardware-status');if(status.parentElement!==head)head.appendChild(status)}
   }
 
   function installScopePolish(){
-    const panel=document.querySelector('#acidConsole .scope-panel');
-    if(!panel)return;
-    applyScopePolish(panel);
-    if(!scopePolishObserver){
-      scopePolishObserver=new MutationObserver(()=>applyScopePolish(panel));
-      scopePolishObserver.observe(panel,{childList:true,subtree:true});
-    }
+    const panel=document.querySelector('#acidConsole .scope-panel');if(!panel)return;applyScopePolish(panel);
+    if(!scopePolishObserver){scopePolishObserver=new MutationObserver(()=>applyScopePolish(panel));scopePolishObserver.observe(panel,{childList:true,subtree:true})}
   }
 
   function render(){
@@ -142,7 +126,7 @@
     document.querySelectorAll('.footer-links a[href="/privacy.html"]').forEach(link=>link.removeAttribute('aria-current'));
   }
 
-  installBackgroundPlaybackPolicy();installHardwareFidelity();
+  installMidiRegisterFix();installBackgroundPlaybackPolicy();installHardwareFidelity();
   document.addEventListener('303box:languagechange',render);document.addEventListener('303box:content-refresh',render);document.addEventListener('303box:ready',render);
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',render,{once:true});else render();
   window.__303boxSiteShell={version:SITE_VERSION,render,text,get language(){return language()}};
