@@ -6,8 +6,8 @@ import {fileURLToPath} from 'node:url';
 
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const read=file=>readFileSync(path.join(root,file),'utf8');
-const siteVersion='2026.08.26.6';
-const releaseEpoch='20260826-2960';
+const siteVersion='2026.08.26.7';
+const releaseEpoch='20260826-2970';
 const htmlFiles=['index.html','privacy.html','303-pattern-guide.html','acid-house-guide.html','tr/index.html','tr/303-pattern-rehberi.html','tr/acid-house-rehberi.html'];
 
 test('all public pages retain one structural footer',()=>{
@@ -20,14 +20,16 @@ test('all public pages retain one structural footer',()=>{
   for(const footer of footers.slice(1))assert.equal(footer,footers[0],'public footers must remain structurally identical');
 });
 
-test('site shell publishes the current release and loads pitch plus split hardware modules',()=>{
+test('site shell publishes the current release and loads pitch, pattern format and split hardware modules',()=>{
   const shell=read('site-shell.20260821-2600.js');
   assert.match(shell,new RegExp(`const SITE_VERSION='${siteVersion.replaceAll('.','\\.')}'`));
   assert.match(shell,new RegExp(`const RELEASE_EPOCH='${releaseEpoch}'`));
   assert.match(shell,/pitch-octave\.20260826-2940\.js/);
+  assert.match(shell,/pattern-format\.20260826-2970\.js/);
   assert.match(shell,/hardware-guide\.20260826-2960\.js/);
   assert.match(shell,/hardware-fidelity\.20260826-2950\.js/);
   assert.match(shell,/installPitchModel\(\)/);
+  assert.match(shell,/installPatternFormat\(\)/);
   assert.match(shell,/installHardwareGuide\(\)/);
   assert.match(shell,/installHardwareFidelity\(\)/);
   assert.match(shell,/visibilitychange.*stopImmediatePropagation/s);
@@ -35,10 +37,28 @@ test('site shell publishes the current release and loads pitch plus split hardwa
 
 test('live index no longer loads the legacy TD-3 writer and uses one family option',()=>{
   const html=read('index.html');
-  assert.match(html,/hardware-guide\.20260826-2960\.js\?v=20260826-2960/);
+  assert.match(html,/hardware-guide\.20260826-2960\.js\?v=20260826-2970/);
   assert.doesNotMatch(html,/hardware-guide\.20260819-0815\.js/);
   assert.match(html,/<option value="td3">TD-3 \/ TD-3-MO<\/option>/);
   assert.doesNotMatch(html,/<option value="td3mo">/);
+  assert.match(html,/site-shell\.20260821-2600\.js\?v=20260826-2970/);
+});
+
+test('pattern format owns device-aware length, page, grid and musical tools',()=>{
+  const format=read('pattern-format.20260826-2970.js');
+  assert.match(format,/lengths:\{browser:16,t8:32,td3:16,t8Rhythm:32\}/);
+  assert.match(format,/maxSteps\(target=resolvedTarget\(\)\).*target==='td3'\?16:32/s);
+  assert.match(format,/data-format-page="0">1–16/);
+  assert.match(format,/data-format-page="1">17–32/);
+  assert.match(format,/ROOT/);
+  assert.match(format,/SCALE/);
+  assert.match(format,/NUDGE/);
+  assert.match(format,/FIT SCALE/);
+  assert.match(format,/patchTd3Packet/);
+  assert.match(format,/data\[0x6D\]=state\.grids\.td3==='triplet'\?1:0/);
+  assert.match(format,/data\[0x6E\]=p\[0\];data\[0x6F\]=p\[1\]/);
+  assert.match(format,/LENGTH\\t= \$\{len\}/);
+  assert.match(format,/for\(let step=1;step<=32;step\+\+\)/);
 });
 
 test('hardware guide is UI-only while hardware fidelity owns transfers',()=>{
