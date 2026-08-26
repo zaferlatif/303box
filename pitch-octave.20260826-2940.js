@@ -16,8 +16,7 @@
     const saved=Number(localStorage.getItem(STORE));if(OCTAVES.includes(saved))return saved;
     return $$('#patternSheet .note-input').some(x=>x.value?.trim())?4:2;
   }
-  function persistBase(){try{localStorage.setItem(STORE,String(baseOctave))}catch(_){}
-  }
+  function persistBase(){try{localStorage.setItem(STORE,String(baseOctave))}catch(_){}}
   function noteData(step){
     const input=$$('#patternSheet .note-input')[step],cell=$$('#patternSheet .octave-cell')[step],expr=$$('#patternSheet .accentSlide-cell')[step],gate=$$('#patternSheet .gate-cell')[step];
     const note=input?.value?.trim().toUpperCase()||'',oct=Number(cell?.textContent?.trim());
