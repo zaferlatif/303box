@@ -8,15 +8,16 @@
   const STORE='303box-base-octave-v1';
   const NOTE_PC={C:0,'C#':1,D:2,'D#':3,E:4,F:5,'F#':6,G:7,'G#':8,A:9,'A#':10,B:11};
   const OCTAVES=[1,2,3,4,5];
-  let baseOctave=2,normalizing=false,t8RecBusy=false;
+  let baseOctave=2,normalizing=false,t8RecBusy=false,absoluteSendDepth=0;
   let pitchContext=null,bassVoiceExpected=false,markNextBassOsc=false;
-  const bassOscillators=new WeakSet();
+  const bassOscillators=new WeakSet(),patchedOutputs=new WeakSet(),noteMap=new Map();
 
   function detectInitialBase(){
     const saved=Number(localStorage.getItem(STORE));if(OCTAVES.includes(saved))return saved;
     return $$('#patternSheet .note-input').some(x=>x.value?.trim())?4:2;
   }
-  function persistBase(){try{localStorage.setItem(STORE,String(baseOctave))}catch(_){}}
+  function persistBase(){try{localStorage.setItem(STORE,String(baseOctave))}catch(_){}
+  }
   function noteData(step){
     const input=$$('#patternSheet .note-input')[step],cell=$$('#patternSheet .octave-cell')[step],expr=$$('#patternSheet .accentSlide-cell')[step],gate=$$('#patternSheet .gate-cell')[step];
     const note=input?.value?.trim().toUpperCase()||'',oct=Number(cell?.textContent?.trim());
@@ -91,27 +92,50 @@
     ['303box:playback-stop','303box:playback-resync'].forEach(type=>window.addEventListener(type,()=>{bassVoiceExpected=false;markNextBassOsc=false;pitchContext=null}));
   }
 
+  function patchOutput(output){
+    if(!output||patchedOutputs.has(output)||typeof output.send!=='function')return;const nativeSend=output.send.bind(output);
+    try{output.send=function(data,timestamp){
+      const msg=Array.from(data||[]);if(!absoluteSendDepth){const st=window.__303boxMidiRouter?.state,status=(msg[0]||0)&0xF0,ch=((msg[0]||0)&15)+1;
+        if(st&&ch===st.bass&&(status===0x80||status===0x90)&&msg.length>=3){
+          const key=`${ch}:${msg[1]}`;
+          if(status===0x90&&msg[2]>0&&pitchContext){const mapped=midiFor(pitchContext.step);if(mapped!=null){const token=Symbol();noteMap.set(key,{mapped,token});msg[1]=mapped}}
+          else if(status===0x80||msg[2]===0){const current=noteMap.get(key);if(current){msg[1]=current.mapped;const token=current.token,delay=Math.max(0,(Number(timestamp)||performance.now())-performance.now()+20);setTimeout(()=>{if(noteMap.get(key)?.token===token)noteMap.delete(key)},delay)}}
+        }
+      }
+      return timestamp==null?nativeSend(msg):nativeSend(msg,timestamp);
+    };patchedOutputs.add(output)}catch(_){}
+  }
+  function installMidiPitchBridge(){
+    if(window.__303boxAbsoluteMidiPitchInstalled)return;window.__303boxAbsoluteMidiPitchInstalled=true;
+    const proto=Object.getPrototypeOf(navigator),native=proto?.requestMIDIAccess;if(typeof native!=='function')return;
+    const wrapped=function(options){return native.call(this,options).then(access=>{access?.outputs?.forEach?.(patchOutput);access?.addEventListener?.('statechange',e=>{if(e?.port?.type==='output')patchOutput(e.port)});return access})};
+    try{Object.defineProperty(proto,'requestMIDIAccess',{value:wrapped,configurable:true,writable:true})}catch(_){try{navigator.requestMIDIAccess=wrapped.bind(navigator)}catch(__){}}
+  }
+
   function schedule(output,msg,at){try{output.send(msg,Math.max(performance.now(),at))}catch(_){}}
   async function runT8BassRec(button){
-    if(t8RecBusy)return;const state=window.__303boxMidiRouter?.state,output=state?.access?.outputs?.get?.(state.outputId);if(!state?.enabled||state?.blocked||state?.effective!=='t8'||!output||output.state==='disconnected')return;
+    if(t8RecBusy)return;const state=window.__303boxMidiRouter?.state,output=state?.access?.outputs?.get?.(state.outputId);if(!state?.enabled||state?.blocked||state?.effective!=='t8'||!output||output.state!=='connected')return;
     t8RecBusy=true;button.disabled=true;const status=$('#midiRouterStatus'),old=button.textContent;button.textContent=isTR()?'BASS KAYIT…':'BASS REC…';if(status)status.textContent=isTR()?'T-8 bass kaydı: mutlak oktavlar gönderiliyor…':'T-8 bass REC: sending absolute octaves…';
     const bpm=clamp(Number($('[data-knob-id="bpm"]')?.getAttribute('aria-valuenow'))||140,50,250),d=60000/bpm/4,now=performance.now(),lock=now+120,start=lock+2*d,ch=clamp(Number(state.bass)||2,1,16);
-    for(let i=0;i<2;i++)for(let c=0;c<6;c++)schedule(output,[0xF8],lock+i*d+c*d/6);schedule(output,[0xFA],start-12);
-    for(let s=0;s<16;s++){
-      const at=start+s*d,x=noteData(s),n=midiFor(x);for(let c=0;c<6;c++)schedule(output,[0xF8],at+c*d/6);if(n==null||!playable(x))continue;
-      const leg=x.gate==='○'||x.expr.includes('S'),vel=x.expr.includes('A')?127:64;schedule(output,[0x90+ch-1,n,vel],at+10);schedule(output,[0x80+ch-1,n,0],at+(leg?d*1.10:d*.68));
-    }
+    absoluteSendDepth++;
+    try{
+      for(let i=0;i<2;i++)for(let c=0;c<6;c++)schedule(output,[0xF8],lock+i*d+c*d/6);schedule(output,[0xFA],start-12);
+      for(let s=0;s<16;s++){
+        const at=start+s*d,x=noteData(s),n=midiFor(x);for(let c=0;c<6;c++)schedule(output,[0xF8],at+c*d/6);if(n==null||!playable(x))continue;
+        const leg=x.gate==='○'||x.expr.includes('S'),vel=x.expr.includes('A')?127:64;schedule(output,[0x90+ch-1,n,vel],at+10);schedule(output,[0x80+ch-1,n,0],at+(leg?d*1.10:d*.68));
+      }
+    }finally{absoluteSendDepth--}
     const end=start+16*d;setTimeout(()=>{try{output.send([0xFC]);output.send([0xB0+ch-1,123,0])}catch(_){}t8RecBusy=false;button.disabled=false;button.textContent=old||'BASS → REC';if(status)status.textContent=isTR()?'Bass REC bitti. T-8 patternini kontrol edip WRITE yap.':'Bass REC finished. Check the T-8 pattern, then WRITE on the device.'},Math.max(300,end-performance.now()+180));
   }
   function installT8RecCapture(){window.addEventListener('click',event=>{const b=event.target?.closest?.('#midiRecBass');if(!b)return;event.preventDefault();event.stopImmediatePropagation();runT8BassRec(b)},true)}
 
   function settle(){installStyle();mountGlobal();normalizeCells();renderGlobal();refreshTitles()}
   function init(){
-    baseOctave=detectInitialBase();persistBase();installAudioPitchBridge();installT8RecCapture();settle();
+    baseOctave=detectInitialBase();persistBase();installAudioPitchBridge();installMidiPitchBridge();installT8RecCapture();settle();
     window.addEventListener('click',e=>{if(e.target?.closest?.('#generateButton,#clearButton'))setTimeout(()=>{normalizeCells();refreshTitles()},0)},true);
     document.addEventListener('change',e=>{if(e.target?.matches?.('.note-picker-v2,[data-note-picker]'))setTimeout(refreshTitles,0)},true);
     document.addEventListener('303box:languagechange',()=>{renderGlobal();normalizeCells()});document.addEventListener('303box:ready',settle);document.addEventListener('303box:content-refresh',settle);
-    window.__303boxPitchModel={version:'20260826-3010',midiForStep:midiFor,frequencyForStep:frequencyFor,get baseOctave(){return baseOctave},setBaseOctave:shiftPattern};
+    window.__303boxPitchModel={version:'20260826-2940',midiForStep:midiFor,frequencyForStep:frequencyFor,get baseOctave(){return baseOctave},setBaseOctave:shiftPattern};
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
