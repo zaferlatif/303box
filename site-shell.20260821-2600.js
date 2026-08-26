@@ -1,14 +1,15 @@
 (() => {
   'use strict';
 
-  const SITE_VERSION='2026.08.26.7';
-  const RELEASE_EPOCH='20260826-2970';
+  const SITE_VERSION='2026.08.26.8';
+  const RELEASE_EPOCH='20260826-2980';
   const MIDI_LAYOUT_HREF=`./midi-layout.20260824-2800.css?v=${RELEASE_EPOCH}`;
   const CONSOLE_POLISH_HREF=`./console-polish.20260824-2840.css?v=${RELEASE_EPOCH}`;
   const PITCH_MODEL_SRC=`./pitch-octave.20260826-2940.js?v=${RELEASE_EPOCH}`;
   const PATTERN_FORMAT_SRC=`./pattern-format.20260826-2970.js?v=${RELEASE_EPOCH}`;
   const HARDWARE_GUIDE_SRC=`./hardware-guide.20260826-2960.js?v=${RELEASE_EPOCH}`;
   const HARDWARE_FIDELITY_SRC=`./hardware-fidelity.20260826-2950.js?v=${RELEASE_EPOCH}`;
+  const TD3_PORT_RECOVERY_SRC=`./td3-port-recovery.20260826-2980.js?v=${RELEASE_EPOCH}`;
   const COPY={
     en:{brandTag:'Acid pattern laboratory',primaryNavigation:'Primary navigation',rhythm:'Rhythm',guide:'Guide',history:'History',faq:'FAQ',openSequencer:'Open sequencer',changeLanguage:'Change language',footerCredit:'303box is an independent music tool built by Z3Z.',footerDisclaimer:'Disclaimer',footerShortcuts:'Shortcuts',footerPrivacy:'Privacy',versionLabel:'Site version'},
     tr:{brandTag:'Acid pattern laboratuvarı',primaryNavigation:'Ana navigasyon',rhythm:'Ritim',guide:'Rehber',history:'Tarihçe',faq:'SSS',openSequencer:'Sequencer’ı aç',changeLanguage:'Dili değiştir',footerCredit:'303box, Z3Z tarafından geliştirilen bağımsız bir müzik aracıdır.',footerDisclaimer:'Sorumluluk',footerShortcuts:'Kısayollar',footerPrivacy:'Gizlilik',versionLabel:'Site sürümü'}
@@ -38,11 +39,15 @@
     if(window.__303boxHardwareFidelity?.version==='20260826-2950'||document.querySelector('script[data-hardware-fidelity-release="20260826-2950"]'))return;
     const script=document.createElement('script');script.src=HARDWARE_FIDELITY_SRC;script.async=false;script.dataset.hardwareFidelityRelease='20260826-2950';document.head.appendChild(script);
   }
+  function installTd3PortRecovery(){
+    if(window.__303boxTd3PortRecovery?.version==='20260826-2980'||document.querySelector('script[data-td3-port-recovery="20260826-2980"]'))return;
+    const script=document.createElement('script');script.src=TD3_PORT_RECOVERY_SRC;script.async=false;script.dataset.td3PortRecovery='20260826-2980';document.head.appendChild(script);
+  }
 
   function installSharedLayout(){
-    ['siteShellLayout2401','siteShellLayout2404','siteShellLayout2405','siteShellLayout2406','siteShellLayout2407','siteShellLayout2408','siteShellLayout2409','siteShellLayout2410','siteShellLayout2411','siteShellLayout2601','siteShellLayout2602','siteShellLayout2603','siteShellLayout2604','siteShellLayout2605','siteShellLayout2606'].forEach(id=>document.getElementById(id)?.remove());
-    const existing=document.getElementById('siteShellLayout2607');if(existing){document.head.appendChild(existing);return}
-    const style=document.createElement('style');style.id='siteShellLayout2607';style.textContent=`
+    ['siteShellLayout2401','siteShellLayout2404','siteShellLayout2405','siteShellLayout2406','siteShellLayout2407','siteShellLayout2408','siteShellLayout2409','siteShellLayout2410','siteShellLayout2411','siteShellLayout2601','siteShellLayout2602','siteShellLayout2603','siteShellLayout2604','siteShellLayout2605','siteShellLayout2606','siteShellLayout2607'].forEach(id=>document.getElementById(id)?.remove());
+    const existing=document.getElementById('siteShellLayout2608');if(existing){document.head.appendChild(existing);return}
+    const style=document.createElement('style');style.id='siteShellLayout2608';style.textContent=`
       html body .site-footer .footer-inner{width:min(calc(100% - 40px),var(--shell,1180px))!important;max-width:var(--shell,1180px)!important;margin-inline:auto!important;min-height:150px!important;padding:0!important;display:flex!important;align-items:center!important;justify-content:space-between!important;gap:30px!important;text-align:left!important}
       html body .site-footer .z3z-credit{width:auto!important;display:flex!important;flex-direction:column!important;align-items:flex-start!important;justify-content:center!important;gap:7px!important;text-align:left!important}
       html body .site-footer .footer-links{width:auto!important;display:flex!important;align-items:center!important;justify-content:flex-end!important;flex-wrap:wrap!important;gap:22px!important;text-align:left!important}
@@ -88,7 +93,7 @@
   function installScopePolish(){const panel=document.querySelector('#acidConsole .scope-panel');if(!panel)return;applyScopePolish(panel);if(!scopePolishObserver){scopePolishObserver=new MutationObserver(()=>applyScopePolish(panel));scopePolishObserver.observe(panel,{childList:true,subtree:true})}}
 
   function render(){
-    installSharedLayout();installReleaseStyles();installPitchModel();installPatternFormat();installHardwareGuide();installHardwareFidelity();installMidiActionRow();syncRhythmTransferButton();installScopePolish();const lang=language();
+    installSharedLayout();installReleaseStyles();installPitchModel();installPatternFormat();installHardwareGuide();installHardwareFidelity();installTd3PortRecovery();installMidiActionRow();syncRhythmTransferButton();installScopePolish();const lang=language();
     document.querySelectorAll('[data-shell-i18n]').forEach(element=>{const key=element.dataset.shellI18n;if(key)element.textContent=text(key,lang)});
     document.querySelectorAll('[data-shell-i18n-attr]').forEach(element=>{const key=element.dataset.shellI18nAttr;if(key)element.setAttribute('aria-label',text(key,lang))});
     document.querySelectorAll('[data-language-switch]').forEach(button=>button.setAttribute('aria-label',text('changeLanguage',lang)));
@@ -98,7 +103,7 @@
     document.querySelectorAll('.footer-links a[href="/privacy.html"]').forEach(link=>link.removeAttribute('aria-current'));
   }
 
-  installBackgroundPlaybackPolicy();installPitchModel();installPatternFormat();installHardwareGuide();installHardwareFidelity();
+  installBackgroundPlaybackPolicy();installPitchModel();installPatternFormat();installHardwareGuide();installHardwareFidelity();installTd3PortRecovery();
   document.addEventListener('303box:languagechange',render);document.addEventListener('303box:content-refresh',render);document.addEventListener('303box:ready',render);
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',render,{once:true});else render();
   window.__303boxSiteShell={version:SITE_VERSION,render,text,get language(){return language()}};
