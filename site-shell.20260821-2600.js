@@ -1,10 +1,11 @@
 (() => {
   'use strict';
 
-  const SITE_VERSION='2026.08.26.3';
-  const RELEASE_EPOCH='20260826-2930';
+  const SITE_VERSION='2026.08.26.4';
+  const RELEASE_EPOCH='20260826-2940';
   const MIDI_LAYOUT_HREF=`./midi-layout.20260824-2800.css?v=${RELEASE_EPOCH}`;
   const CONSOLE_POLISH_HREF=`./console-polish.20260824-2840.css?v=${RELEASE_EPOCH}`;
+  const PITCH_MODEL_SRC=`./pitch-octave.20260826-2940.js?v=${RELEASE_EPOCH}`;
   const HARDWARE_FIDELITY_SRC=`./hardware-fidelity.20260826-2930.js?v=${RELEASE_EPOCH}`;
   const COPY={
     en:{brandTag:'Acid pattern laboratory',primaryNavigation:'Primary navigation',rhythm:'Rhythm',guide:'Guide',history:'History',faq:'FAQ',openSequencer:'Open sequencer',changeLanguage:'Change language',footerCredit:'303box is an independent music tool built by Z3Z.',footerDisclaimer:'Disclaimer',footerShortcuts:'Shortcuts',footerPrivacy:'Privacy',versionLabel:'Site version'},
@@ -19,16 +20,19 @@
     window.__303boxBackgroundPlaybackPolicyInstalled=true;
     document.addEventListener('visibilitychange',event=>{if(document.hidden)event.stopImmediatePropagation()},true);
   }
-
+  function installPitchModel(){
+    if(window.__303boxPitchModel?.version==='20260826-2940'||document.querySelector('script[data-pitch-model-release="20260826-2940"]'))return;
+    const script=document.createElement('script');script.src=PITCH_MODEL_SRC;script.async=false;script.dataset.pitchModelRelease='20260826-2940';document.head.appendChild(script);
+  }
   function installHardwareFidelity(){
     if(window.__303boxHardwareFidelity?.version==='20260826-2930'||document.querySelector('script[data-hardware-fidelity-release="20260826-2930"]'))return;
     const script=document.createElement('script');script.src=HARDWARE_FIDELITY_SRC;script.async=false;script.dataset.hardwareFidelityRelease='20260826-2930';document.head.appendChild(script);
   }
 
   function installSharedLayout(){
-    ['siteShellLayout2401','siteShellLayout2404','siteShellLayout2405','siteShellLayout2406','siteShellLayout2407','siteShellLayout2408','siteShellLayout2409','siteShellLayout2410','siteShellLayout2411','siteShellLayout2601','siteShellLayout2602'].forEach(id=>document.getElementById(id)?.remove());
-    const existing=document.getElementById('siteShellLayout2603');if(existing){document.head.appendChild(existing);return}
-    const style=document.createElement('style');style.id='siteShellLayout2603';style.textContent=`
+    ['siteShellLayout2401','siteShellLayout2404','siteShellLayout2405','siteShellLayout2406','siteShellLayout2407','siteShellLayout2408','siteShellLayout2409','siteShellLayout2410','siteShellLayout2411','siteShellLayout2601','siteShellLayout2602','siteShellLayout2603'].forEach(id=>document.getElementById(id)?.remove());
+    const existing=document.getElementById('siteShellLayout2604');if(existing){document.head.appendChild(existing);return}
+    const style=document.createElement('style');style.id='siteShellLayout2604';style.textContent=`
       html body .site-footer .footer-inner{width:min(calc(100% - 40px),var(--shell,1180px))!important;max-width:var(--shell,1180px)!important;margin-inline:auto!important;min-height:150px!important;padding:0!important;display:flex!important;align-items:center!important;justify-content:space-between!important;gap:30px!important;text-align:left!important}
       html body .site-footer .z3z-credit{width:auto!important;display:flex!important;flex-direction:column!important;align-items:flex-start!important;justify-content:center!important;gap:7px!important;text-align:left!important}
       html body .site-footer .footer-links{width:auto!important;display:flex!important;align-items:center!important;justify-content:flex-end!important;flex-wrap:wrap!important;gap:22px!important;text-align:left!important}
@@ -42,12 +46,11 @@
     const midi=document.createElement('link');midi.rel='stylesheet';midi.href=MIDI_LAYOUT_HREF;midi.dataset.midiLayoutRelease=RELEASE_EPOCH;document.head.appendChild(midi);
     const polish=document.createElement('link');polish.rel='stylesheet';polish.href=CONSOLE_POLISH_HREF;polish.dataset.consolePolishRelease=RELEASE_EPOCH;document.head.appendChild(polish);
   }
-
   function installMidiActionRow(){
     const router=document.getElementById('midiRouter'),secondary=router?.querySelector('.midi-router-secondary'),guide=document.getElementById('midiHardwareGuide'),panic=document.getElementById('midiPanic'),badge=document.getElementById('midiRouterBadge');
     if(!router||!secondary||!guide||!panic)return;badge?.setAttribute('aria-hidden','true');
     let row=router.querySelector('.midi-router-actions');if(!row){row=document.createElement('div');row.className='midi-router-actions';secondary.insertAdjacentElement('afterend',row)}
-    if(guide.parentElement!==row)row.appendChild(guide);if(panic.parentElement!==row)row.appendChild(panic);
+    if(guide.parentElement!==row)row.appendChild(guide);if(panic.parentElement!==row)row.appendChild(panic;
   }
 
   function t8Ready(){const state=window.__303boxMidiRouter?.state,badge=document.getElementById('midiRouterBadge');return!!(state?.enabled&&!state?.blocked&&state?.effective==='t8'&&badge?.classList.contains('ready'))}
@@ -75,7 +78,7 @@
   function installScopePolish(){const panel=document.querySelector('#acidConsole .scope-panel');if(!panel)return;applyScopePolish(panel);if(!scopePolishObserver){scopePolishObserver=new MutationObserver(()=>applyScopePolish(panel));scopePolishObserver.observe(panel,{childList:true,subtree:true})}}
 
   function render(){
-    installSharedLayout();installReleaseStyles();installHardwareFidelity();installMidiActionRow();syncRhythmTransferButton();installScopePolish();const lang=language();
+    installSharedLayout();installReleaseStyles();installPitchModel();installHardwareFidelity();installMidiActionRow();syncRhythmTransferButton();installScopePolish();const lang=language();
     document.querySelectorAll('[data-shell-i18n]').forEach(element=>{const key=element.dataset.shellI18n;if(key)element.textContent=text(key,lang)});
     document.querySelectorAll('[data-shell-i18n-attr]').forEach(element=>{const key=element.dataset.shellI18nAttr;if(key)element.setAttribute('aria-label',text(key,lang))});
     document.querySelectorAll('[data-language-switch]').forEach(button=>button.setAttribute('aria-label',text('changeLanguage',lang)));
@@ -85,7 +88,7 @@
     document.querySelectorAll('.footer-links a[href="/privacy.html"]').forEach(link=>link.removeAttribute('aria-current'));
   }
 
-  installBackgroundPlaybackPolicy();installHardwareFidelity();
+  installBackgroundPlaybackPolicy();installPitchModel();installHardwareFidelity();
   document.addEventListener('303box:languagechange',render);document.addEventListener('303box:content-refresh',render);document.addEventListener('303box:ready',render);
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',render,{once:true});else render();
   window.__303boxSiteShell={version:SITE_VERSION,render,text,get language(){return language()}};
