@@ -6,8 +6,8 @@ import {fileURLToPath} from 'node:url';
 
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const read=file=>readFileSync(path.join(root,file),'utf8');
-const siteVersion='2026.08.26.5';
-const releaseEpoch='20260826-2950';
+const siteVersion='2026.08.26.6';
+const releaseEpoch='20260826-2960';
 const htmlFiles=['index.html','privacy.html','303-pattern-guide.html','acid-house-guide.html','tr/index.html','tr/303-pattern-rehberi.html','tr/acid-house-rehberi.html'];
 
 test('all public pages retain one structural footer',()=>{
@@ -20,15 +20,34 @@ test('all public pages retain one structural footer',()=>{
   for(const footer of footers.slice(1))assert.equal(footer,footers[0],'public footers must remain structurally identical');
 });
 
-test('site shell publishes the current release and loads pitch plus hardware modules',()=>{
+test('site shell publishes the current release and loads pitch plus split hardware modules',()=>{
   const shell=read('site-shell.20260821-2600.js');
   assert.match(shell,new RegExp(`const SITE_VERSION='${siteVersion.replaceAll('.','\\.')}'`));
   assert.match(shell,new RegExp(`const RELEASE_EPOCH='${releaseEpoch}'`));
   assert.match(shell,/pitch-octave\.20260826-2940\.js/);
+  assert.match(shell,/hardware-guide\.20260826-2960\.js/);
   assert.match(shell,/hardware-fidelity\.20260826-2950\.js/);
   assert.match(shell,/installPitchModel\(\)/);
+  assert.match(shell,/installHardwareGuide\(\)/);
   assert.match(shell,/installHardwareFidelity\(\)/);
   assert.match(shell,/visibilitychange.*stopImmediatePropagation/s);
+});
+
+test('live index no longer loads the legacy TD-3 writer and uses one family option',()=>{
+  const html=read('index.html');
+  assert.match(html,/hardware-guide\.20260826-2960\.js\?v=20260826-2960/);
+  assert.doesNotMatch(html,/hardware-guide\.20260819-0815\.js/);
+  assert.match(html,/<option value="td3">TD-3 \/ TD-3-MO<\/option>/);
+  assert.doesNotMatch(html,/<option value="td3mo">/);
+});
+
+test('hardware guide is UI-only while hardware fidelity owns transfers',()=>{
+  const guide=read('hardware-guide.20260826-2960.js');
+  assert.match(guide,/const FAMILY='TD-3 \/ TD-3-MO'/);
+  assert.match(guide,/window\.__303boxHardwareGuide=\{version:'2960'/);
+  assert.doesNotMatch(guide,/requestMIDIAccess/);
+  assert.doesNotMatch(guide,/beginExclusive/);
+  assert.doesNotMatch(guide,/writeAndVerify/);
 });
 
 test('hardware fidelity uses one TD-3 family name and a bounded two-stage write flow',()=>{
