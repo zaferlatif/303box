@@ -9,7 +9,7 @@
   const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
   const nextFrame=()=>new Promise(resolve=>requestAnimationFrame(()=>resolve()));
 
-  const RELEASE='20260826-3010';
+  const RELEASE='20260826-2930';
   const TD3_PREFIX=[0xF0,0x00,0x20,0x32,0x00,0x01,0x0A];
   const TD3_PRODUCT=[...TD3_PREFIX,0x06,0xF7];
   const TD3_FIRMWARE=[...TD3_PREFIX,0x08,0x00,0xF7];
@@ -29,7 +29,7 @@
   const norm=s=>String(s||'').toLowerCase().replace(/[^a-z0-9]+/g,'');
   const isTd3Name=s=>/\btd\s*-?\s*3(?:\s*-?\s*mo)?\b/i.test(String(s||''));
   const isTd3Product=s=>/^TD-3(?:-MO)?(?:\s|$)/i.test(String(s||''));
-  const connected=p=>!!p&&p.state!=='disconnected';
+  const connected=p=>!!p&&p.state==='connected';
 
   function error(code,cause){const e=new Error(code);e.code=code;if(cause)e.cause=cause;return e}
   function withTimeout(promise,ms,code){
@@ -100,13 +100,11 @@
       boolPair(out,0x2C+i*2,!rest&&String(s.expr||'').includes('A'));
       boolPair(out,0x4C+i*2,!rest&&String(s.expr||'').includes('S'));
     }
-    const format=window.__303boxPatternFormat,len=clamp(Number(format?.bassLength)||16,1,16),lp=pair(len);
-    out[0x6C]=0;out[0x6D]=format?.bassGrid==='triplet'?1:0;out[0x6E]=lp[0];out[0x6F]=lp[1];
-    const normalMask=mask16(normal),restMask=mask16(rests);for(let i=0;i<4;i++){out[0x72+i]=normalMask[i];out[0x76+i]=restMask[i]}return out;
+    out[0x6E]=1;out[0x6F]=0;const normalMask=mask16(normal),restMask=mask16(rests);for(let i=0;i<4;i++){out[0x72+i]=normalMask[i];out[0x76+i]=restMask[i]}return out;
   }
   function comparable(a,b){
     if(!Array.isArray(a)||!Array.isArray(b)||a.length!==TD3_PATTERN_BYTES||b.length!==TD3_PATTERN_BYTES)return false;
-    for(const[start,end]of[[0x0C,0x70],[0x72,0x7A]])for(let i=start;i<end;i++)if(a[i]!==b[i])return false;
+    for(const[start,end]of[[0x0C,0x6C],[0x6E,0x70],[0x72,0x7A]])for(let i=start;i<end;i++)if(a[i]!==b[i])return false;
     return a[8]===b[8]&&a[9]===b[9];
   }
 
@@ -116,10 +114,9 @@
     $$('#td3DirectBox .td3-direct-actions button').forEach(el=>el.disabled=on);
   }
   function findPorts(access){
-    const outputs=[...access.outputs.values()].filter(p=>connected(p)&&isTd3Name(portName(p))),inputs=[...access.inputs.values()].filter(p=>connected(p)&&isTd3Name(portName(p)));
-    const router=window.__303boxMidiRouter?.state||{},routerName=router.outputName||'';
-    let output=router.outputId?outputs.find(p=>p.id===router.outputId):null;
-    if(!output&&routerName)output=outputs.find(p=>norm(portName(p))===norm(routerName));if(!output&&outputs.length===1)output=outputs[0];if(!output)return null;
+    const outputs=[...access.outputs.values()].filter(p=>p.state==='connected'&&isTd3Name(portName(p))),inputs=[...access.inputs.values()].filter(p=>p.state==='connected'&&isTd3Name(portName(p)));
+    const routerName=window.__303boxMidiRouter?.state?.outputName||'';
+    let output=routerName?outputs.find(p=>norm(portName(p))===norm(routerName)):null;if(!output&&outputs.length===1)output=outputs[0];if(!output)return null;
     let input=inputs.find(p=>norm(portName(p))===norm(portName(output)))||null;if(!input&&inputs.length===1)input=inputs[0];return input?{input,output}:null;
   }
   function transact(message,test,timeout=1600,label='request'){
@@ -194,8 +191,8 @@
   async function restore(){const b=loadBackup();if(!b?.bytes||!b?.target)throw error('changed');await ensure(b.target);await writeAndVerify(b.bytes,b.target);clearPending();status(`${td3.product} ${b.target.label} — ${say('backup restored and verified.','yedek geri yüklendi ve doğrulandı.')}`,'good')}
 
   function patchLabels(){
-    const profile=$('#midiDeviceProfile');if(profile){const auto=[...profile.options].find(o=>o.value==='auto'),td=[...profile.options].find(o=>o.value==='td3');if(auto)auto.textContent='AUTO — T-8 / TD-3 / TD-3-MO';if(td)td.textContent='TD-3 / TD-3-MO'}
-    const card=$('.hardware-device-card[data-device="td3"]');if(card){const h=card.querySelector('.hardware-device-title h3');if(h)h.textContent='TD-3 / TD-3-MO'}
+    const profile=$('#midiDeviceProfile');if(profile){const auto=[...profile.options].find(o=>o.value==='auto'),td=[...profile.options].find(o=>o.value==='td3');if(auto)auto.textContent='AUTO — T-8 / TD-3 / TD-3-MO';if(td)td.textContent='Behringer TD-3 / TD-3-MO'}
+    const card=$('.hardware-device-card[data-device="td3"]');if(card){const h=card.querySelector('.hardware-device-title h3');if(h)h.textContent='Behringer TD-3 / TD-3-MO'}
     const title=$('#hardwareGuideTitle');if(title)title.innerHTML='<span class="lang-en">T-8 and TD-3 / TD-3-MO hardware transfer</span><span class="lang-tr">T-8 ve TD-3 / TD-3-MO donanım aktarımı</span>';
     const head=$('#td3DirectBox .td3-direct-head strong');if(head)head.textContent='TD-3 / TD-3-MO DIRECT WRITE';
   }
