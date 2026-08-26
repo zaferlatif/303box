@@ -40,13 +40,8 @@
         const st=window.__303boxMidiRouter?.state;
         const status=(message[0]||0)&0xF0,channel=((message[0]||0)&0x0F)+1;
         if(st&&(st.effective==='t8'||st.effective==='td3')&&(status===0x80||status===0x90)&&channel===st.bass&&message.length>=3){
-          // 303box note names are register-neutral. Hardware bass starts at C2;
-          // the legacy router emitted C4 (MIDI 60), two octaves too high.
           message[1]=clamp((Number(message[1])||0)-24,0,127);
-          if(st.effective==='t8'&&status===0x90&&message[2]>0){
-            // Give T-8's external REC a clear velocity margin for accent capture.
-            message[2]=message[2]>=120?127:64;
-          }
+          if(st.effective==='t8'&&status===0x90&&message[2]>0)message[2]=message[2]>=120?127:64;
         }
         return timestamp==null?nativeSend(message):nativeSend(message,timestamp);
       };
@@ -100,8 +95,6 @@
     for(let i=0;i<16;i++){
       const s=steps[i]||{},rest=!s.note||s.gate==='-'||!s.gate,tie=!rest&&s.gate==='○';
       rests[i]=rest;normal[i]=!tie;
-      // The TD-3 SysEx format has 16 fixed pitch/accent/slide slots. Rests are
-      // represented separately by the rest mask; do not compact these arrays.
       writePair(out,0x0C+i*2,rest?0x18:td3Pitch(s));
       boolPair(out,0x2C+i*2,!rest&&String(s.expr||'').includes('A'));
       boolPair(out,0x4C+i*2,!rest&&String(s.expr||'').includes('S'));
@@ -220,13 +213,16 @@
   async function commitWrite(){const p=td3.pending;if(!p||Date.now()>p.expires)throw error('changed');if(p.signature!==signature()||p.product!==td3.product)throw error('changed');const tg=target();if(tg.group!==p.tg.group||tg.requestSlot!==p.tg.requestSlot)throw error('changed');await ensure(tg);const actual=await writeAndVerify(p.packet,tg);if(!sameSemantics(semantics(),decodeSemantics(actual)))throw error('verify');clearPending();status(`${td3.product} ${tg.label} — ${say('WRITE VERIFIED: notes, accents, slides and timing match.','YAZMA DOĞRULANDI: nota, accent, slide ve zamanlama eşleşiyor.')} · ${diagnostics()}`,configWarning()?'warn':'good')}
   async function restore(){const b=loadBackup();if(!b?.bytes||!b?.target)throw error('changed');const tg=b.target;await ensure(tg);await writeAndVerify(b.bytes,tg);clearPending();status(`${td3.product} ${tg.label} — ${say('backup restored and verified.','yedek geri yüklendi ve doğrulandı.')}`,'good')}
 
+  function setText(el,value){if(el&&el.textContent!==value)el.textContent=value}
+  function setHtml(el,value){if(el&&el.innerHTML!==value)el.innerHTML=value}
   function patchLabels(){
-    const profile=$('#midiDeviceProfile');if(profile){const auto=[...profile.options].find(o=>o.value==='auto'),td=[...profile.options].find(o=>o.value==='td3');if(auto)auto.textContent='AUTO — T-8 / TD-3 / TD-3-MO';if(td)td.textContent='Behringer TD-3 / TD-3-MO'}
-    const card=$('.hardware-device-card[data-device="td3"]');if(card){const h=card.querySelector('.hardware-device-title h3');if(h)h.textContent='Behringer TD-3 / TD-3-MO'}
-    const title=$('#hardwareGuideTitle');if(title)title.innerHTML='<span class="lang-en">T-8 and TD-3 / TD-3-MO hardware transfer</span><span class="lang-tr">T-8 ve TD-3 / TD-3-MO donanım aktarımı</span>';
-    const head=$('#td3DirectBox .td3-direct-head strong');if(head)head.textContent='TD-3 / TD-3-MO DIRECT WRITE';
-    const warning=$('#td3DirectBox .td3-direct-warning');if(warning)warning.innerHTML=`<span class="lang-en">USB/SysEx is verified by product identity + exact pattern read-back. TD-3 and TD-3-MO share the pattern protocol. For T-8 → TD-3 live chains keep TD-3 MIDI IN TRANSPOSE at 0, Multi Trigger off/Slide, and check the accent threshold.</span><span class="lang-tr">USB/SysEx ürün kimliği + birebir pattern geri okumasıyla doğrulanır. TD-3 ve TD-3-MO aynı pattern protokolünü kullanır. T-8 → TD-3 canlı zincirinde TD-3 MIDI IN TRANSPOSE değerini 0, Multi Trigger ayarını off/Slide tutun ve accent threshold değerini kontrol edin.</span>`;
+    const profile=$('#midiDeviceProfile');if(profile){const auto=[...profile.options].find(o=>o.value==='auto'),td=[...profile.options].find(o=>o.value==='td3');setText(auto,'AUTO — T-8 / TD-3 / TD-3-MO');setText(td,'Behringer TD-3 / TD-3-MO')}
+    const card=$('.hardware-device-card[data-device="td3"]');if(card)setText(card.querySelector('.hardware-device-title h3'),'Behringer TD-3 / TD-3-MO');
+    setHtml($('#hardwareGuideTitle'),'<span class="lang-en">T-8 and TD-3 / TD-3-MO hardware transfer</span><span class="lang-tr">T-8 ve TD-3 / TD-3-MO donanım aktarımı</span>');
+    setText($('#td3DirectBox .td3-direct-head strong'),'TD-3 / TD-3-MO DIRECT WRITE');
+    setHtml($('#td3DirectBox .td3-direct-warning'),'<span class="lang-en">USB/SysEx is verified by product identity + exact pattern read-back. TD-3 and TD-3-MO share the pattern protocol. For T-8 → TD-3 live chains keep TD-3 MIDI IN TRANSPOSE at 0, Multi Trigger off/Slide, and check the accent threshold.</span><span class="lang-tr">USB/SysEx ürün kimliği + birebir pattern geri okumasıyla doğrulanır. TD-3 ve TD-3-MO aynı pattern protokolünü kullanır. T-8 → TD-3 canlı zincirinde TD-3 MIDI IN TRANSPOSE değerini 0, Multi Trigger ayarını off/Slide tutun ve accent threshold değerini kontrol edin.</span>');
   }
+  const schedulePatch=()=>setTimeout(patchLabels,0);
 
   function installCapture(){
     window.addEventListener('click',event=>{
@@ -241,8 +237,11 @@
 
   function init(){
     installMidiRegisterFix();installCapture();patchLabels();
-    const observer=new MutationObserver(patchLabels);observer.observe(document.documentElement,{childList:true,subtree:true});
-    document.addEventListener('303box:languagechange',patchLabels);
+    document.addEventListener('303box:languagechange',schedulePatch);
+    document.addEventListener('303box:ready',schedulePatch);
+    document.addEventListener('303box:content-refresh',schedulePatch);
+    document.addEventListener('click',event=>{if(event.target?.closest?.('#midiHardwareGuide,[data-hardware-guide-open]'))schedulePatch()},true);
+    document.addEventListener('change',event=>{if(event.target?.closest?.('#midiRouter'))schedulePatch()},true);
     window.__303boxHardwareFidelity={version:RELEASE,encodePattern,decodeSemantics,verify,diagnostics};
   }
 
