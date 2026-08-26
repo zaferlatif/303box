@@ -6,8 +6,8 @@ import {fileURLToPath} from 'node:url';
 
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const read=file=>readFileSync(path.join(root,file),'utf8');
-const siteVersion='2026.08.26.8';
-const releaseEpoch='20260826-2980';
+const siteVersion='2026.08.26.11';
+const releaseEpoch='20260826-3010';
 const htmlFiles=['index.html','privacy.html','303-pattern-guide.html','acid-house-guide.html','tr/index.html','tr/303-pattern-rehberi.html','tr/acid-house-rehberi.html'];
 
 test('all public pages retain one structural footer',()=>{
@@ -20,86 +20,53 @@ test('all public pages retain one structural footer',()=>{
   for(const footer of footers.slice(1))assert.equal(footer,footers[0],'public footers must remain structurally identical');
 });
 
-test('site shell publishes the current release and loads pitch, pattern format and split hardware modules',()=>{
+test('site shell publishes the native-only MIDI release',()=>{
   const shell=read('site-shell.20260821-2600.js');
   assert.match(shell,new RegExp(`const SITE_VERSION='${siteVersion.replaceAll('.','\\.')}'`));
   assert.match(shell,new RegExp(`const RELEASE_EPOCH='${releaseEpoch}'`));
   assert.match(shell,/pitch-octave\.20260826-2940\.js/);
   assert.match(shell,/pattern-format\.20260826-2970\.js/);
   assert.match(shell,/hardware-guide\.20260826-2960\.js/);
-  assert.match(shell,/hardware-fidelity\.20260826-2950\.js/);
-  assert.match(shell,/td3-port-recovery\.20260826-2980\.js/);
-  assert.match(shell,/installPitchModel\(\)/);
-  assert.match(shell,/installPatternFormat\(\)/);
-  assert.match(shell,/installHardwareGuide\(\)/);
-  assert.match(shell,/installHardwareFidelity\(\)/);
-  assert.match(shell,/installTd3PortRecovery\(\)/);
-  assert.match(shell,/visibilitychange.*stopImmediatePropagation/s);
+  assert.match(shell,/hardware-fidelity\.20260826-2930\.js/);
+  assert.doesNotMatch(shell,/td3-port-recovery/);
+  assert.doesNotMatch(shell,/Object\.defineProperty\(proto,'requestMIDIAccess'/);
 });
 
-test('live index no longer loads the legacy TD-3 writer and uses one family option',()=>{
+test('live index cache-busts every active app asset to 3010',()=>{
   const html=read('index.html');
-  assert.match(html,/hardware-guide\.20260826-2960\.js\?v=20260826-2980/);
-  assert.doesNotMatch(html,/hardware-guide\.20260819-0815\.js/);
+  assert.match(html,/site-shell\.20260821-2600\.js\?v=20260826-3010/);
+  assert.match(html,/midi-router\.20260818-1730\.js\?v=20260826-3010/);
+  assert.match(html,/hardware-guide\.20260826-2960\.js\?v=20260826-3010/);
   assert.match(html,/<option value="td3">TD-3 \/ TD-3-MO<\/option>/);
-  assert.doesNotMatch(html,/<option value="td3mo">/);
-  assert.match(html,/site-shell\.20260821-2600\.js\?v=20260826-2980/);
+  assert.doesNotMatch(html,/20260826-2980/);
 });
 
-test('TD-3 port recovery handles router auto-selection and non-identical SysEx port names',()=>{
-  const recovery=read('td3-port-recovery.20260826-2980.js');
-  assert.match(recovery,/const VERSION='20260826-2980'/);
-  assert.match(recovery,/n\.includes\('td3'\)\|\|n\.includes\('td3mo'\)/);
-  assert.match(recovery,/chooseTd3Pair/);
-  assert.match(recovery,/pairScore/);
-  assert.match(recovery,/options\?\.sysex/);
-  assert.match(recovery,/midiRouterOut/);
-  assert.match(recovery,/profile\.value='td3'/);
+test('octave and pattern format layers do not monkey-patch Web MIDI',()=>{
+  const pitch=read('pitch-octave.20260826-2940.js'),format=read('pattern-format.20260826-2970.js');
+  assert.match(pitch,/version:'20260826-3010'/);
+  assert.match(format,/VERSION='20260826-3010'/);
+  assert.doesNotMatch(pitch,/requestMIDIAccess/);
+  assert.doesNotMatch(format,/requestMIDIAccess/);
+  assert.doesNotMatch(pitch,/patchedOutputs/);
+  assert.doesNotMatch(format,/patchTd3Packet/);
 });
 
-test('pattern format owns device-aware length, page, grid and musical tools',()=>{
-  const format=read('pattern-format.20260826-2970.js');
-  assert.match(format,/lengths:\{browser:16,t8:32,td3:16,t8Rhythm:32\}/);
-  assert.match(format,/maxSteps\(target=resolvedTarget\(\)\).*target==='td3'\?16:32/s);
-  assert.match(format,/data-format-page="0">1–16/);
-  assert.match(format,/data-format-page="1">17–32/);
-  assert.match(format,/ROOT/);
-  assert.match(format,/SCALE/);
-  assert.match(format,/NUDGE/);
-  assert.match(format,/FIT SCALE/);
-  assert.match(format,/patchTd3Packet/);
-  assert.match(format,/data\[0x6D\]=state\.grids\.td3==='triplet'\?1:0/);
-  assert.match(format,/data\[0x6E\]=p\[0\];data\[0x6F\]=p\[1\]/);
-  assert.match(format,/LENGTH\\t= \$\{len\}/);
-  assert.match(format,/for\(let step=1;step<=32;step\+\+\)/);
-});
-
-test('hardware guide is UI-only while hardware fidelity owns transfers',()=>{
-  const guide=read('hardware-guide.20260826-2960.js');
-  assert.match(guide,/const FAMILY='TD-3 \/ TD-3-MO'/);
-  assert.match(guide,/window\.__303boxHardwareGuide=\{version:'2960'/);
-  assert.doesNotMatch(guide,/requestMIDIAccess/);
-  assert.doesNotMatch(guide,/beginExclusive/);
-  assert.doesNotMatch(guide,/writeAndVerify/);
-});
-
-test('hardware fidelity uses one TD-3 family name and a bounded two-stage write flow',()=>{
-  const fidelity=read('hardware-fidelity.20260826-2950.js');
-  assert.match(fidelity,/const FAMILY='TD-3 \/ TD-3-MO'/);
-  assert.match(fidelity,/TD3_WRITE_ATTEMPTS=2/);
-  assert.match(fidelity,/TD3_READ_RETRIES=2/);
-  assert.match(fidelity,/TD3_CONFIG=\[\.\.\.TD3_PREFIX,0x75,0xF7\]/);
-  assert.match(fidelity,/operation\(prepareWrite,\{activeId:b\.id,exclusive:false,stopAudio:false,timeout:7000\}\)/);
-  assert.match(fidelity,/operation\(commitWrite,\{activeId:b\.id,exclusive:true,stopAudio:true,timeout:18000\}\)/);
-  assert.match(fidelity,/backup saved\. Nothing written yet/);
-  assert.match(fidelity,/WRITE VERIFIED: notes, accents and slides match/);
-  assert.match(fidelity,/readPair\(packet,0x0C\+i\*2\)/);
-  assert.doesNotMatch(fidelity,/packByRests/);
-});
-
-test('legacy router remains limited to the two supported hardware families',()=>{
+test('router owns MIDI discovery and absolute octave mapping',()=>{
   const midi=read('midi-router.20260818-1730.js');
-  assert.match(midi,/const ALLOWED=new Set\(\['auto','t8','td3'\]\)/);
-  assert.match(midi,/TD3_SLIDE_TICKS=3/);
-  assert.doesNotMatch(midi,/volca/i);
+  assert.match(midi,/version:'2403'/);
+  assert.match(midi,/requestFreshAccess/);
+  assert.match(midi,/requestMIDIAccess\(\{sysex:false\}\)/);
+  assert.match(midi,/requestMIDIAccess\(\{sysex:true\}\)/);
+  assert.match(midi,/RESCAN MIDI/);
+  assert.match(midi,/\(absolute\+1\)\*12\+\(n-60\)/);
+  assert.match(midi,/TD-3 \/ TD-3-MO/);
+});
+
+test('hardware fidelity writes length and triplet directly',()=>{
+  const fidelity=read('hardware-fidelity.20260826-2930.js');
+  assert.match(fidelity,/const RELEASE='20260826-3010'/);
+  assert.match(fidelity,/format\?\.bassGrid==='triplet'/);
+  assert.match(fidelity,/out\[0x6C\]=0;out\[0x6D\]/);
+  assert.match(fidelity,/out\[0x6E\]=lp\[0\];out\[0x6F\]=lp\[1\]/);
+  assert.match(fidelity,/requestMIDIAccess\(\{sysex:true\}\)/);
 });
