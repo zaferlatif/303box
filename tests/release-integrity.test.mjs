@@ -6,8 +6,8 @@ import {fileURLToPath} from 'node:url';
 
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const read=file=>readFileSync(path.join(root,file),'utf8');
-const siteVersion='2026.08.26.1';
-const releaseEpoch='20260826-2900';
+const siteVersion='2026.08.26.2';
+const releaseEpoch='20260826-2910';
 const htmlFiles=['index.html','privacy.html','303-pattern-guide.html','acid-house-guide.html','tr/index.html','tr/303-pattern-rehberi.html','tr/acid-house-rehberi.html'];
 
 test('all public pages retain one structural footer',()=>{
@@ -25,6 +25,7 @@ test('site shell publishes the current release and loads the hardware fidelity m
   assert.match(shell,new RegExp(`const SITE_VERSION='${siteVersion.replaceAll('.','\\.')}'`));
   assert.match(shell,new RegExp(`const RELEASE_EPOCH='${releaseEpoch}'`));
   assert.match(shell,/hardware-fidelity\.20260826-2900\.js/);
+  assert.match(shell,/installMidiRegisterFix\(\)/);
   assert.match(shell,/installHardwareFidelity\(\)/);
   assert.match(shell,/visibilitychange.*stopImmediatePropagation/s);
 });
