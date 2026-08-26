@@ -1,51 +1,18 @@
 (() => {
   'use strict';
 
-  const SITE_VERSION='2026.08.26.2';
-  const RELEASE_EPOCH='20260826-2910';
+  const SITE_VERSION='2026.08.26.3';
+  const RELEASE_EPOCH='20260826-2930';
   const MIDI_LAYOUT_HREF=`./midi-layout.20260824-2800.css?v=${RELEASE_EPOCH}`;
   const CONSOLE_POLISH_HREF=`./console-polish.20260824-2840.css?v=${RELEASE_EPOCH}`;
-  const HARDWARE_FIDELITY_SRC=`./hardware-fidelity.20260826-2900.js?v=${RELEASE_EPOCH}`;
+  const HARDWARE_FIDELITY_SRC=`./hardware-fidelity.20260826-2930.js?v=${RELEASE_EPOCH}`;
   const COPY={
     en:{brandTag:'Acid pattern laboratory',primaryNavigation:'Primary navigation',rhythm:'Rhythm',guide:'Guide',history:'History',faq:'FAQ',openSequencer:'Open sequencer',changeLanguage:'Change language',footerCredit:'303box is an independent music tool built by Z3Z.',footerDisclaimer:'Disclaimer',footerShortcuts:'Shortcuts',footerPrivacy:'Privacy',versionLabel:'Site version'},
     tr:{brandTag:'Acid pattern laboratuvarı',primaryNavigation:'Ana navigasyon',rhythm:'Ritim',guide:'Rehber',history:'Tarihçe',faq:'SSS',openSequencer:'Sequencer’ı aç',changeLanguage:'Dili değiştir',footerCredit:'303box, Z3Z tarafından geliştirilen bağımsız bir müzik aracıdır.',footerDisclaimer:'Sorumluluk',footerShortcuts:'Kısayollar',footerPrivacy:'Gizlilik',versionLabel:'Site sürümü'}
   };
   const language=()=>document.documentElement.lang==='tr'?'tr':'en';
   const text=(key,lang=language())=>COPY[lang][key]??COPY.en[key]??key;
-  const midiOutputsPatched=new WeakSet();
   let scopePolishObserver=null,midiTransferObserver=null,rhythmTransferBusy=false;
-
-  function patchHardwareMidiOutput(output){
-    if(!output||midiOutputsPatched.has(output)||typeof output.send!=='function')return;
-    const nativeSend=output.send.bind(output);
-    try{
-      output.send=function(data,timestamp){
-        const message=Array.from(data||[]),state=window.__303boxMidiRouter?.state;
-        const status=(message[0]||0)&0xF0,channel=((message[0]||0)&0x0F)+1;
-        if(state&&(state.effective==='t8'||state.effective==='td3')&&(status===0x80||status===0x90)&&channel===state.bass&&message.length>=3){
-          message[1]=Math.min(127,Math.max(0,(Number(message[1])||0)-24));
-          if(state.effective==='t8'&&status===0x90&&message[2]>0)message[2]=message[2]>=120?127:64;
-        }
-        return timestamp==null?nativeSend(message):nativeSend(message,timestamp);
-      };
-      midiOutputsPatched.add(output);
-    }catch(_){}
-  }
-
-  function installMidiRegisterFix(){
-    if(window.__303boxMidiRegisterFixInstalled)return;
-    window.__303boxMidiRegisterFixInstalled=true;
-    const proto=Object.getPrototypeOf(navigator),nativeRequest=proto?.requestMIDIAccess;
-    if(typeof nativeRequest!=='function')return;
-    const wrapped=function(options){return nativeRequest.call(this,options).then(access=>{access?.outputs?.forEach?.(patchHardwareMidiOutput);access?.addEventListener?.('statechange',event=>{if(event?.port?.type==='output')patchHardwareMidiOutput(event.port)});return access})};
-    try{Object.defineProperty(proto,'requestMIDIAccess',{value:wrapped,configurable:true,writable:true})}
-    catch(_){try{navigator.requestMIDIAccess=wrapped.bind(navigator)}catch(__){}}
-  }
-
-  function installHardwareFidelity(){
-    if(window.__303boxHardwareFidelity||document.querySelector('script[data-hardware-fidelity-release]'))return;
-    const script=document.createElement('script');script.src=HARDWARE_FIDELITY_SRC;script.async=false;script.dataset.hardwareFidelityRelease=RELEASE_EPOCH;document.head.appendChild(script);
-  }
 
   function installBackgroundPlaybackPolicy(){
     if(window.__303boxBackgroundPlaybackPolicyInstalled)return;
@@ -53,19 +20,19 @@
     document.addEventListener('visibilitychange',event=>{if(document.hidden)event.stopImmediatePropagation()},true);
   }
 
+  function installHardwareFidelity(){
+    if(window.__303boxHardwareFidelity?.version==='20260826-2930'||document.querySelector('script[data-hardware-fidelity-release="20260826-2930"]'))return;
+    const script=document.createElement('script');script.src=HARDWARE_FIDELITY_SRC;script.async=false;script.dataset.hardwareFidelityRelease='20260826-2930';document.head.appendChild(script);
+  }
+
   function installSharedLayout(){
-    ['siteShellLayout2401','siteShellLayout2404','siteShellLayout2405','siteShellLayout2406','siteShellLayout2407','siteShellLayout2408','siteShellLayout2409','siteShellLayout2410','siteShellLayout2411','siteShellLayout2601'].forEach(id=>document.getElementById(id)?.remove());
-    const existing=document.getElementById('siteShellLayout2602');
-    if(existing){document.head.appendChild(existing);return}
-    const style=document.createElement('style');style.id='siteShellLayout2602';style.textContent=`
+    ['siteShellLayout2401','siteShellLayout2404','siteShellLayout2405','siteShellLayout2406','siteShellLayout2407','siteShellLayout2408','siteShellLayout2409','siteShellLayout2410','siteShellLayout2411','siteShellLayout2601','siteShellLayout2602'].forEach(id=>document.getElementById(id)?.remove());
+    const existing=document.getElementById('siteShellLayout2603');if(existing){document.head.appendChild(existing);return}
+    const style=document.createElement('style');style.id='siteShellLayout2603';style.textContent=`
       html body .site-footer .footer-inner{width:min(calc(100% - 40px),var(--shell,1180px))!important;max-width:var(--shell,1180px)!important;margin-inline:auto!important;min-height:150px!important;padding:0!important;display:flex!important;align-items:center!important;justify-content:space-between!important;gap:30px!important;text-align:left!important}
       html body .site-footer .z3z-credit{width:auto!important;display:flex!important;flex-direction:column!important;align-items:flex-start!important;justify-content:center!important;gap:7px!important;text-align:left!important}
       html body .site-footer .footer-links{width:auto!important;display:flex!important;align-items:center!important;justify-content:flex-end!important;flex-wrap:wrap!important;gap:22px!important;text-align:left!important}
-      @media(max-width:760px){
-        html body .site-footer .footer-inner{width:min(calc(100% - 40px),var(--shell,1180px))!important;min-height:0!important;padding:34px 0!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:20px!important;text-align:center!important}
-        html body .site-footer .z3z-credit{width:100%!important;align-items:center!important;text-align:center!important}
-        html body .site-footer .footer-links{width:100%!important;justify-content:center!important;align-items:center!important;gap:12px 20px!important;text-align:center!important}
-      }
+      @media(max-width:760px){html body .site-footer .footer-inner{width:min(calc(100% - 40px),var(--shell,1180px))!important;min-height:0!important;padding:34px 0!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:20px!important;text-align:center!important}html body .site-footer .z3z-credit{width:100%!important;align-items:center!important;text-align:center!important}html body .site-footer .footer-links{width:100%!important;justify-content:center!important;align-items:center!important;gap:12px 20px!important;text-align:center!important}}
       @media(max-width:430px){html body .site-footer .footer-inner{width:calc(100% - 28px)!important}html body .site-footer .footer-links{gap:10px 16px!important}}
     `;document.head.appendChild(style);
   }
@@ -83,19 +50,15 @@
     if(guide.parentElement!==row)row.appendChild(guide);if(panic.parentElement!==row)row.appendChild(panic);
   }
 
-  function t8Ready(){const state=window.__303boxMidiRouter?.state,badge=document.getElementById('midiRouterBadge');return !!(state?.enabled&&!state?.blocked&&state?.effective==='t8'&&badge?.classList.contains('ready'))}
-
+  function t8Ready(){const state=window.__303boxMidiRouter?.state,badge=document.getElementById('midiRouterBadge');return!!(state?.enabled&&!state?.blocked&&state?.effective==='t8'&&badge?.classList.contains('ready'))}
   async function runRhythmPrm(button){
     if(rhythmTransferBusy||!t8Ready())return;const api=window.__303boxT8Prm;
     if(!api){button.textContent=language()==='tr'?'PRM HAZIR DEĞİL':'PRM NOT READY';setTimeout(syncRhythmTransferButton,1200);return}
     rhythmTransferBusy=true;syncRhythmTransferButton();
-    try{
-      if(typeof window.showSaveFilePicker==='function'||typeof window.showDirectoryPicker==='function'){await api.writeRhythmPrm('RHYTHM_PTN01_01.PRM');button.textContent=language()==='tr'?'PRM YAZILDI':'PRM WRITTEN'}
-      else{api.downloadRhythmPrm('RHYTHM_PTN01_01.PRM');button.textContent=language()==='tr'?'PRM İNDİRİLDİ':'PRM DOWNLOADED'}
-    }catch(err){if(err?.name!=='AbortError'){console.warn('[303box] T-8 rhythm PRM transfer failed',err);button.textContent=language()==='tr'?'PRM BAŞARISIZ':'PRM FAILED'}}
+    try{if(typeof window.showSaveFilePicker==='function'||typeof window.showDirectoryPicker==='function'){await api.writeRhythmPrm('RHYTHM_PTN01_01.PRM');button.textContent=language()==='tr'?'PRM YAZILDI':'PRM WRITTEN'}else{api.downloadRhythmPrm('RHYTHM_PTN01_01.PRM');button.textContent=language()==='tr'?'PRM İNDİRİLDİ':'PRM DOWNLOADED'}}
+    catch(err){if(err?.name!=='AbortError'){console.warn('[303box] T-8 rhythm PRM transfer failed',err);button.textContent=language()==='tr'?'PRM BAŞARISIZ':'PRM FAILED'}}
     finally{setTimeout(()=>{rhythmTransferBusy=false;syncRhythmTransferButton()},1300)}
   }
-
   function syncRhythmTransferButton(){
     const router=document.getElementById('midiRouter'),assist=document.getElementById('midiRecAssist');if(!router||!assist)return;
     const legacy=document.getElementById('midiRecRhythm');if(legacy){if(!legacy.hidden)legacy.hidden=true;if(legacy.getAttribute('aria-hidden')!=='true')legacy.setAttribute('aria-hidden','true')}
@@ -109,11 +72,7 @@
     const controls=panel.querySelector('#scopeSourceControls'),tabs=panel.querySelector('.mini-tabs');if(controls&&tabs&&tabs.parentElement!==controls)controls.prepend(tabs);tabs?.classList.add('scope-control-grid');
     const head=panel.querySelector('.mini-analyzer-head'),status=document.getElementById('scopeInputStatus');if(head&&status){status.classList.add('scope-hardware-status');if(status.parentElement!==head)head.appendChild(status)}
   }
-
-  function installScopePolish(){
-    const panel=document.querySelector('#acidConsole .scope-panel');if(!panel)return;applyScopePolish(panel);
-    if(!scopePolishObserver){scopePolishObserver=new MutationObserver(()=>applyScopePolish(panel));scopePolishObserver.observe(panel,{childList:true,subtree:true})}
-  }
+  function installScopePolish(){const panel=document.querySelector('#acidConsole .scope-panel');if(!panel)return;applyScopePolish(panel);if(!scopePolishObserver){scopePolishObserver=new MutationObserver(()=>applyScopePolish(panel));scopePolishObserver.observe(panel,{childList:true,subtree:true})}}
 
   function render(){
     installSharedLayout();installReleaseStyles();installHardwareFidelity();installMidiActionRow();syncRhythmTransferButton();installScopePolish();const lang=language();
@@ -126,7 +85,7 @@
     document.querySelectorAll('.footer-links a[href="/privacy.html"]').forEach(link=>link.removeAttribute('aria-current'));
   }
 
-  installMidiRegisterFix();installBackgroundPlaybackPolicy();installHardwareFidelity();
+  installBackgroundPlaybackPolicy();installHardwareFidelity();
   document.addEventListener('303box:languagechange',render);document.addEventListener('303box:content-refresh',render);document.addEventListener('303box:ready',render);
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',render,{once:true});else render();
   window.__303boxSiteShell={version:SITE_VERSION,render,text,get language(){return language()}};
