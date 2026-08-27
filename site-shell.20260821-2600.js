@@ -1,15 +1,15 @@
 (() => {
   'use strict';
 
-  const SITE_VERSION='2026.08.27.3';
-  const RELEASE_EPOCH='20260827-3150';
+  const SITE_VERSION='2026.08.27.4';
+  const RELEASE_EPOCH='20260827-3160';
   const MIDI_LAYOUT_HREF=`./midi-layout.20260824-2800.css?v=${RELEASE_EPOCH}`;
   const CONSOLE_POLISH_HREF=`./console-polish.20260824-2840.css?v=${RELEASE_EPOCH}`;
   const PITCH_MODEL_SRC=`./pitch-octave.20260826-2940.js?v=${RELEASE_EPOCH}`;
   const HARDWARE_FIDELITY_SRC=`./hardware-fidelity.20260826-2930.js?v=${RELEASE_EPOCH}`;
   const COPY={
-    en:{brandTag:'Acid pattern laboratory',primaryNavigation:'Primary navigation',rhythm:'Rhythm',guide:'Guide',history:'History',faq:'FAQ',openSequencer:'Open sequencer',changeLanguage:'Change language',footerCredit:'303box is an independent music tool built by Z3Z.',footerDisclaimer:'Disclaimer',footerShortcuts:'Shortcuts',footerPrivacy:'Privacy',versionLabel:'Site version'},
-    tr:{brandTag:'Acid pattern laboratuvarı',primaryNavigation:'Ana navigasyon',rhythm:'Ritim',guide:'Rehber',history:'Tarihçe',faq:'SSS',openSequencer:'Sequencer’ı aç',changeLanguage:'Dili değiştir',footerCredit:'303box, Z3Z tarafından geliştirilen bağımsız bir müzik aracıdır.',footerDisclaimer:'Sorumluluk',footerShortcuts:'Kısayollar',footerPrivacy:'Gizlilik',versionLabel:'Site sürümü'}
+    en:{brandTag:'Acid pattern laboratory',primaryNavigation:'Primary navigation',rhythm:'Rhythm',guide:'Guide',history:'History',faq:'FAQ',openSequencer:'Open sequencer',changeLanguage:'Change language',footerCredit:'303box is an independent music tool built by Z3Z.',footerDisclaimer:'Disclaimer',footerShortcuts:'Shortcuts',footerPrivacy:'Privacy',versionLabel:'Site version',openMenu:'Open menu',closeMenu:'Close menu'},
+    tr:{brandTag:'Acid pattern laboratuvarı',primaryNavigation:'Ana navigasyon',rhythm:'Ritim',guide:'Rehber',history:'Tarihçe',faq:'SSS',openSequencer:'Sequencer’ı aç',changeLanguage:'Dili değiştir',footerCredit:'303box, Z3Z tarafından geliştirilen bağımsız bir müzik aracıdır.',footerDisclaimer:'Sorumluluk',footerShortcuts:'Kısayollar',footerPrivacy:'Gizlilik',versionLabel:'Site sürümü',openMenu:'Menüyü aç',closeMenu:'Menüyü kapat'}
   };
   const language=()=>document.documentElement.lang==='tr'?'tr':'en';
   const text=(key,lang=language())=>COPY[lang][key]??COPY.en[key]??key;
@@ -30,7 +30,39 @@
   }
 
   function installSharedLayout(){
-    ['siteShellLayout2401','siteShellLayout2404','siteShellLayout2405','siteShellLayout2406','siteShellLayout2407','siteShellLayout2408','siteShellLayout2409','siteShellLayout2410','siteShellLayout2411','siteShellLayout2601','siteShellLayout2602','siteShellLayout2603','siteShellLayout2604','siteShellLayout2702'].forEach(id=>document.getElementById(id)?.remove());
+    ['siteShellLayout2401','siteShellLayout2404','siteShellLayout2405','siteShellLayout2406','siteShellLayout2407','siteShellLayout2408','siteShellLayout2409','siteShellLayout2410','siteShellLayout2411','siteShellLayout2601','siteShellLayout2602','siteShellLayout2603','siteShellLayout2604','siteShellLayout2702','siteShellMobile2703'].forEach(id=>document.getElementById(id)?.remove());
+    const style=document.createElement('style');style.id='siteShellMobile2704';style.textContent=`
+      .site-header .mobile-menu-toggle,.site-header .mobile-menu{display:none}
+      @media(max-width:760px){
+        html body .site-header{position:relative;z-index:1200}
+        html body .site-header .header-inner{position:relative;grid-template-columns:minmax(0,1fr) auto!important;gap:12px!important}
+        html body .site-header .nav{display:none!important}
+        html body .site-header .header-actions{display:flex!important;align-items:center!important;gap:8px!important}
+        html body .site-header .header-actions>.mini-cta{display:none!important}
+        html body .site-header .language-switch{min-width:66px!important;min-height:42px!important;padding:0 12px!important}
+        html body .site-header .mobile-menu-toggle{width:44px;height:42px;display:inline-grid;place-items:center;border:1px solid #343841;border-radius:10px;background:#121419;color:#f4f4f5;cursor:pointer;padding:0;transition:border-color .18s ease,background .18s ease}
+        html body .site-header .mobile-menu-toggle:hover,html body .site-header .mobile-menu-toggle[aria-expanded="true"]{border-color:#748513;background:#151a0d}
+        html body .site-header .mobile-menu-icon{position:relative;width:19px;height:14px;display:block}
+        html body .site-header .mobile-menu-icon::before,html body .site-header .mobile-menu-icon::after,html body .site-header .mobile-menu-icon span{content:'';position:absolute;left:0;width:19px;height:2px;border-radius:999px;background:currentColor;transition:transform .18s ease,top .18s ease,opacity .18s ease}
+        html body .site-header .mobile-menu-icon::before{top:0}
+        html body .site-header .mobile-menu-icon span{top:6px}
+        html body .site-header .mobile-menu-icon::after{top:12px}
+        html body .site-header .mobile-menu-toggle[aria-expanded="true"] .mobile-menu-icon::before{top:6px;transform:rotate(45deg)}
+        html body .site-header .mobile-menu-toggle[aria-expanded="true"] .mobile-menu-icon span{opacity:0}
+        html body .site-header .mobile-menu-toggle[aria-expanded="true"] .mobile-menu-icon::after{top:6px;transform:rotate(-45deg)}
+        html body .site-header .mobile-menu{position:absolute;top:100%;left:0;right:0;display:block;border-top:1px solid #25272d;border-bottom:1px solid #30333a;background:rgba(7,8,9,.985);box-shadow:0 24px 55px rgba(0,0,0,.48);padding:14px max(16px,calc((100vw - min(calc(100vw - 32px),1180px))/2)) 20px}
+        html body .site-header .mobile-menu[hidden]{display:none!important}
+        html body .site-header .mobile-menu-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+        html body .site-header .mobile-menu a{min-width:0;display:flex;align-items:center;min-height:46px;padding:0 14px;border:1px solid #272a31;border-radius:10px;background:#101216;color:#c7c8ce;text-decoration:none;font-weight:800;font-size:14px}
+        html body .site-header .mobile-menu a:hover,html body .site-header .mobile-menu a:focus-visible{border-color:#697814;color:#d8ff16;outline:none}
+        html body .site-header .mobile-menu .mobile-menu-section{margin:14px 0 8px;color:#72757e;font:800 10px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.14em;text-transform:uppercase}
+        html body .site-header .mobile-menu .mobile-sequencer-cta{margin-top:14px;min-height:52px;justify-content:center;border-color:#d8ff16;background:#d8ff16;color:#090b05;font-weight:950}
+      }
+      @media(max-width:430px){
+        html body .site-header .mobile-menu-grid{grid-template-columns:1fr}
+        html body .site-header .language-switch{min-width:58px!important;padding:0 9px!important}
+      }
+    `;document.head.appendChild(style);
   }
 
   function installReleaseStyles(){
@@ -48,18 +80,36 @@
     };
     return map[normalizedPath()]||(targetLang==='tr'?'/tr/':'/');
   }
+  function setMobileMenu(open){
+    const menu=document.getElementById('mobileMenu'),button=document.getElementById('mobileMenuToggle');if(!menu||!button)return;
+    menu.hidden=!open;button.setAttribute('aria-expanded',String(open));button.setAttribute('aria-label',text(open?'closeMenu':'openMenu'));
+  }
+  function installMobileMenuBehavior(header){
+    const button=header?.querySelector('#mobileMenuToggle'),menu=header?.querySelector('#mobileMenu');if(!button||!menu)return;
+    button.addEventListener('click',event=>{event.stopPropagation();setMobileMenu(button.getAttribute('aria-expanded')!=='true')});
+    menu.querySelectorAll('a').forEach(link=>link.addEventListener('click',()=>setMobileMenu(false)));
+    if(!window.__303boxMobileMenuGlobal){
+      window.__303boxMobileMenuGlobal=true;
+      document.addEventListener('click',event=>{const current=document.querySelector('.site-header');if(current&&!current.contains(event.target))setMobileMenu(false)});
+      document.addEventListener('keydown',event=>{if(event.key==='Escape')setMobileMenu(false)});
+      window.addEventListener('resize',()=>{if(innerWidth>760)setMobileMenu(false)},{passive:true});
+    }
+  }
   function installSharedChrome(){
     const lang=language(),tr=lang==='tr',home=tr?'/tr/':'/',prefix=tr?'/tr/':'/',otherLang=tr?'en':'tr',otherHref=alternateHref(otherLang);
+    const articles=tr?'/tr/rehberler.html':'/guides.html',pattern=tr?'/tr/303-pattern-rehberi.html':'/303-pattern-guide.html',midi=tr?'/tr/midi-donanim-rehberi.html':'/midi-hardware-guide.html',examples=tr?'/tr/303-pattern-ornekleri.html':'/303-pattern-examples.html',about=tr?'/tr/hakkinda.html':'/about.html';
     const header=document.querySelector('.site-header');
     if(header){
       header.innerHTML=`<div class="shell header-inner">
         <a class="brand" href="${home}#top" aria-label="303box home"><span class="brand-glyph" aria-hidden="true">303</span><span class="brand-copy"><strong>303box</strong><small data-shell-i18n="brandTag">${text('brandTag',lang)}</small></span></a>
         <nav class="nav" aria-label="${text('primaryNavigation',lang)}" data-shell-i18n-attr="primaryNavigation"><a href="${prefix}#sequencer">303</a><a href="${prefix}#drums" data-shell-i18n="rhythm">${text('rhythm',lang)}</a><a href="${prefix}#guide" data-shell-i18n="guide">${text('guide',lang)}</a><a href="${prefix}#history" data-shell-i18n="history">${text('history',lang)}</a><a href="${prefix}#faq" data-shell-i18n="faq">${text('faq',lang)}</a></nav>
-        <div class="header-actions"><button class="language-switch" id="languageButton" data-language-switch type="button" aria-label="${text('changeLanguage',lang)}"><span id="languageCurrent" data-language-current>${lang.toUpperCase()}</span><span class="language-separator">/</span><span id="languageNext" data-language-next>${tr?'EN':'TR'}</span></button><a class="mini-cta" href="${prefix}#sequencer" data-shell-i18n="openSequencer">${text('openSequencer',lang)}</a></div>
+        <div class="header-actions"><button class="language-switch" id="languageButton" data-language-switch type="button" aria-label="${text('changeLanguage',lang)}"><span id="languageCurrent" data-language-current>${lang.toUpperCase()}</span><span class="language-separator">/</span><span id="languageNext" data-language-next>${tr?'EN':'TR'}</span></button><a class="mini-cta" href="${prefix}#sequencer" data-shell-i18n="openSequencer">${text('openSequencer',lang)}</a><button class="mobile-menu-toggle" id="mobileMenuToggle" type="button" aria-expanded="false" aria-controls="mobileMenu" aria-label="${text('openMenu',lang)}"><span class="mobile-menu-icon"><span></span></span></button></div>
+        <div class="mobile-menu" id="mobileMenu" hidden><div class="mobile-menu-grid"><a href="${prefix}#sequencer">303</a><a href="${prefix}#drums">${text('rhythm',lang)}</a><a href="${prefix}#guide">${text('guide',lang)}</a><a href="${prefix}#history">${text('history',lang)}</a><a href="${prefix}#faq">${text('faq',lang)}</a></div><div class="mobile-menu-section">${tr?'İÇERİK':'CONTENT'}</div><div class="mobile-menu-grid"><a href="${articles}">${tr?'Yazılar':'Articles'}</a><a href="${pattern}">${tr?'Pattern Rehberi':'Pattern Guide'}</a><a href="${midi}">${tr?'MIDI & Donanım':'MIDI & Hardware'}</a><a href="${examples}">${tr?'Örnekler':'Examples'}</a><a href="${about}">${tr?'Hakkında':'About'}</a></div><a class="mobile-sequencer-cta" href="${prefix}#sequencer">${text('openSequencer',lang)}</a></div>
       </div>`;
       const languageButton=header.querySelector('#languageButton');
       if(languageButton&&!document.body?.dataset?.page){languageButton.addEventListener('click',()=>{try{localStorage.setItem('303-lang',otherLang)}catch(_){}location.href=otherHref})}
-      header.querySelector('.mini-cta')?.addEventListener('click',()=>{try{localStorage.setItem('303-lang',lang)}catch(_){}});
+      header.querySelectorAll('.mini-cta,.mobile-sequencer-cta').forEach(link=>link.addEventListener('click',()=>{try{localStorage.setItem('303-lang',lang)}catch(_){}}));
+      installMobileMenuBehavior(header);
     }
     let footer=document.querySelector('.site-footer');
     if(!footer){footer=document.createElement('footer');footer.className='site-footer';document.body.appendChild(footer)}
