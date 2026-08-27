@@ -110,6 +110,78 @@ html body #acidConsole .scope-panel #scopeInputStatus.scope-hardware-status:empt
 html body #acidConsole .scope-panel .mini-analyzer-head #scopeNote{grid-column:3!important;grid-row:1!important}
 html body #acidConsole .scope-panel .mini-analyzer-head #scopeHz{grid-column:4!important;grid-row:1!important}
 
+/* Footer geometry follows the homepage everywhere. */
+html body .site-footer{
+  border-top:1px solid var(--line-soft,#202024)!important;
+  background:#080809!important;
+  text-align:left!important;
+}
+html body .site-footer .footer-inner{
+  min-height:150px!important;
+  display:flex!important;
+  flex-direction:row!important;
+  justify-content:space-between!important;
+  align-items:center!important;
+  gap:30px!important;
+  text-align:left!important;
+}
+html body .site-footer .z3z-credit{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:flex-start!important;
+  justify-content:center!important;
+  gap:7px!important;
+  margin:0!important;
+  text-align:left!important;
+}
+html body .site-footer .z3z-credit>a,
+html body .site-footer .site-version{
+  align-self:flex-start!important;
+  margin-left:0!important;
+  margin-right:0!important;
+}
+html body .site-footer .footer-links{
+  display:flex!important;
+  flex-direction:row!important;
+  flex-wrap:wrap!important;
+  align-items:center!important;
+  justify-content:flex-end!important;
+  gap:12px 22px!important;
+  margin:0 0 0 auto!important;
+  text-align:right!important;
+}
+html body .site-footer .footer-links a{
+  width:auto!important;
+  margin:0!important;
+  text-align:inherit!important;
+  white-space:nowrap!important;
+}
+
+@media(max-width:760px){
+  html body .site-footer .footer-inner{
+    min-height:0!important;
+    padding:34px 0!important;
+    flex-direction:column!important;
+    align-items:flex-start!important;
+    justify-content:flex-start!important;
+    gap:22px!important;
+    text-align:left!important;
+  }
+  html body .site-footer .z3z-credit{
+    width:100%!important;
+    align-items:flex-start!important;
+    text-align:left!important;
+  }
+  html body .site-footer .footer-links{
+    width:100%!important;
+    margin-left:0!important;
+    justify-content:flex-start!important;
+    align-items:center!important;
+    gap:12px 18px!important;
+    text-align:left!important;
+  }
+}
+
 @media(max-width:430px){
   html body #acidConsole #midiRouter #midiRecAssist:not([hidden]){grid-template-columns:minmax(0,1fr)!important}
   html body #acidConsole .acid-console-scope-cell .scope-panel #scopeSourceControls.scope-source-controls{
