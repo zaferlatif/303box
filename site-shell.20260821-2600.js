@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const SITE_VERSION='2026.08.26.4';
+  const SITE_VERSION='2026.08.27.1';
   const RELEASE_EPOCH='20260826-2940';
   const MIDI_LAYOUT_HREF=`./midi-layout.20260824-2800.css?v=${RELEASE_EPOCH}`;
   const CONSOLE_POLISH_HREF=`./console-polish.20260824-2840.css?v=${RELEASE_EPOCH}`;
@@ -46,6 +46,16 @@
     const midi=document.createElement('link');midi.rel='stylesheet';midi.href=MIDI_LAYOUT_HREF;midi.dataset.midiLayoutRelease=RELEASE_EPOCH;document.head.appendChild(midi);
     const polish=document.createElement('link');polish.rel='stylesheet';polish.href=CONSOLE_POLISH_HREF;polish.dataset.consolePolishRelease=RELEASE_EPOCH;document.head.appendChild(polish);
   }
+  function ensureContentLink(parent,href,label,key){
+    if(!parent)return;let link=[...parent.querySelectorAll('a')].find(a=>a.getAttribute('href')===href);
+    if(!link){link=document.createElement('a');link.href=href;link.dataset.shellContentLink=key;parent.appendChild(link)}
+    link.textContent=label;
+  }
+  function installContentNavigation(){
+    const tr=language()==='tr',articles=tr?'/tr/rehberler.html':'/guides.html',about=tr?'/tr/hakkinda.html':'/about.html';
+    document.querySelectorAll('.site-header .nav').forEach(nav=>ensureContentLink(nav,articles,tr?'Yazılar':'Articles','articles'));
+    document.querySelectorAll('.footer-links').forEach(footer=>{ensureContentLink(footer,articles,tr?'Yazılar':'Articles','articles-footer');ensureContentLink(footer,about,tr?'Hakkında':'About','about-footer')});
+  }
   function installMidiActionRow(){
     const router=document.getElementById('midiRouter'),secondary=router?.querySelector('.midi-router-secondary'),guide=document.getElementById('midiHardwareGuide'),panic=document.getElementById('midiPanic'),badge=document.getElementById('midiRouterBadge');
     if(!router||!secondary||!guide||!panic)return;badge?.setAttribute('aria-hidden','true');
@@ -78,7 +88,7 @@
   function installScopePolish(){const panel=document.querySelector('#acidConsole .scope-panel');if(!panel)return;applyScopePolish(panel);if(!scopePolishObserver){scopePolishObserver=new MutationObserver(()=>applyScopePolish(panel));scopePolishObserver.observe(panel,{childList:true,subtree:true})}}
 
   function render(){
-    installSharedLayout();installReleaseStyles();installPitchModel();installHardwareFidelity();installMidiActionRow();syncRhythmTransferButton();installScopePolish();const lang=language();
+    installSharedLayout();installReleaseStyles();installPitchModel();installHardwareFidelity();installContentNavigation();installMidiActionRow();syncRhythmTransferButton();installScopePolish();const lang=language();
     document.querySelectorAll('[data-shell-i18n]').forEach(element=>{const key=element.dataset.shellI18n;if(key)element.textContent=text(key,lang)});
     document.querySelectorAll('[data-shell-i18n-attr]').forEach(element=>{const key=element.dataset.shellI18nAttr;if(key)element.setAttribute('aria-label',text(key,lang))});
     document.querySelectorAll('[data-language-switch]').forEach(button=>button.setAttribute('aria-label',text('changeLanguage',lang)));
