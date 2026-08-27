@@ -1,8 +1,8 @@
 (() => {
   'use strict';
 
-  const SITE_VERSION='2026.08.27.6';
-  const RELEASE_EPOCH='20260827-3180';
+  const SITE_VERSION='2026.08.27.7';
+  const RELEASE_EPOCH='20260827-3190';
   const MIDI_LAYOUT_HREF=`./midi-layout.20260824-2800.css?v=${RELEASE_EPOCH}`;
   const CONSOLE_POLISH_HREF=`./console-polish.20260824-2840.css?v=${RELEASE_EPOCH}`;
   const PITCH_MODEL_SRC=`./pitch-octave.20260826-2940.js?v=${RELEASE_EPOCH}`;
@@ -30,8 +30,8 @@
   }
 
   function installSharedLayout(){
-    ['siteShellLayout2401','siteShellLayout2404','siteShellLayout2405','siteShellLayout2406','siteShellLayout2407','siteShellLayout2408','siteShellLayout2409','siteShellLayout2410','siteShellLayout2411','siteShellLayout2601','siteShellLayout2602','siteShellLayout2603','siteShellLayout2604','siteShellLayout2702','siteShellMobile2703','siteShellMobile2704','siteShellMobile2705','siteShellMobile2706'].forEach(id=>document.getElementById(id)?.remove());
-    const style=document.createElement('style');style.id='siteShellMobile2706';style.textContent=`
+    ['siteShellLayout2401','siteShellLayout2404','siteShellLayout2405','siteShellLayout2406','siteShellLayout2407','siteShellLayout2408','siteShellLayout2409','siteShellLayout2410','siteShellLayout2411','siteShellLayout2601','siteShellLayout2602','siteShellLayout2603','siteShellLayout2604','siteShellLayout2702','siteShellMobile2703','siteShellMobile2704','siteShellMobile2705','siteShellMobile2706','siteShellMobile2707'].forEach(id=>document.getElementById(id)?.remove());
+    const style=document.createElement('style');style.id='siteShellMobile2707';style.textContent=`
       .site-header .mobile-menu-toggle,.site-header .mobile-menu{display:none}
       @media(min-width:761px){
         html body .site-header .header-inner{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:26px!important;min-height:72px!important}
