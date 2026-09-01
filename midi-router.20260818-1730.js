@@ -44,7 +44,12 @@
 
   const engine=()=>window.__303boxUnifiedEngine;
   const out=()=>state.access?.outputs?.get(state.outputId)||null;
-  const portName=p=>`${p?.manufacturer||''} ${p?.name||''}`.replace(/\s+/g,' ').trim();
+  const portName=p=>{
+    if(!p)return '';
+    const label=`${p.manufacturer||''} ${p.name||''}`.replace(/\s+/g,' ').trim();
+    return label||String(p.id||'MIDI output');
+  };
+  const normalizedPortName=value=>String(value||'').toLowerCase().replace(/[^a-z0-9]+/g,'');
   const detect=name=>/\bt-8\b/i.test(String(name||''))?'t8':/\btd\s*-?\s*3\b/i.test(String(name||''))?'td3':null;
   const ready=()=>!!(state.enabled&&!state.blocked&&!state.exclusive&&out()?.state==='connected'&&state.effective);
   const sendEnabled=()=>ready()&&state.mode!=='browser';
@@ -121,12 +126,18 @@
   function renderOutputs(){
     const sel=$('#midiRouterOut');if(!sel)return;
     const outputs=state.access?[...state.access.outputs.values()].filter(x=>x.state==='connected'):[];
-    if(outputs.some(x=>x.id===state.outputId)){state.outputName=portName(outputs.find(x=>x.id===state.outputId))}
-    else if(state.outputName){const match=outputs.find(x=>portName(x)===state.outputName);if(match)state.outputId=match.id}
-    if(!state.outputId&&outputs.length===1){state.outputId=outputs[0].id;state.outputName=portName(outputs[0])}
+    let selected=outputs.find(x=>x.id===state.outputId)||null;
+    if(!selected&&state.outputName){
+      const wanted=normalizedPortName(state.outputName),matches=outputs.filter(x=>normalizedPortName(portName(x))===wanted);
+      if(matches.length===1)selected=matches[0];
+    }
+    if(!selected&&outputs.length===1)selected=outputs[0];
+    if(selected){state.outputId=selected.id;state.outputName=portName(selected)}else state.outputId='';
     sel.disabled=!outputs.length;
-    sel.innerHTML='<option value="">—</option>'+outputs.map(x=>`<option value="${x.id}">${portName(x)}</option>`).join('');
-    sel.value=outputs.some(x=>x.id===state.outputId)?state.outputId:'';
+    const placeholder=document.createElement('option');placeholder.value='';placeholder.textContent='—';
+    const options=outputs.map(output=>{const option=document.createElement('option');option.value=output.id;option.textContent=portName(output);return option});
+    sel.replaceChildren(placeholder,...options);sel.value=selected?.id||'';
+    return outputs;
   }
   function render(){
     normalizeUi();applyProfile();const p=profile();
@@ -134,7 +145,7 @@
     text('midiOutputLabel','OUTPUT','ÇIKIŞ');text('midiDeviceLabel','DEVICE','CİHAZ');text('midiPlaybackLabel','PLAYBACK','ÇALMA');
     text('midiBassLabel','BASS CH','BASS KANAL');text('midiRhythmLabel','RHYTHM CH','RİTİM KANAL');
     text('midiClockTitle','SEND CLOCK','CLOCK GÖNDER');text('midiTransportTitle','SEND START / STOP','START / STOP GÖNDER');
-    renderOutputs();syncModeLabels();
+    const outputs=renderOutputs()||[];syncModeLabels();
     const prof=$('#midiDeviceProfile');if(prof)prof.value=state.choice;
     const mode=$('#midiRouterMode');if(mode)mode.value=state.mode;
     const bass=$('#midiBassCh');if(bass)bass.value=String(state.bass);
@@ -149,8 +160,10 @@
     const rb=$('#midiRecBass'),rr=$('#midiRecRhythm');if(rb)rb.disabled=!recOkay;if(rr)rr.disabled=!recOkay||!p?.hasRhythm;
     if(state.rec)status(t('T-8 REC transfer in progress…','T-8 REC aktarımı sürüyor…'));
     else if(state.exclusive)status(t('TD-3 direct write has exclusive MIDI access.','TD-3 doğrudan yazma MIDI erişimini kullanıyor.'));
-    else if(state.enabled&&state.choice==='auto'&&out()&&!state.effective)status(t('This MIDI output is not supported. Choose a Roland T-8 or Behringer TD-3.','Bu MIDI çıkışı desteklenmiyor. Roland T-8 veya Behringer TD-3 seçin.'));
     else if(state.blocked)status(t('MIDI safety stop. Re-arm to continue.','MIDI güvenlik nedeniyle durdu. Devam etmek için yeniden aç.'));
+    else if(state.enabled&&!outputs.length)status(t('MIDI is enabled, but the browser exposes no connected output. Connect the device, then press MIDI ENABLED to rescan.','MIDI açık ancak tarayıcı bağlı bir çıkış göstermiyor. Cihazı bağlayıp yeniden taramak için MIDI AÇIK düğmesine basın.'));
+    else if(state.enabled&&!out())status(t('Choose the hardware port in OUTPUT.','Donanım portunu ÇIKIŞ alanından seçin.'));
+    else if(state.enabled&&!state.effective)status(t('Choose Roland T-8 or Behringer TD-3 in DEVICE.','CİHAZ alanından Roland T-8 veya Behringer TD-3 seçin.'));
     else status('');
     window.__303boxBrowserOutputMode?.setMode(state.mode==='midi'&&ready()?'midi':'browser');persist();
   }
@@ -162,7 +175,7 @@
       state.access=await navigator.requestMIDIAccess({sysex:false});state.enabled=true;state.blocked=false;
       state.access.onstatechange=e=>{if(e?.port?.id===state.outputId&&e.port.state!=='connected')emergencyStop({block:true,stopSite:false});else render()};
       renderOutputs();applyProfile({defaults:true});render();
-    }catch(_){state.enabled=false;render()}
+    }catch(_){state.enabled=false;render();status(t('MIDI permission was not granted. Press ENABLE MIDI and allow access.','MIDI izni verilmedi. MIDI’Yİ AÇ düğmesine basıp erişime izin verin.'))}
   }
 
   const bpm=()=>clamp(Number($('[data-knob-id="bpm"]')?.getAttribute('aria-valuenow'))||140,50,250);
@@ -293,7 +306,7 @@
     if(!$('#midiRouter'))return;normalizeUi();applyProfile();bind();render();
     window.addEventListener('303box:playback-step',onPlaybackStep);window.addEventListener('303box:playback-state',onPlaybackState);window.addEventListener('303box:playback-start',onPlaybackState);window.addEventListener('303box:playback-stop',onPlaybackState);window.addEventListener('303box:playback-resync',onPlaybackResync);
     document.addEventListener('303box:languagechange',render);document.addEventListener('visibilitychange',()=>{if(document.hidden)emergencyStop({stopSite:true})});window.addEventListener('pagehide',()=>emergencyStop({block:true,stopSite:true}));
-    window.__303boxMidiRouter={version:'2402',panic:()=>emergencyStop({stopSite:true}),sendRecPass:recPass,beginExclusive,get state(){return{...state,noteKeys:new Set(state.noteKeys)}}};
+    window.__303boxMidiRouter={version:'3200',panic:()=>emergencyStop({stopSite:true}),sendRecPass:recPass,beginExclusive,get state(){return{...state,noteKeys:new Set(state.noteKeys)}}};
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();

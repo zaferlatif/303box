@@ -39,6 +39,10 @@
 .hardware-guide-head p{max-width:690px;margin:8px 0 0;color:#8b8b93;font-size:.72rem;line-height:1.55}
 .hardware-guide-close{flex:0 0 34px;width:34px;height:34px;border:1px solid #34343a;border-radius:8px;background:#151519;color:#dddde0;font-size:1.15rem;cursor:pointer}
 .hardware-guide-close:hover{background:#202025}
+.hardware-live-check{margin:14px 22px 0;padding:12px 14px;border:1px solid #5c681d;border-radius:10px;background:#151a0d;color:#b8bac0}
+.hardware-live-check strong{display:block;margin:0 0 6px;color:#ddff37;font:850 .5rem/1 JetBrains Mono,monospace;letter-spacing:.09em}
+.hardware-live-check p{margin:0;font-size:.63rem;line-height:1.6}
+.hardware-live-check b{color:#f0f0f2}
 
 .hardware-guide-legend{display:flex;flex-wrap:wrap;gap:7px;padding:14px 22px 0}
 .hardware-status{display:inline-flex;align-items:center;min-height:24px;padding:0 8px;border:1px solid #34343a;border-radius:999px;background:#141417;color:#8c8c94;font:800 .45rem/1 JetBrains Mono,monospace;letter-spacing:.055em}
@@ -81,6 +85,7 @@ html:not([lang="tr"]) .midi-guide-button .lang-tr{display:none}
   .hardware-guide-shell{max-height:92vh}
   .hardware-guide-head{padding:16px 15px 14px}
   .hardware-guide-head p{font-size:.66rem}
+  .hardware-live-check{margin:12px 15px 0;padding:11px 12px}
   .hardware-guide-legend{padding:12px 15px 0}
   .hardware-guide-grid{grid-template-columns:1fr;padding:12px 15px 16px}
   .hardware-device-card{padding:14px}

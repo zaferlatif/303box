@@ -1,8 +1,8 @@
 (() => {
   'use strict';
 
-  const SITE_VERSION='2026.08.27.7';
-  const RELEASE_EPOCH='20260827-3190';
+  const SITE_VERSION='2026.09.01.1';
+  const RELEASE_EPOCH='20260901-3200';
   const MIDI_LAYOUT_HREF=`./midi-layout.20260824-2800.css?v=${RELEASE_EPOCH}`;
   const CONSOLE_POLISH_HREF=`./console-polish.20260824-2840.css?v=${RELEASE_EPOCH}`;
   const PITCH_MODEL_SRC=`./pitch-octave.20260826-2940.js?v=${RELEASE_EPOCH}`;
@@ -25,13 +25,14 @@
     const script=document.createElement('script');script.src=PITCH_MODEL_SRC;script.async=false;script.dataset.pitchModelRelease='20260826-2940';document.head.appendChild(script);
   }
   function installHardwareFidelity(){
-    if(window.__303boxHardwareFidelity?.version==='20260826-2930'||document.querySelector('script[data-hardware-fidelity-release="20260826-2930"]'))return;
-    const script=document.createElement('script');script.src=HARDWARE_FIDELITY_SRC;script.async=false;script.dataset.hardwareFidelityRelease='20260826-2930';document.head.appendChild(script);
+    if(window.__303boxHardwareFidelity?.version==='20260901-3200'||document.querySelector('script[data-hardware-fidelity-release="20260901-3200"]'))return;
+    const script=document.createElement('script');script.src=HARDWARE_FIDELITY_SRC;script.async=false;script.dataset.hardwareFidelityRelease='20260901-3200';document.head.appendChild(script);
   }
 
   function installSharedLayout(){
+    if(document.getElementById('siteShellMobile3200'))return;
     ['siteShellLayout2401','siteShellLayout2404','siteShellLayout2405','siteShellLayout2406','siteShellLayout2407','siteShellLayout2408','siteShellLayout2409','siteShellLayout2410','siteShellLayout2411','siteShellLayout2601','siteShellLayout2602','siteShellLayout2603','siteShellLayout2604','siteShellLayout2702','siteShellMobile2703','siteShellMobile2704','siteShellMobile2705','siteShellMobile2706','siteShellMobile2707'].forEach(id=>document.getElementById(id)?.remove());
-    const style=document.createElement('style');style.id='siteShellMobile2707';style.textContent=`
+    const style=document.createElement('style');style.id='siteShellMobile3200';style.textContent=`
       .site-header .mobile-menu-toggle,.site-header .mobile-menu{display:none}
       @media(min-width:761px){
         html body .site-header .header-inner{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:26px!important;min-height:72px!important}
@@ -87,9 +88,14 @@
   }
 
   function installReleaseStyles(){
-    document.querySelectorAll('link[data-midi-layout-release],link[data-console-polish-release]').forEach(link=>link.remove());
-    const midi=document.createElement('link');midi.rel='stylesheet';midi.href=MIDI_LAYOUT_HREF;midi.dataset.midiLayoutRelease=RELEASE_EPOCH;document.head.appendChild(midi);
-    const polish=document.createElement('link');polish.rel='stylesheet';polish.href=CONSOLE_POLISH_HREF;polish.dataset.consolePolishRelease=RELEASE_EPOCH;document.head.appendChild(polish);
+    if(!document.querySelector(`link[data-midi-layout-release="${RELEASE_EPOCH}"]`)){
+      document.querySelectorAll('link[data-midi-layout-release]').forEach(link=>link.remove());
+      const midi=document.createElement('link');midi.rel='stylesheet';midi.href=MIDI_LAYOUT_HREF;midi.dataset.midiLayoutRelease=RELEASE_EPOCH;document.head.appendChild(midi);
+    }
+    if(!document.querySelector(`link[data-console-polish-release="${RELEASE_EPOCH}"]`)){
+      document.querySelectorAll('link[data-console-polish-release]').forEach(link=>link.remove());
+      const polish=document.createElement('link');polish.rel='stylesheet';polish.href=CONSOLE_POLISH_HREF;polish.dataset.consolePolishRelease=RELEASE_EPOCH;document.head.appendChild(polish);
+    }
   }
 
   function normalizedPath(path=location.pathname){return path==='/'||path==='/tr/'?path:path.replace(/\/+$/,'')}
@@ -117,25 +123,47 @@
     }
   }
   function installSharedChrome(){
-    const lang=language(),tr=lang==='tr',home=tr?'/tr/':'/',prefix=tr?'/tr/':'/',otherLang=tr?'en':'tr',otherHref=alternateHref(otherLang);
+    const lang=language(),tr=lang==='tr',home=tr?'/tr/':'/',prefix='/',otherLang=tr?'en':'tr',otherHref=alternateHref(otherLang);
     const articles=tr?'/tr/rehberler.html':'/guides.html',pattern=tr?'/tr/303-pattern-rehberi.html':'/303-pattern-guide.html',midi=tr?'/tr/midi-donanim-rehberi.html':'/midi-hardware-guide.html',examples=tr?'/tr/303-pattern-ornekleri.html':'/303-pattern-examples.html',about=tr?'/tr/hakkinda.html':'/about.html';
     const header=document.querySelector('.site-header');
     if(header){
-      header.innerHTML=`<div class="shell header-inner">
+      if(header.dataset.shellChrome!==RELEASE_EPOCH){
+        header.innerHTML=`<div class="shell header-inner">
         <a class="brand" href="${home}#top" aria-label="303box home"><span class="brand-glyph" aria-hidden="true">303</span><span class="brand-copy"><strong>303box</strong><small data-shell-i18n="brandTag">${text('brandTag',lang)}</small></span></a>
         <nav class="nav" aria-label="${text('primaryNavigation',lang)}" data-shell-i18n-attr="primaryNavigation"><a href="${prefix}#sequencer">303</a><a href="${prefix}#drums" data-shell-i18n="rhythm">${text('rhythm',lang)}</a><a href="${prefix}#guide" data-shell-i18n="guide">${text('guide',lang)}</a><a href="${prefix}#history" data-shell-i18n="history">${text('history',lang)}</a><a href="${prefix}#faq" data-shell-i18n="faq">${text('faq',lang)}</a></nav>
         <div class="header-actions"><button class="language-switch" id="languageButton" data-language-switch type="button" aria-label="${text('changeLanguage',lang)}"><span id="languageCurrent" data-language-current>${lang.toUpperCase()}</span><span class="language-separator">/</span><span id="languageNext" data-language-next>${tr?'EN':'TR'}</span></button><a class="mini-cta" href="${prefix}#sequencer" data-shell-i18n="openSequencer">${text('openSequencer',lang)}</a><button class="mobile-menu-toggle" id="mobileMenuToggle" type="button" aria-expanded="false" aria-controls="mobileMenu" aria-label="${text('openMenu',lang)}"><span class="mobile-menu-icon"><span></span></span></button></div>
         <div class="mobile-menu" id="mobileMenu" hidden><div class="mobile-menu-grid"><a href="${prefix}#sequencer">303</a><a href="${prefix}#drums">${text('rhythm',lang)}</a><a href="${prefix}#guide">${text('guide',lang)}</a><a href="${prefix}#history">${text('history',lang)}</a><a href="${prefix}#faq">${text('faq',lang)}</a></div><div class="mobile-menu-section">${tr?'İÇERİK':'CONTENT'}</div><div class="mobile-menu-grid"><a href="${articles}">${tr?'Yazılar':'Articles'}</a><a href="${pattern}">${tr?'Pattern Rehberi':'Pattern Guide'}</a><a href="${midi}">${tr?'MIDI & Donanım':'MIDI & Hardware'}</a><a href="${examples}">${tr?'Örnekler':'Examples'}</a><a href="${about}">${tr?'Hakkında':'About'}</a></div><a class="mobile-sequencer-cta" href="${prefix}#sequencer">${text('openSequencer',lang)}</a></div>
       </div>`;
-      const languageButton=header.querySelector('#languageButton');
-      if(languageButton&&!document.body?.dataset?.page){languageButton.addEventListener('click',()=>{try{localStorage.setItem('303-lang',otherLang)}catch(_){}location.href=otherHref})}
-      header.querySelectorAll('.mini-cta,.mobile-sequencer-cta').forEach(link=>link.addEventListener('click',()=>{try{localStorage.setItem('303-lang',lang)}catch(_){}}));
-      installMobileMenuBehavior(header);
+        header.dataset.shellChrome=RELEASE_EPOCH;
+        header.querySelectorAll('a[href*="#"]').forEach(link=>link.addEventListener('click',()=>{try{localStorage.setItem('303-lang',language())}catch(_){}}));
+        installMobileMenuBehavior(header);
+      }
+      const brand=header.querySelector('.brand');if(brand)brand.href=`${home}#top`;
+      const navLinks=header.querySelectorAll('.nav a');
+      [`${prefix}#sequencer`,`${prefix}#drums`,`${prefix}#guide`,`${prefix}#history`,`${prefix}#faq`].forEach((href,index)=>{if(navLinks[index])navLinks[index].href=href});
+      const menuGrids=header.querySelectorAll('.mobile-menu-grid');
+      const primaryLinks=menuGrids[0]?.querySelectorAll('a')||[];
+      [[`${prefix}#sequencer`,'303'],[`${prefix}#drums`,text('rhythm',lang)],[`${prefix}#guide`,text('guide',lang)],[`${prefix}#history`,text('history',lang)],[`${prefix}#faq`,text('faq',lang)]].forEach(([href,label],index)=>{if(primaryLinks[index]){primaryLinks[index].href=href;primaryLinks[index].textContent=label}});
+      const contentLinks=menuGrids[1]?.querySelectorAll('a')||[];
+      [[articles,tr?'Yazılar':'Articles'],[pattern,tr?'Pattern Rehberi':'Pattern Guide'],[midi,tr?'MIDI & Donanım':'MIDI & Hardware'],[examples,tr?'Örnekler':'Examples'],[about,tr?'Hakkında':'About']].forEach(([href,label],index)=>{if(contentLinks[index]){contentLinks[index].href=href;contentLinks[index].textContent=label}});
+      const menuSection=header.querySelector('.mobile-menu-section');if(menuSection)menuSection.textContent=tr?'İÇERİK':'CONTENT';
+      header.querySelectorAll('.mini-cta,.mobile-sequencer-cta').forEach(link=>{link.href=`${prefix}#sequencer`;link.textContent=text('openSequencer',lang)});
+      const languageButton=header.querySelector('#languageButton');if(languageButton)languageButton.dataset.alternateHref=otherHref;
+      if(document.body?.dataset?.page!=='home'&&!window.__303boxShellLanguageNavigation){
+        window.__303boxShellLanguageNavigation=true;
+        document.addEventListener('click',event=>{const button=event.target.closest?.('#languageButton');if(!button)return;const target=language()==='tr'?'en':'tr';try{localStorage.setItem('303-lang',target)}catch(_){}location.href=button.dataset.alternateHref||alternateHref(target)});
+      }
     }
     let footer=document.querySelector('.site-footer');
     if(!footer){footer=document.createElement('footer');footer.className='site-footer';document.body.appendChild(footer)}
-    const disclaimer=tr?'/tr/#disclaimer':'/#disclaimer',shortcuts=tr?'/tr/#shortcuts':'/#shortcuts';
-    footer.innerHTML=`<div class="shell footer-inner"><div class="z3z-credit"><span data-shell-i18n="footerCredit">${text('footerCredit',lang)}</span><a href="https://instagram.com/zafer.pro" target="_blank" rel="me noopener" data-social-platform="instagram" data-social-placement="footer">Z3Z / @zafer.pro</a><small class="site-version" data-site-version>v${SITE_VERSION}</small></div><div class="footer-links"><a href="${disclaimer}" data-disclaimer-link="true" data-shell-i18n="footerDisclaimer">${text('footerDisclaimer',lang)}</a><a href="${shortcuts}" data-shortcuts-link="true" data-shell-i18n="footerShortcuts">${text('footerShortcuts',lang)}</a><a href="/privacy.html" data-shell-i18n="footerPrivacy">${text('footerPrivacy',lang)}</a><a href="https://instagram.com/zafer.pro" rel="me noopener" target="_blank" data-social-platform="instagram" data-social-placement="footer">Instagram</a><a href="https://youtube.com/@zaferlatif" rel="noopener" target="_blank" data-social-platform="youtube" data-social-placement="footer">YouTube</a></div></div>`;
+    const disclaimer='/#disclaimer',shortcuts='/#shortcuts';
+    if(footer.dataset.shellChrome!==RELEASE_EPOCH){
+      footer.innerHTML=`<div class="shell footer-inner"><div class="z3z-credit"><span data-shell-i18n="footerCredit">${text('footerCredit',lang)}</span><a href="https://instagram.com/zafer.pro" target="_blank" rel="me noopener" data-social-platform="instagram" data-social-placement="footer">Z3Z / @zafer.pro</a><small class="site-version" data-site-version>v${SITE_VERSION}</small></div><div class="footer-links"><a href="${disclaimer}" data-disclaimer-link="true" data-shell-i18n="footerDisclaimer">${text('footerDisclaimer',lang)}</a><a href="${shortcuts}" data-shortcuts-link="true" data-shell-i18n="footerShortcuts">${text('footerShortcuts',lang)}</a><a href="/privacy.html" data-shell-i18n="footerPrivacy">${text('footerPrivacy',lang)}</a><a href="https://instagram.com/zafer.pro" rel="me noopener" target="_blank" data-social-platform="instagram" data-social-placement="footer">Instagram</a><a href="https://youtube.com/@zaferlatif" rel="noopener" target="_blank" data-social-platform="youtube" data-social-placement="footer">YouTube</a></div></div>`;
+      footer.dataset.shellChrome=RELEASE_EPOCH;
+      footer.querySelectorAll('a[href^="/#"]').forEach(link=>link.addEventListener('click',()=>{try{localStorage.setItem('303-lang',language())}catch(_){}}));
+    }
+    const disclaimerLink=footer.querySelector('[data-disclaimer-link]');if(disclaimerLink)disclaimerLink.href=disclaimer;
+    const shortcutsLink=footer.querySelector('[data-shortcuts-link]');if(shortcutsLink)shortcutsLink.href=shortcuts;
   }
 
   function installMidiActionRow(){

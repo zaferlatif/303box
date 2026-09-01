@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import test from 'node:test';
 
-const source=readFileSync(new URL('../hardware-fidelity.20260826-2900.js',import.meta.url),'utf8');
+const source=readFileSync(new URL('../hardware-fidelity.20260826-2930.js',import.meta.url),'utf8');
 
 function functionSource(name){
   const marker=`function ${name}(`;
@@ -47,10 +47,11 @@ test('hardware family is labelled TD-3 / TD-3-MO and accepts both identities',()
   assert.doesNotMatch(source,/TD-3-MO and other devices are rejected/);
 });
 
-test('hardware MIDI bass register is corrected from legacy C4 to C2',()=>{
-  assert.match(source,/message\[1\]=clamp\(\(Number\(message\[1\]\)\|\|0\)-24,0,127\)/);
-  assert.match(source,/st\.effective==='t8'/);
-  assert.match(source,/message\[2\]=message\[2\]>=120\?127:64/);
+test('direct writer does not monkey-patch the browser MIDI implementation',()=>{
+  assert.doesNotMatch(source,/Object\.defineProperty\(proto,'requestMIDIAccess'/);
+  assert.doesNotMatch(source,/patchedOutputs/);
+  assert.match(source,/navigator\.requestMIDIAccess\(\{sysex:true\}\)/);
+  assert.match(source,/withTimeout\(navigator\.requestMIDIAccess/);
 });
 
 test('TD-3 pattern encoding keeps pitch, accent and slide in fixed 16 slots across rests',()=>{
@@ -94,9 +95,12 @@ test('writer reads device configuration and retries idempotent writes before fai
   assert.match(source,/sameSemantics\(decodeSemantics\(expected\),decodeSemantics\(actual\)\)/);
 });
 
-test('firmware diagnostics protect live MIDI slide behavior',()=>{
-  assert.match(source,/FW < 1\.2\.6: LIVE SLIDE UPDATE NEEDED/);
+test('device diagnostics expose channel, transpose, accent and slide-mode mismatches',()=>{
+  assert.match(source,/303BOX CH/);
+  assert.match(source,/TD-3 IN/);
+  assert.match(source,/TRANSPOSE/);
   assert.match(source,/MULTI TRIGGER ON/);
   assert.match(source,/SLIDE MODE/);
   assert.match(source,/ACCENT > /);
+  assert.match(source,/c\.midiIn!==ch/);
 });

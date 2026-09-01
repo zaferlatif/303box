@@ -412,7 +412,7 @@
   let toastTimer; function showToast(message){ const el=$('#toast'); el.textContent=message; el.classList.add('show'); clearTimeout(toastTimer); toastTimer=setTimeout(()=>el.classList.remove('show'),2200); }
 
   function bindEvents() {
-    $('#languageButton').addEventListener('click',()=>setLanguage(state.language==='en'?'tr':'en'));
+    document.addEventListener('click',event=>{if(event.target.closest?.('#languageButton'))setLanguage(state.language==='en'?'tr':'en')});
     $('#generateButton').addEventListener('click',()=>generatePattern(true));
     $('#clearButton').addEventListener('click',clearPattern);
     $('#playButton').addEventListener('click',togglePlayback);

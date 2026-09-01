@@ -48,11 +48,13 @@ Rhythm voices:
 | CH | 606 closed hi-hat | `CH` |
 | OH | 606 open hi-hat | `OH` |
 
-## Site version 2026.08.21.2 / Runtime 2600
+## Site version 2026.09.01.1 / Runtime 3200
 
-Every public page now exposes the same visible site version in the footer. The version source is `site-shell.20260821-2600.js`; release integrity tests require every public page to load that shell, use the same footer markup, and share the `20260821-2600` cache epoch. Bump the human-readable site version and cache epoch together whenever production code changes.
+Every public page now exposes the same visible site version in the footer. The version source is `site-shell.20260821-2600.js`; release integrity tests require every public page to load that shell once and share the `20260901-3200` cache epoch. Bump the human-readable site version and cache epoch together whenever production code changes.
 
 The shared shell also owns header/footer copy across the home, privacy and guide pages. It keeps Disclaimer, Shortcuts, Privacy, Cookie settings and social links structurally consistent while translating the visible labels.
+
+Runtime 3200 removes the connection-state observer that rewrote OUTPUT and DEVICE while MIDI was not ready, recovers a reconnected output by stable name when Chrome changes its port ID, and makes the hardware guide UI-only. TD-3 SysEx has one operational owner, while the shared header/footer are mounted idempotently so application listeners survive language and content refreshes.
 
 ## Runtime 2300
 

@@ -24,8 +24,8 @@ try{
   assert.equal(await text('#drums .drum-intro h2'),'Build the rhythm beside the acid line.');
   assert.equal(await text('#td3WritePattern'),'BACKUP + WRITE');
   await page.locator('#midiHardwareGuide').click();
-  await page.locator('#td3WritePattern').click();
-  assert.equal(await text('#td3DirectStatus'),'Select TD-3 / TD-3-MO first.');
+  await page.waitForFunction(()=>document.querySelector('#hardwareGuideDialog')?.open===true);
+  assert.equal(await text('#td3DirectStatus'),'I / A1 — target selected. Nothing has been written.');
   await page.locator('#hardwareGuideClose').click();
 
   await page.locator('#languageButton').click();
@@ -43,7 +43,7 @@ try{
   assert.equal(await text('[data-preview="cp"] span'),'El Çırpma');
   assert.equal(await text('[data-preview="tm"] span'),'Pes Tom');
   assert.equal(await text('[data-cookie-settings]'),'Çerez ayarları');
-  assert.equal(await text('[data-device="td3 td3mo"] .hardware-capability:nth-child(4) strong'),'303box USB üzerinden bir TD-3 pattern slotunu okuyabilir, yedekleyebilir, yazabilir ve doğrulayabilir. Protokol tersine mühendisliktir; üretici tarafından yayımlanmamıştır.');
+  assert.equal(await text('[data-device="td3"] .hardware-capability:nth-child(4) strong'),'303box USB üzerinden bir TD-3 pattern slotunu okuyabilir, yedekleyebilir, yazabilir ve doğrulayabilir. Protokol tersine mühendisliktir; üretici tarafından yayımlanmamıştır.');
 
   await page.locator('#midiHardwareGuide').click();
   await page.waitForFunction(()=>document.querySelector('#hardwareGuideDialog')?.open===true);
@@ -60,7 +60,7 @@ try{
   await page.waitForFunction(()=>document.documentElement.lang==='en');
   await page.waitForFunction(()=>document.querySelector('#td3WritePattern')?.textContent.trim()==='BACKUP + WRITE');
   assert.equal(await text('#midiPlaybackLabel'),'PLAYBACK');
-  assert.equal(await text('[data-site-version]'),'v2026.08.21.2');
+  assert.equal(await text('[data-site-version]'),'v2026.09.01.1');
   const mainFooterLinks=await page.locator('.site-footer .footer-links a').allTextContents();
   await page.locator('[data-shortcuts-link]').click();
   await page.waitForSelector('#shortcutOverlay.open');
@@ -71,7 +71,7 @@ try{
   assert.equal(await text('.brand-copy small'),'Acid pattern laboratory');
   assert.equal(await text('.mini-cta'),'Open sequencer');
   assert.equal(await text('.z3z-credit > span'),'303box is an independent music tool built by Z3Z.');
-  assert.equal(await text('[data-site-version]'),'v2026.08.21.2');
+  assert.equal(await text('[data-site-version]'),'v2026.09.01.1');
   assert.deepEqual(await page.locator('.site-footer .footer-links a').allTextContents(),mainFooterLinks);
   assert.equal(await page.locator('[data-disclaimer-link]').getAttribute('href'),'/' + '#disclaimer');
   assert.equal(await page.locator('[data-shortcuts-link]').getAttribute('href'),'/' + '#shortcuts');

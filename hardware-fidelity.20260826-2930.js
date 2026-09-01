@@ -9,7 +9,7 @@
   const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
   const nextFrame=()=>new Promise(resolve=>requestAnimationFrame(()=>resolve()));
 
-  const RELEASE='20260826-2930';
+  const RELEASE='20260901-3200';
   const TD3_PREFIX=[0xF0,0x00,0x20,0x32,0x00,0x01,0x0A];
   const TD3_PRODUCT=[...TD3_PREFIX,0x06,0xF7];
   const TD3_FIRMWARE=[...TD3_PREFIX,0x08,0x00,0xF7];
@@ -79,8 +79,8 @@
     return Array.from({length:16},(_,i)=>({note:notes[i]?.value?.trim().toUpperCase()||'',baseOct:Number(notes[i]?.dataset?.baseOctave||0)?1:0,oct:oct[i]?.textContent.trim().toUpperCase()||'',expr:expr[i]?.textContent.trim().toUpperCase().replace(/\s+/g,'')||'',gate:gate[i]?.textContent.trim()||''}));
   }
   function td3Pitch(step){
-    const absolute=Number(step?.oct);
-    if(Number.isInteger(absolute)&&absolute>=0&&absolute<=8)return clamp(0x18+(NOTE[step?.note]??0)+(absolute-2)*12,0x0C,0x2F)&0x7F;
+    const octaveText=String(step?.oct??'').trim(),absolute=Number(octaveText);
+    if(octaveText&&Number.isInteger(absolute)&&absolute>=0&&absolute<=8)return clamp(0x18+(NOTE[step?.note]??0)+(absolute-2)*12,0x0C,0x2F)&0x7F;
     let p=0x18+(NOTE[step?.note]??0)+(step?.baseOct?12:0);if(step?.oct==='D')p-=12;if(step?.oct==='U')p+=12;return clamp(p,0x0C,0x2F)&0x7F;
   }
   function semantics(steps=patternSteps()){
@@ -108,7 +108,7 @@
     return a[8]===b[8]&&a[9]===b[9];
   }
 
-  function status(text,kind=''){const el=$('#td3DirectStatus');if(el){el.textContent=text;el.className=`td3-direct-status ${kind}`.trim()}}
+  function status(text,kind='',idle=false){const el=$('#td3DirectStatus');if(el){el.textContent=text;el.className=`td3-direct-status ${kind}`.trim();if(idle)el.dataset.idle='true';else delete el.dataset.idle}}
   function setBusy(on){
     td3.busy=on;const box=$('#td3DirectBox');if(!box)return;box.setAttribute('aria-busy',String(on));
     $$('#td3DirectBox .td3-direct-actions button').forEach(el=>el.disabled=on);
@@ -181,6 +181,11 @@
   function loadBackup(){try{return JSON.parse(localStorage.getItem(BACKUP_KEY)||'null')}catch(_){return null}}
   function clearPending(){if(td3.pendingTimer)clearTimeout(td3.pendingTimer);td3.pendingTimer=0;td3.pending=null;const b=$('#td3WritePattern');if(b){b.classList.remove('armed');b.textContent=say('BACKUP + WRITE','YEDEKLE + YAZ')}}
   function armPending(packet,tg){clearPending();td3.pending={packet:packet.slice(),tg:{...tg},signature:signature(),product:td3.product,expires:Date.now()+TD3_CONFIRM_MS};const b=$('#td3WritePattern');if(b){b.classList.add('armed');b.textContent=say(`CONFIRM WRITE ${tg.label}`,`${tg.label} YAZMAYI ONAYLA`)}const p=td3.pending;td3.pendingTimer=setTimeout(()=>{if(td3.pending===p){clearPending();status(say('Write confirmation expired.','Yazma onayı zaman aşımına uğradı.'),'warn')}},TD3_CONFIRM_MS)}
+  function targetChanged(){
+    if(td3.busy)return;
+    clearPending();
+    status(`${target().label} — ${say('target selected. Nothing has been written.','hedef seçildi. Henüz hiçbir şey yazılmadı.')}`,'warn',true);
+  }
 
   async function operation(fn,{exclusive=false,stopAudio=false}={}){
     if(td3.busy)return;setBusy(true);const release=exclusive?(window.__303boxMidiRouter?.beginExclusive?.('td3-fidelity')||(()=>{})):(()=>{});
@@ -206,7 +211,7 @@
     },true);
   }
   function init(){
-    installCapture();patchLabels();document.addEventListener('303box:languagechange',patchLabels);document.addEventListener('303box:ready',patchLabels);document.addEventListener('303box:content-refresh',patchLabels);document.addEventListener('click',e=>{if(e.target?.closest?.('#midiHardwareGuide,[data-hardware-guide-open]'))setTimeout(patchLabels,0)},true);
+    installCapture();patchLabels();document.addEventListener('303box:languagechange',patchLabels);document.addEventListener('303box:ready',patchLabels);document.addEventListener('303box:content-refresh',patchLabels);document.addEventListener('click',e=>{if(e.target?.closest?.('#midiHardwareGuide,[data-hardware-guide-open]'))setTimeout(patchLabels,0)},true);document.addEventListener('change',e=>{if(e.target?.matches?.('#td3WriteGroup,#td3WriteSection,#td3WriteNumber'))targetChanged()},true);
     window.__303boxHardwareFidelity={version:RELEASE,encodePattern,decodeSemantics,verify,diagnostics,get state(){return{product:td3.product,firmware:td3.firmware,config:td3.config,verified:td3.verified,busy:td3.busy}}};
   }
   init();

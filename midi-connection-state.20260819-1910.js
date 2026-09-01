@@ -2,7 +2,7 @@
   'use strict';
 
   const $=(s,r=document)=>r.querySelector(s);
-  let changing=false,headObserver=null;
+  let headObserver=null;
 
   function removeLegacyGrid(){
     document.getElementById('midiGridAuthority2110')?.remove();
@@ -38,13 +38,6 @@
   }
   function isReady(){return !!$('#midiRouterBadge')?.classList.contains('ready')}
 
-  function dispatchChange(el,value){
-    if(!el||el.value===value)return false;
-    el.value=value;
-    el.dispatchEvent(new Event('change',{bubbles:true}));
-    return true;
-  }
-
   function updateRecVisibility(){
     const row=$('#midiRecAssist');if(!row)return;
     const st=routerState();
@@ -53,32 +46,21 @@
     row.setAttribute('aria-hidden',String(!realT8));
   }
 
-  function neutralizeDisconnectedHardware(){
-    if(changing)return;
-    const root=$('#midiRouter');if(!root)return;
-    const ready=isReady();
-
-    if(!ready){
-      changing=true;
-      try{
-        dispatchChange($('#midiDeviceProfile'),'auto');
-        dispatchChange($('#midiRouterOut'),'');
-      }finally{changing=false}
-    }
-    updateRecVisibility();
-  }
+  // Connection state may hide actions that require a live T-8, but it must
+  // never rewrite the user's OUTPUT or DEVICE selection. Readiness depends on
+  // those selections, so clearing them while disconnected creates a circular
+  // state where a user cannot complete the connection.
+  function syncConnectionUi(){updateRecVisibility()}
 
   function init(){
     ensureLayoutRepair();
     watchLegacyGrid();
     const root=$('#midiRouter');if(!root)return;
-    neutralizeDisconnectedHardware();
-    const observer=new MutationObserver(neutralizeDisconnectedHardware);
-    observer.observe(root,{subtree:true,childList:true,attributes:true,attributeFilter:['class','disabled','value']});
-    root.addEventListener('change',()=>queueMicrotask(neutralizeDisconnectedHardware));
-    root.addEventListener('click',()=>setTimeout(neutralizeDisconnectedHardware,0));
-    document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){ensureLayoutRepair();neutralizeDisconnectedHardware()}});
-    window.__303boxMidiConnectionState={version:'2202',refresh(){ensureLayoutRepair();neutralizeDisconnectedHardware()}};
+    syncConnectionUi();
+    const badge=$('#midiRouterBadge');
+    if(badge){const observer=new MutationObserver(syncConnectionUi);observer.observe(badge,{attributes:true,attributeFilter:['class']})}
+    document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){ensureLayoutRepair();syncConnectionUi()}});
+    window.__303boxMidiConnectionState={version:'3200',refresh(){ensureLayoutRepair();syncConnectionUi()}};
   }
 
   ensureLayoutRepair();
