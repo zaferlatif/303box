@@ -53,7 +53,7 @@ async function inspectForcedMidi(page,width){
 
 test('MIDI UI stays bounded and compact at desktop, tablet and phone component widths',{timeout:60000},async t=>{
   const web=await server();t.after(()=>{web.closeAllConnections?.();return new Promise(resolve=>web.close(resolve))});const browser=await launch(t);const page=await browser.newPage({viewport:{width:390,height:844}});await instrumentPage(page);
-  await page.goto(`http://127.0.0.1:${web.address().port}/`,{waitUntil:'domcontentloaded'});await page.waitForFunction(()=>window.__303boxMidiRouter?.version==='3200'&&window.__303boxSiteShell?.version==='2026.09.01.1');
+  await page.goto(`http://127.0.0.1:${web.address().port}/`,{waitUntil:'domcontentloaded'});await page.waitForFunction(()=>window.__303boxMidiRouter?.version==='3210'&&window.__303boxSiteShell?.version==='2026.09.03.1');
   const deviceState=await page.evaluate(()=>({profiles:[...document.querySelectorAll('#midiDeviceProfile option')].map(x=>x.value),devices:[...document.querySelectorAll('.hardware-device-card')].map(x=>x.dataset.device)}));
   assert.deepEqual(deviceState.profiles,['auto','t8','td3']);assert.deepEqual(deviceState.devices.sort(),['t8','td3']);
   await page.selectOption('#midiDeviceProfile','td3');await page.waitForTimeout(60);
@@ -89,7 +89,7 @@ test('MIDI UI stays bounded and compact at desktop, tablet and phone component w
 
 test('TD-3 live playback uses accent velocity and tempo-aware overlapping slide',{timeout:60000},async t=>{
   const web=await server();t.after(()=>{web.closeAllConnections?.();return new Promise(resolve=>web.close(resolve))});const browser=await launch(t);const page=await browser.newPage();await instrumentPage(page);
-  await page.goto(`http://127.0.0.1:${web.address().port}/`,{waitUntil:'domcontentloaded'});await page.waitForFunction(()=>window.__303boxUnifiedEngine&&window.__303boxMidiRouter?.version==='3200');
+  await page.goto(`http://127.0.0.1:${web.address().port}/`,{waitUntil:'domcontentloaded'});await page.waitForFunction(()=>window.__303boxUnifiedEngine&&window.__303boxMidiRouter?.version==='3210');
   await page.click('#midiRouterConnect');await page.waitForFunction(()=>window.__303boxMidiRouter?.state?.enabled===true);await page.selectOption('#midiDeviceProfile','td3');await page.selectOption('#midiRouterMode','both');
   await page.evaluate(()=>{const notes=[...document.querySelectorAll('.note-input')],expr=[...document.querySelectorAll('.accentSlide-cell')],gate=[...document.querySelectorAll('.gate-cell')],oct=[...document.querySelectorAll('.octave-cell')];for(let i=0;i<16;i++){notes[i].value='';notes[i].dataset.baseOctave='0';expr[i].textContent='';gate[i].textContent='-';oct[i].textContent='4'}notes[0].value='C';gate[0].textContent='●';expr[0].textContent='S';notes[1].value='G';gate[1].textContent='●';expr[1].textContent='A'});
   await page.click('#playButton',{force:true});await page.waitForFunction(()=>window.__midiLog.messages.filter(x=>(x.data[0]&0xF0)===0x90).length>=2);await page.waitForTimeout(90);
@@ -102,6 +102,6 @@ test('TD-3 live playback uses accent velocity and tempo-aware overlapping slide'
 
 test('home and privacy render the same responsive footer shell',{timeout:60000},async t=>{
   const web=await server();t.after(()=>{web.closeAllConnections?.();return new Promise(resolve=>web.close(resolve))});const browser=await launch(t);const page=await browser.newPage({viewport:{width:390,height:844}});await page.route('https://**/*',route=>route.abort());
-  const inspect=async url=>{await page.goto(`http://127.0.0.1:${web.address().port}${url}`,{waitUntil:'domcontentloaded'});await page.waitForFunction(()=>window.__303boxSiteShell?.version==='2026.09.01.1');return page.evaluate(()=>{const footer=document.querySelector('.site-footer .footer-inner'),style=getComputedStyle(footer),r=footer.getBoundingClientRect();return{html:document.querySelector('.site-footer').innerHTML.replace(/v\d{4}\.\d{2}\.\d{2}\.\d+/g,'VERSION'),direction:style.flexDirection,align:style.alignItems,width:Math.round(r.width),viewport:innerWidth}})};
+  const inspect=async url=>{await page.goto(`http://127.0.0.1:${web.address().port}${url}`,{waitUntil:'domcontentloaded'});await page.waitForFunction(()=>window.__303boxSiteShell?.version==='2026.09.03.1');return page.evaluate(()=>{const footer=document.querySelector('.site-footer .footer-inner'),style=getComputedStyle(footer),r=footer.getBoundingClientRect();return{html:document.querySelector('.site-footer').innerHTML.replace(/v\d{4}\.\d{2}\.\d{2}\.\d+/g,'VERSION'),direction:style.flexDirection,align:style.alignItems,width:Math.round(r.width),viewport:innerWidth}})};
   const home=await inspect('/'),privacy=await inspect('/privacy.html');assert.equal(home.html,privacy.html);assert.equal(home.direction,'column');assert.equal(privacy.direction,'column');assert.equal(home.align,'center');assert.equal(privacy.align,'center');assert.equal(home.width,privacy.width);assert.ok(home.width<=home.viewport-28);
 });

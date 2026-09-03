@@ -5,7 +5,7 @@
   const $$=(selector,root=document)=>[...root.querySelectorAll(selector)];
   const isTR=()=>document.documentElement.lang==='tr';
   const say=(en,tr)=>isTR()?tr:en;
-  const VERSION='20260901-3200';
+  const VERSION='20260903-3210';
   const FAMILY='TD-3 / TD-3-MO';
 
   function injectStyle(){

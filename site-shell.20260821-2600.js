@@ -1,8 +1,8 @@
 (() => {
   'use strict';
 
-  const SITE_VERSION='2026.09.01.1';
-  const RELEASE_EPOCH='20260901-3200';
+  const SITE_VERSION='2026.09.03.1';
+  const RELEASE_EPOCH='20260903-3210';
   const MIDI_LAYOUT_HREF=`./midi-layout.20260824-2800.css?v=${RELEASE_EPOCH}`;
   const CONSOLE_POLISH_HREF=`./console-polish.20260824-2840.css?v=${RELEASE_EPOCH}`;
   const PITCH_MODEL_SRC=`./pitch-octave.20260826-2940.js?v=${RELEASE_EPOCH}`;
@@ -21,12 +21,12 @@
     document.addEventListener('visibilitychange',event=>{if(document.hidden)event.stopImmediatePropagation()},true);
   }
   function installPitchModel(){
-    if(window.__303boxPitchModel?.version==='20260826-2940'||document.querySelector('script[data-pitch-model-release="20260826-2940"]'))return;
-    const script=document.createElement('script');script.src=PITCH_MODEL_SRC;script.async=false;script.dataset.pitchModelRelease='20260826-2940';document.head.appendChild(script);
+    if(window.__303boxPitchModel?.version===RELEASE_EPOCH||document.querySelector(`script[data-pitch-model-release="${RELEASE_EPOCH}"]`))return;
+    const script=document.createElement('script');script.src=PITCH_MODEL_SRC;script.async=false;script.dataset.pitchModelRelease=RELEASE_EPOCH;document.head.appendChild(script);
   }
   function installHardwareFidelity(){
-    if(window.__303boxHardwareFidelity?.version==='20260901-3200'||document.querySelector('script[data-hardware-fidelity-release="20260901-3200"]'))return;
-    const script=document.createElement('script');script.src=HARDWARE_FIDELITY_SRC;script.async=false;script.dataset.hardwareFidelityRelease='20260901-3200';document.head.appendChild(script);
+    if(window.__303boxHardwareFidelity?.version==='20260903-3210'||document.querySelector('script[data-hardware-fidelity-release="20260903-3210"]'))return;
+    const script=document.createElement('script');script.src=HARDWARE_FIDELITY_SRC;script.async=false;script.dataset.hardwareFidelityRelease='20260903-3210';document.head.appendChild(script);
   }
 
   function installSharedLayout(){

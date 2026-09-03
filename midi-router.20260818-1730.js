@@ -184,7 +184,12 @@
     const n=$$('#patternSheet .note-input')[i];
     return{note:n?.value?.trim().toUpperCase()||'',base:Number(n?.dataset?.baseOctave||0)?12:0,oct:$$('#patternSheet .octave-cell')[i]?.textContent.trim().toUpperCase()||'',expr:$$('#patternSheet .accentSlide-cell')[i]?.textContent.trim().toUpperCase()||'',gate:$$('#patternSheet .gate-cell')[i]?.textContent.trim()||''};
   }
-  function midiNote(x){let n=NOTE[x.note];if(n==null)return null;n+=x.base;if(x.oct==='D')n-=12;if(x.oct==='U')n+=12;return clamp(n,0,127)}
+  function midiNote(x){
+    let n=NOTE[x.note];if(n==null)return null;
+    const absolute=Number(x.oct);
+    if(Number.isInteger(absolute)&&absolute>=0&&absolute<=9)return clamp((absolute+1)*12+(n-60),0,127);
+    n+=x.base;if(x.oct==='D')n-=12;if(x.oct==='U')n+=12;return clamp(n,0,127)
+  }
   const playable=x=>!!x.note&&x.gate!=='-';
   const connects=(a,b)=>playable(a)&&playable(b)&&(a.gate==='○'||a.expr.includes('S'));
   const drumOn=(id,s)=>!!$(`#drums .drum-step[data-drum="${id}"][data-step="${s}"]`)?.classList.contains('on');
@@ -306,7 +311,7 @@
     if(!$('#midiRouter'))return;normalizeUi();applyProfile();bind();render();
     window.addEventListener('303box:playback-step',onPlaybackStep);window.addEventListener('303box:playback-state',onPlaybackState);window.addEventListener('303box:playback-start',onPlaybackState);window.addEventListener('303box:playback-stop',onPlaybackState);window.addEventListener('303box:playback-resync',onPlaybackResync);
     document.addEventListener('303box:languagechange',render);document.addEventListener('visibilitychange',()=>{if(document.hidden)emergencyStop({stopSite:true})});window.addEventListener('pagehide',()=>emergencyStop({block:true,stopSite:true}));
-    window.__303boxMidiRouter={version:'3200',panic:()=>emergencyStop({stopSite:true}),sendRecPass:recPass,beginExclusive,get state(){return{...state,noteKeys:new Set(state.noteKeys)}}};
+    window.__303boxMidiRouter={version:'3210',panic:()=>emergencyStop({stopSite:true}),sendRecPass:recPass,beginExclusive,get state(){return{...state,noteKeys:new Set(state.noteKeys)}}};
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();

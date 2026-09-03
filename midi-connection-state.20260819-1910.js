@@ -60,7 +60,7 @@
     const badge=$('#midiRouterBadge');
     if(badge){const observer=new MutationObserver(syncConnectionUi);observer.observe(badge,{attributes:true,attributeFilter:['class']})}
     document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){ensureLayoutRepair();syncConnectionUi()}});
-    window.__303boxMidiConnectionState={version:'3200',refresh(){ensureLayoutRepair();syncConnectionUi()}};
+    window.__303boxMidiConnectionState={version:'3210',refresh(){ensureLayoutRepair();syncConnectionUi()}};
   }
 
   ensureLayoutRepair();

@@ -9,7 +9,7 @@
   const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
   const nextFrame=()=>new Promise(resolve=>requestAnimationFrame(()=>resolve()));
 
-  const RELEASE='20260901-3200';
+  const RELEASE='20260903-3210';
   const TD3_PREFIX=[0xF0,0x00,0x20,0x32,0x00,0x01,0x0A];
   const TD3_PRODUCT=[...TD3_PREFIX,0x06,0xF7];
   const TD3_FIRMWARE=[...TD3_PREFIX,0x08,0x00,0xF7];
@@ -22,13 +22,14 @@
   const TD3_CONFIRM_MS=15000;
   const BACKUP_KEY='303box-td3-last-pattern-backup-v4';
   const NOTE={C:0,'C#':1,D:2,'D#':3,E:4,F:5,'F#':6,G:7,'G#':8,A:9,'A#':10,B:11};
-  const td3={access:null,input:null,output:null,product:'',firmware:'',config:null,verified:false,busy:false,pending:null,pendingTimer:0,op:0};
+  const td3={access:null,input:null,output:null,product:'',identitySource:'',firmware:'',config:null,verified:false,busy:false,pending:null,pendingTimer:0,op:0};
 
   const samePrefix=a=>TD3_PREFIX.every((v,i)=>a[i]===v);
   const portName=p=>`${p?.manufacturer||''} ${p?.name||''}`.replace(/\s+/g,' ').trim();
   const norm=s=>String(s||'').toLowerCase().replace(/[^a-z0-9]+/g,'');
   const isTd3Name=s=>/\btd\s*-?\s*3(?:\s*-?\s*mo)?\b/i.test(String(s||''));
-  const isTd3Product=s=>/^TD-3(?:-MO)?(?:\s|$)/i.test(String(s||''));
+  const canonicalTd3Product=s=>/\btd\s*-?\s*3\s*-?\s*mo\b/i.test(String(s||''))?'TD-3-MO':/\btd\s*-?\s*3\b/i.test(String(s||''))?'TD-3':'';
+  const isTd3Product=s=>!!canonicalTd3Product(s);
   const connected=p=>!!p&&p.state==='connected';
 
   function error(code,cause){const e=new Error(code);e.code=code;if(cause)e.cause=cause;return e}
@@ -41,6 +42,10 @@
   }
   function errorText(err){
     const code=err?.code||err?.name||String(err?.message||'unknown');
+    if(code==='range'){
+      const steps=(err?.steps||[]).join(', ');
+      return say(`TD-3 pattern memory supports 303box octaves 1–3. Lower the octave on these steps: ${steps}. Nothing was written.`,`TD-3 pattern hafızası 303box oktav 1–3 aralığını destekliyor. Oktavı düşürülmesi gereken step numaraları: ${steps}. Hiçbir şey yazılmadı.`);
+    }
     const map={
       sysex:['USB SysEx permission was not granted.','USB SysEx izni verilmedi.'],
       permission:['USB/SysEx permission did not complete. Retry and accept the browser permission prompt.','USB/SysEx izni tamamlanmadı. Tekrar deneyip tarayıcı izin penceresini onaylayın.'],
@@ -80,8 +85,13 @@
   }
   function td3Pitch(step){
     const octaveText=String(step?.oct??'').trim(),absolute=Number(octaveText);
-    if(octaveText&&Number.isInteger(absolute)&&absolute>=0&&absolute<=8)return clamp(0x18+(NOTE[step?.note]??0)+(absolute-2)*12,0x0C,0x2F)&0x7F;
-    let p=0x18+(NOTE[step?.note]??0)+(step?.baseOct?12:0);if(step?.oct==='D')p-=12;if(step?.oct==='U')p+=12;return clamp(p,0x0C,0x2F)&0x7F;
+    if(octaveText&&Number.isInteger(absolute)&&absolute>=0&&absolute<=8)return 0x18+(NOTE[step?.note]??0)+(absolute-2)*12;
+    let p=0x18+(NOTE[step?.note]??0)+(step?.baseOct?12:0);if(step?.oct==='D')p-=12;if(step?.oct==='U')p+=12;return p;
+  }
+  function assertTd3Range(steps){
+    const invalid=[];
+    steps.forEach((step,index)=>{const rest=!step?.note||step.gate==='-'||!step.gate;if(!rest){const pitch=td3Pitch(step);if(!Number.isInteger(pitch)||pitch<0||pitch>0x2F)invalid.push(index+1)}});
+    if(invalid.length){const e=error('range');e.steps=invalid;throw e}
   }
   function semantics(steps=patternSteps()){
     return Array.from({length:16},(_,i)=>{const s=steps[i]||{},rest=!s.note||s.gate==='-'||!s.gate;if(rest)return{gate:'rest',pitch:null,accent:false,slide:false};return{gate:s.gate==='○'?'tie':'note',pitch:td3Pitch(s),accent:String(s.expr||'').includes('A'),slide:String(s.expr||'').includes('S')}});
@@ -93,6 +103,7 @@
   const sameSemantics=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
   function encodePattern(backup,steps=patternSteps()){
     if(!Array.isArray(backup)||backup.length!==TD3_PATTERN_BYTES)throw error('verify');
+    assertTd3Range(steps);
     const out=backup.slice(),normal=[],rests=[];
     for(let i=0;i<16;i++){
       const s=steps[i]||{},rest=!s.note||s.gate==='-'||!s.gate,tie=!rest&&s.gate==='○';rests[i]=rest;normal[i]=!tie;
@@ -136,6 +147,7 @@
   function routerChannel(){return Number(window.__303boxMidiRouter?.state?.bass)||0}
   function diagnostics(){
     const parts=[];const c=td3.config,ch=routerChannel();
+    if(td3.identitySource==='pattern')parts.push(say('ID: PATTERN READ','KİMLİK: PATTERN OKUMA'));
     if(ch)parts.push(`303BOX CH ${ch}`);
     if(c){parts.push(`TD-3 IN ${c.midiIn}`,`TRANSPOSE ${c.transpose>0?'+':''}${c.transpose}`,`ACCENT > ${c.accentThreshold}`,c.multiTrigger?'MULTI TRIGGER ON':'SLIDE MODE')}
     return parts.join(' · ');
@@ -152,14 +164,17 @@
     const extra=diagnostics();status(`${td3.product}${td3.firmware?` ${td3.firmware}`:''} — ${say('USB/SYSEX VERIFIED','USB/SYSEX DOĞRULANDI')}${extra?` · ${extra}`:''}`,configWarning()?'warn':'good');
   }
   async function verify(tg=target(),show=true){
-    const op=++td3.op;td3.verified=false;td3.firmware='';td3.config=null;
+    const op=++td3.op;td3.verified=false;td3.product='';td3.identitySource='';td3.firmware='';td3.config=null;
     if(show){status(say('VERIFYING USB / SYSEX… browser remains usable.','USB / SYSEX DOĞRULANIYOR… site kullanılabilir kalır.'),'warn');await nextFrame()}
     try{
       const access=await withTimeout(navigator.requestMIDIAccess({sysex:true}),12000,'permission');if(access?.sysexEnabled!==true)throw error('sysex');td3.access=access;
       const ports=findPorts(access);if(!ports)throw error('port');td3.input=ports.input;td3.output=ports.output;
       await Promise.all([withTimeout(td3.input.open(),1300,'open'),withTimeout(td3.output.open(),1300,'open')]);if(op!==td3.op)throw error('changed');
-      const prod=await transact(TD3_PRODUCT,a=>samePrefix(a)&&a[7]===0x07,1600,'identity');td3.product=ascii(prod,8);if(!isTd3Product(td3.product))throw error('identity');
+      let product='';
+      try{const prod=await transact(TD3_PRODUCT,a=>samePrefix(a)&&a[7]===0x07,1600,'identity-timeout');product=canonicalTd3Product(ascii(prod,8));if(!product)throw error('identity')}
+      catch(e){if(e?.code!=='identity-timeout')throw e}
       const probe=await readPattern(tg);if(!validPattern(probe,tg))throw error('pattern-timeout');td3.verified=true;
+      td3.product=product||canonicalTd3Product(portName(td3.output))||'TD-3';td3.identitySource=product?'product':'pattern';
       if(show){const extra=diagnostics();status(`${td3.product} — ${tg.label} — ${say('USB/SYSEX VERIFIED','USB/SYSEX DOĞRULANDI')}${extra?` · ${extra}`:''}`,'good')}
       void refreshOptionalDiagnostics(op);return true;
     }catch(e){if(op===td3.op)td3.verified=false;if(show)status(errorText(e),'bad');throw e}
@@ -212,7 +227,7 @@
   }
   function init(){
     installCapture();patchLabels();document.addEventListener('303box:languagechange',patchLabels);document.addEventListener('303box:ready',patchLabels);document.addEventListener('303box:content-refresh',patchLabels);document.addEventListener('click',e=>{if(e.target?.closest?.('#midiHardwareGuide,[data-hardware-guide-open]'))setTimeout(patchLabels,0)},true);document.addEventListener('change',e=>{if(e.target?.matches?.('#td3WriteGroup,#td3WriteSection,#td3WriteNumber'))targetChanged()},true);
-    window.__303boxHardwareFidelity={version:RELEASE,encodePattern,decodeSemantics,verify,diagnostics,get state(){return{product:td3.product,firmware:td3.firmware,config:td3.config,verified:td3.verified,busy:td3.busy}}};
+    window.__303boxHardwareFidelity={version:RELEASE,encodePattern,decodeSemantics,verify,diagnostics,get state(){return{product:td3.product,identitySource:td3.identitySource,firmware:td3.firmware,config:td3.config,verified:td3.verified,busy:td3.busy}}};
   }
   init();
 })();

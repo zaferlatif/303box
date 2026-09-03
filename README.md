@@ -48,9 +48,9 @@ Rhythm voices:
 | CH | 606 closed hi-hat | `CH` |
 | OH | 606 open hi-hat | `OH` |
 
-## Site version 2026.09.01.1 / Runtime 3200
+## Site version 2026.09.03.1 / Runtime 3200
 
-Every public page now exposes the same visible site version in the footer. The version source is `site-shell.20260821-2600.js`; release integrity tests require every public page to load that shell once and share the `20260901-3200` cache epoch. Bump the human-readable site version and cache epoch together whenever production code changes.
+Every public page now exposes the same visible site version in the footer. The version source is `site-shell.20260821-2600.js`; release integrity tests require every public page to load that shell once and share the `20260903-3210` cache epoch. Bump the human-readable site version and cache epoch together whenever production code changes.
 
 The shared shell also owns header/footer copy across the home, privacy and guide pages. It keeps Disclaimer, Shortcuts, Privacy, Cookie settings and social links structurally consistent while translating the visible labels.
 

@@ -60,7 +60,7 @@ try{
   await page.waitForFunction(()=>document.documentElement.lang==='en');
   await page.waitForFunction(()=>document.querySelector('#td3WritePattern')?.textContent.trim()==='BACKUP + WRITE');
   assert.equal(await text('#midiPlaybackLabel'),'PLAYBACK');
-  assert.equal(await text('[data-site-version]'),'v2026.09.01.1');
+  assert.equal(await text('[data-site-version]'),'v2026.09.03.1');
   const mainFooterLinks=await page.locator('.site-footer .footer-links a').allTextContents();
   await page.locator('[data-shortcuts-link]').click();
   await page.waitForSelector('#shortcutOverlay.open');
@@ -71,7 +71,7 @@ try{
   assert.equal(await text('.brand-copy small'),'Acid pattern laboratory');
   assert.equal(await text('.mini-cta'),'Open sequencer');
   assert.equal(await text('.z3z-credit > span'),'303box is an independent music tool built by Z3Z.');
-  assert.equal(await text('[data-site-version]'),'v2026.09.01.1');
+  assert.equal(await text('[data-site-version]'),'v2026.09.03.1');
   assert.deepEqual(await page.locator('.site-footer .footer-links a').allTextContents(),mainFooterLinks);
   assert.equal(await page.locator('[data-disclaimer-link]').getAttribute('href'),'/' + '#disclaimer');
   assert.equal(await page.locator('[data-shortcuts-link]').getAttribute('href'),'/' + '#shortcuts');

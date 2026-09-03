@@ -28,6 +28,7 @@ const helpers=new Function(`
   ${functionSource('mask16')}
   ${functionSource('unpackMask16')}
   ${functionSource('td3Pitch')}
+  ${functionSource('assertTd3Range')}
   ${functionSource('semantics')}
   ${functionSource('decodeSemantics')}
   ${functionSource('encodePattern')}
@@ -42,9 +43,16 @@ const rest=()=>({note:'',baseOct:0,oct:'',expr:'',gate:'-'});
 
 test('hardware family is labelled TD-3 / TD-3-MO and accepts both identities',()=>{
   assert.match(source,/TD-3 \/ TD-3-MO/);
-  assert.match(source,/\^TD-3\(\?:-MO\)\?/);
+  assert.match(source,/canonicalTd3Product/);
   assert.match(source,/td\\s\*-\?\\s\*3\(\?:\\s\*-\?\\s\*mo\)\?/i);
   assert.doesNotMatch(source,/TD-3-MO and other devices are rejected/);
+});
+
+test('product-name timeout falls back to the exact pattern compatibility probe',()=>{
+  assert.match(source,/identity-timeout/);
+  assert.match(source,/if\(e\?\.code!==?'identity-timeout'\)throw e/);
+  assert.match(source,/const probe=await readPattern\(tg\)/);
+  assert.match(source,/identitySource=product\?'product':'pattern'/);
 });
 
 test('direct writer does not monkey-patch the browser MIDI implementation',()=>{
@@ -83,6 +91,13 @@ test('TD-3 timing mask represents note, tie and rest independently of attribute 
   assert.equal(decoded[0].gate,'note');
   assert.equal(decoded[1].gate,'tie');
   assert.equal(decoded[2].gate,'rest');
+});
+
+test('TD-3 writer rejects unsupported high registers instead of silently clamping them',()=>{
+  const steps=Array.from({length:16},rest);
+  steps[0]={note:'C',baseOct:0,oct:'4',expr:'',gate:'●'};
+  assert.throws(()=>helpers.encodePattern(packet(),steps),error=>error?.code==='range'&&error?.steps?.[0]===1);
+  assert.doesNotMatch(functionSource('td3Pitch'),/clamp\(/);
 });
 
 test('writer reads device configuration and retries idempotent writes before failing',()=>{
