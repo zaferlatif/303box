@@ -9,7 +9,7 @@
   const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
   const nextFrame=()=>new Promise(resolve=>requestAnimationFrame(()=>resolve()));
 
-  const RELEASE='20260903-3210';
+  const RELEASE='20260910-3300';
   const TD3_PREFIX=[0xF0,0x00,0x20,0x32,0x00,0x01,0x0A];
   const TD3_PRODUCT=[...TD3_PREFIX,0x06,0xF7];
   const TD3_FIRMWARE=[...TD3_PREFIX,0x08,0x00,0xF7];

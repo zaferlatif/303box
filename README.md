@@ -48,13 +48,15 @@ Rhythm voices:
 | CH | 606 closed hi-hat | `CH` |
 | OH | 606 open hi-hat | `OH` |
 
-## Site version 2026.09.03.1 / Runtime 3200
+## Site version 2026.09.10.1 / Runtime 3300
 
-Every public page now exposes the same visible site version in the footer. The version source is `site-shell.20260821-2600.js`; release integrity tests require every public page to load that shell once and share the `20260903-3210` cache epoch. Bump the human-readable site version and cache epoch together whenever production code changes.
+Every public page now exposes the same visible site version in the footer. The version source is `site-shell.20260821-2600.js`; release integrity tests require every public page to load that shell once and share the `20260910-3300` cache epoch. Bump the human-readable site version and cache epoch together whenever production code changes.
 
 The shared shell also owns header/footer copy across the home, privacy and guide pages. It keeps Disclaimer, Shortcuts, Privacy, Cookie settings and social links structurally consistent while translating the visible labels.
 
-Runtime 3200 removes the connection-state observer that rewrote OUTPUT and DEVICE while MIDI was not ready, recovers a reconnected output by stable name when Chrome changes its port ID, and makes the hardware guide UI-only. TD-3 SysEx has one operational owner, while the shared header/footer are mounted idempotently so application listeners survive language and content refreshes.
+Runtime 3300 preserves the MIDI fixes from Runtime 3200 and adds an editorial evidence layer for AdSense review. Long-form articles now expose visible authorship, publication/update dates and reproducible exercises. The English/Turkish TD-3 USB transfer lab records a physical-device workflow, separates live MIDI from memory SysEx, documents failure states and links its implementation sources. The sitemap and release-integrity checks include both field reports.
+
+The connection-state observer remains removed: OUTPUT and DEVICE are not rewritten while MIDI is unavailable, reconnected ports recover by stable name, and TD-3 SysEx keeps one operational owner. Shared header/footer mounting remains idempotent so application listeners survive language and content refreshes.
 
 ## Runtime 2300
 

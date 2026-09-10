@@ -111,7 +111,7 @@
     window.addEventListener('click',e=>{if(e.target?.closest?.('#generateButton,#clearButton'))setTimeout(()=>{normalizeCells();refreshTitles()},0)},true);
     document.addEventListener('change',e=>{if(e.target?.matches?.('.note-picker-v2,[data-note-picker]'))setTimeout(refreshTitles,0)},true);
     document.addEventListener('303box:languagechange',()=>{renderGlobal();normalizeCells()});document.addEventListener('303box:ready',settle);document.addEventListener('303box:content-refresh',settle);
-    window.__303boxPitchModel={version:'20260903-3210',midiForStep:midiFor,frequencyForStep:frequencyFor,get baseOctave(){return baseOctave},setBaseOctave:shiftPattern};
+    window.__303boxPitchModel={version:'20260910-3300',midiForStep:midiFor,frequencyForStep:frequencyFor,get baseOctave(){return baseOctave},setBaseOctave:shiftPattern};
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();

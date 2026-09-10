@@ -6,13 +6,14 @@ import {fileURLToPath} from 'node:url';
 
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const read=file=>readFileSync(path.join(root,file),'utf8');
-const siteVersion='2026.09.03.1';
-const releaseEpoch='20260903-3210';
+const siteVersion='2026.09.10.1';
+const releaseEpoch='20260910-3300';
 const htmlFiles=[
   'index.html','privacy.html','guides.html','about.html','303-pattern-guide.html',
   'acid-house-guide.html','midi-hardware-guide.html','303-pattern-examples.html',
   'tr/index.html','tr/rehberler.html','tr/hakkinda.html','tr/303-pattern-rehberi.html',
-  'tr/acid-house-rehberi.html','tr/midi-donanim-rehberi.html','tr/303-pattern-ornekleri.html'
+  'tr/acid-house-rehberi.html','tr/midi-donanim-rehberi.html','tr/303-pattern-ornekleri.html',
+  'td3-usb-transfer-lab.html','tr/td3-usb-aktarim-laboratuvari.html'
 ];
 
 test('all public pages load one current shell and retain a footer target',()=>{
