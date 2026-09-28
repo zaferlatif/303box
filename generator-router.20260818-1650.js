@@ -138,6 +138,8 @@
     if(startupDone)return;startupDone=true;
     const run=()=>{
       if(!$$('.note-input').length||!$('#drums')){startupDone=false;setTimeout(startup,90);return}
+      // Keep a restored session, including learning patterns, across reloads.
+      if(window.__303boxSessionRestored)return;
       const bass=generateBass(false);generateDrums(bass.profile);
       try{localStorage.removeItem('303-session')}catch(_){}
       setTimeout(()=>{

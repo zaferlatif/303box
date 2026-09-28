@@ -14,23 +14,19 @@ const publicPages=[
   'index.html','tr/index.html','guides.html','tr/rehberler.html','about.html','tr/hakkinda.html','privacy.html',...articlePages
 ];
 
-function textWords(html){
-  const main=(html.match(/<main\b[\s\S]*?<\/main>/i)||[''])[0];
-  return main.replace(/<script\b[\s\S]*?<\/script>/gi,' ').replace(/<style\b[\s\S]*?<\/style>/gi,' ').replace(/<[^>]+>/g,' ').replace(/&[a-z#0-9]+;/gi,' ').trim().split(/\s+/).filter(Boolean);
-}
-
-test('editorial articles expose authorship, dates, evidence and substantial copy',()=>{
+// Structural checks are not a content-quality score or an AdSense approval test.
+test('article authorship and dates are visible and agree with structured metadata',()=>{
   for(const file of articlePages){
     const html=read(file);
     assert.match(html,/class="article-meta"/,`${file} needs a visible byline`);
     assert.match(html,/<time datetime="2026-[^"]+">/,`${file} needs a visible date`);
-    assert.match(html,/class="evidence-note"/,`${file} needs first-hand or reproducible evidence`);
-    assert.ok(textWords(html).length>=650,`${file} needs at least 650 meaningful words`);
     const data=JSON.parse((html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)||[])[1]);
     assert.ok(['Article','TechArticle'].includes(data['@type']),`${file} needs article schema`);
     assert.equal(data.author?.name,'Z3Z',`${file} needs a named author`);
     assert.match(data.datePublished||'',/^2026-/,`${file} needs datePublished`);
     assert.match(data.dateModified||'',/^2026-/,`${file} needs dateModified`);
+    assert.ok(html.includes(`<time datetime="${data.dateModified}">`),`${file} must show its modification date`);
+    assert.doesNotMatch(html,/Written and (?:field-)?tested by|Yazan ve (?:fiziksel cihazla )?test eden/);
   }
 });
 
@@ -50,7 +46,7 @@ test('all public pages have canonical, indexable metadata and no broken local li
   }
 });
 
-test('the field report is discoverable from the library, hardware guide and sitemap',()=>{
-  for(const file of ['guides.html','midi-hardware-guide.html','sitemap.xml'])assert.match(read(file),/td3-usb-transfer-lab\.html/,`${file} must link the English field report`);
-  for(const file of ['tr/rehberler.html','tr/midi-donanim-rehberi.html','sitemap.xml'])assert.match(read(file),/td3-usb-aktarim-laboratuvari\.html/,`${file} must link the Turkish field report`);
+test('transfer diagnostics are discoverable from the library, hardware guide and sitemap',()=>{
+  for(const file of ['guides.html','midi-hardware-guide.html','sitemap.xml'])assert.match(read(file),/td3-usb-transfer-lab\.html/,`${file} must link the English diagnostic guide`);
+  for(const file of ['tr/rehberler.html','tr/midi-donanim-rehberi.html','sitemap.xml'])assert.match(read(file),/td3-usb-aktarim-laboratuvari\.html/,`${file} must link the Turkish diagnostic guide`);
 });

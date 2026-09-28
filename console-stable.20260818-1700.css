@@ -10,21 +10,7 @@
   --acid:#ddff37;
 }
 
-/* Never show the intermediate legacy DOM. The runtime reveals the page only
-   after all controls, copy, scope and layout modules have reached final state. */
-html:not(.app-ready){background:var(--site-bg)!important}
-html:not(.app-ready) body{visibility:hidden!important}
-html:not(.app-ready)::before{
-  content:'303BOX / INITIALIZING';
-  position:fixed;inset:0;z-index:2147483647;
-  display:grid;place-items:center;
-  background:var(--site-bg);
-  color:var(--acid);
-  font:800 11px/1 JetBrains Mono,monospace;
-  letter-spacing:.22em;
-}
-html.app-ready::before{display:none!important}
-html.app-ready body{visibility:visible!important}
+/* Reading and navigation are available independently of audio initialization. */
 
 html[lang="tr"] .lang-en{display:none!important}
 html:not([lang="tr"]) .lang-tr{display:none!important}

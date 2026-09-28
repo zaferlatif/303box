@@ -404,7 +404,9 @@
   }
 
   function loadSession() {
+    window.__303boxSessionRestored = false;
     const raw=localStorage.getItem('303box-session') || localStorage.getItem('303-session'); if(!raw){generatePattern(false);return;}
+    try { window.__303boxSessionRestored = JSON.parse(raw)?.pattern?.length === 16; } catch (_) {}
     try { const data=JSON.parse(raw); if(Array.isArray(data.pattern)&&data.pattern.length===16)data.pattern.forEach((step,i)=>setStepData(i,step)); if(data.bpm)setKnob('bpm',Number(data.bpm),false); if(data.knobs)Object.entries(data.knobs).forEach(([id,v])=>{if(id in state.knobs)setKnob(id,Number(v),false);}); if(data.waveform)setWaveform(data.waveform,false); if(typeof data.author==='string')$('#authorInput').value=data.author; if(typeof data.title==='string')$('#titleInput').value=data.title; if(typeof data.notes==='string')$('#notesArea').value=data.notes; selectSegment('#groupSelector',data.group||'I',false); selectSegment('#bankSelector',data.bank||'A',false); } catch(_){generatePattern(false);} renderAllKnobs(); updateSevenSegment();
   }
 

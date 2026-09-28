@@ -1,8 +1,8 @@
 (() => {
   'use strict';
 
-  const SITE_VERSION='2026.09.10.1';
-  const RELEASE_EPOCH='20260910-3300';
+  const SITE_VERSION='2026.09.28.1';
+  const RELEASE_EPOCH='20260928-3400';
   const MIDI_LAYOUT_HREF=`./midi-layout.20260824-2800.css?v=${RELEASE_EPOCH}`;
   const CONSOLE_POLISH_HREF=`./console-polish.20260824-2840.css?v=${RELEASE_EPOCH}`;
   const PITCH_MODEL_SRC=`./pitch-octave.20260826-2940.js?v=${RELEASE_EPOCH}`;
@@ -25,8 +25,8 @@
     const script=document.createElement('script');script.src=PITCH_MODEL_SRC;script.async=false;script.dataset.pitchModelRelease=RELEASE_EPOCH;document.head.appendChild(script);
   }
   function installHardwareFidelity(){
-    if(window.__303boxHardwareFidelity?.version==='20260910-3300'||document.querySelector('script[data-hardware-fidelity-release="20260910-3300"]'))return;
-    const script=document.createElement('script');script.src=HARDWARE_FIDELITY_SRC;script.async=false;script.dataset.hardwareFidelityRelease='20260910-3300';document.head.appendChild(script);
+    if(window.__303boxHardwareFidelity?.version==='20260928-3400'||document.querySelector('script[data-hardware-fidelity-release="20260928-3400"]'))return;
+    const script=document.createElement('script');script.src=HARDWARE_FIDELITY_SRC;script.async=false;script.dataset.hardwareFidelityRelease='20260928-3400';document.head.appendChild(script);
   }
 
   function installSharedLayout(){

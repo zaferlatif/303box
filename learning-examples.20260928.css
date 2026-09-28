@@ -1,0 +1,7 @@
+.learning-status,.example-loader{box-sizing:border-box;margin-block:24px;padding:24px;border:1px solid #454c37;border-radius:14px;background:#181c20;color:#eee;line-height:1.65;scroll-margin-top:100px}
+.learning-status[hidden],.example-loader[hidden],.example-loader [hidden],.learning-status [hidden]{display:none!important}
+.example-loader h2{font-size:clamp(1.2rem,3vw,1.6rem);margin:0 0 12px}.example-loader p{max-width:85ch}.example-actions{display:flex;flex-wrap:wrap;gap:12px}
+.example-actions button,.learning-status button,a.learning-open{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:10px 16px;border:1px solid #697238;border-radius:8px;background:#202710;color:#ddff37;font:inherit;font-weight:650;text-decoration:none;cursor:pointer}
+.example-actions button:disabled{opacity:.5;cursor:wait}.example-actions button:focus-visible,.learning-status a:focus-visible,a.learning-open:focus-visible{outline:2px solid #ddff37;outline-offset:4px}.learning-status a{color:#ddff37;margin-right:20px}.example-loader [role=status]:empty{display:none}
+a.learning-open{margin-top:12px}.learning-lab a.learning-open{text-decoration:none}.learning-status .learning-tr{display:none}html[lang=tr] .learning-status .learning-en{display:none}html[lang=tr] .learning-status .learning-tr{display:block}
+@media(max-width:600px){.example-actions{flex-direction:column}.example-actions button{width:100%}.learning-status,.example-loader{padding:18px}}

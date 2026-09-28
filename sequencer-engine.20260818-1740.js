@@ -1,9 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION='20260910-3300';
-  const BOOT_STARTED=performance.now();
-  const MIN_HIDDEN_BOOT=2250;
+  const VERSION='20260928-3400';
   let revealed=false;
   const root=document.documentElement;
   root.classList.add('app-booting');
@@ -18,7 +16,6 @@
   async function windowLoaded(){if(document.readyState==='complete')return;await Promise.race([new Promise(resolve=>window.addEventListener('load',resolve,{once:true})),wait(2800)])}
   async function waitForFinalControls(timeout=2100){const start=performance.now();while(performance.now()-start<timeout){const knobs=document.querySelectorAll('#knobGrid .knob').length;const scope=document.querySelector('#bassLiveScope,#bassOnlyScope');const drumSteps=document.querySelectorAll('#drums .drum-step').length;const midi=document.querySelector('#midiRouter');if(knobs>=10&&scope&&drumSteps>=96&&midi)return true;await wait(40)}return false}
   async function waitFonts(){if(!document.fonts?.ready)return;await Promise.race([document.fonts.ready,wait(500)]).catch(()=>{})}
-  async function waitMinimumBoot(){const left=MIN_HIDDEN_BOOT-(performance.now()-BOOT_STARTED);if(left>0)await wait(left)}
 
   function applyFinalState(){
     try{window.__303boxEntryNormalize?.apply?.()}catch(_){}
@@ -40,8 +37,9 @@
     try{
       await Promise.all(CSS.map(loadStyle));
       for(const src of JS)await loadScript(src);
-      await domReady();await wait(120);await waitForFinalControls();await windowLoaded();await wait(120);applyFinalState();await waitFonts();await waitMinimumBoot();clearTimeout(watchdog);await reveal('complete');
-    }catch(err){console.error('[303box] boot error',err);clearTimeout(watchdog);await waitMinimumBoot();await reveal('error')}
+      await domReady();await wait(120);await waitForFinalControls();await windowLoaded();await wait(120);applyFinalState();await waitFonts();clearTimeout(watchdog);await reveal('complete');
+    }catch(err){console.error('[303box] boot error',err);clearTimeout(watchdog);await reveal('error')}
+    finally{document.dispatchEvent(new CustomEvent('303box:runtime-settled'))}
   })();
   window.__303boxRuntime={version:VERSION,reveal};
 })();
