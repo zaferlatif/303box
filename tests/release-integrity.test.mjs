@@ -6,8 +6,8 @@ import {fileURLToPath} from 'node:url';
 
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const read=file=>readFileSync(path.join(root,file),'utf8');
-const siteVersion='2026.09.28.1';
-const releaseEpoch='20260928-3400';
+const siteVersion='2026.09.28.2';
+const releaseEpoch='20260928-3500';
 const htmlFiles=[
   'index.html','privacy.html','guides.html','about.html','303-pattern-guide.html',
   'acid-house-guide.html','midi-hardware-guide.html','303-pattern-examples.html',
@@ -35,6 +35,8 @@ test('site shell publishes one idempotent release and loads the current writer',
   assert.match(shell,/siteShellMobile3200/);
   assert.match(shell,/installPitchModel\(\)/);
   assert.match(shell,/installHardwareFidelity\(\)/);
+  assert.match(read('hardware-fidelity.20260826-2930.js'),new RegExp(`const RELEASE='${releaseEpoch}'`));
+  assert.match(shell,/__303boxHardwareFidelity\?\.version===RELEASE_EPOCH/);
   assert.match(shell,/visibilitychange.*stopImmediatePropagation/s);
 });
 

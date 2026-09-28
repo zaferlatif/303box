@@ -9,7 +9,7 @@
   const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
   const nextFrame=()=>new Promise(resolve=>requestAnimationFrame(()=>resolve()));
 
-  const RELEASE='20260910-3300';
+  const RELEASE='20260928-3500';
   const TD3_PREFIX=[0xF0,0x00,0x20,0x32,0x00,0x01,0x0A];
   const TD3_PRODUCT=[...TD3_PREFIX,0x06,0xF7];
   const TD3_FIRMWARE=[...TD3_PREFIX,0x08,0x00,0xF7];
@@ -54,6 +54,7 @@
       identity:['Connected hardware did not identify as TD-3 / TD-3-MO.','Bağlı donanım TD-3 / TD-3-MO olarak doğrulanmadı.'],
       'pattern-timeout':['Pattern read timed out. Keep TD-3 connected by USB and retry.','Pattern okuması zaman aşımına uğradı. TD-3 USB bağlıyken tekrar deneyin.'],
       verify:['Read-back did not match notes, accents, slides and timing.','Geri okuma nota, accent, slide ve zamanlamayla eşleşmedi.'],
+      pattern:['The 16-step pattern is incomplete or contains an invalid note/gate. Nothing was written.','16 adımlı pattern eksik veya geçersiz nota/gate içeriyor. Hiçbir şey yazılmadı.'],
       changed:['Pattern or target changed after backup. Start again.','Yedekten sonra pattern veya hedef değişti. Baştan başlayın.'],
       disconnected:['TD-3 / TD-3-MO disconnected during transfer.','Aktarım sırasında TD-3 / TD-3-MO bağlantısı kesildi.']
     };
@@ -68,8 +69,11 @@
     return{group,section,number,requestSlot,label:`${['I','II','III','IV'][group]} / ${section}${number}`};
   }
   function validPattern(a,tg){
+    if(!tg||!Number.isInteger(tg.group)||tg.group<0||tg.group>3||!Number.isInteger(tg.requestSlot)||tg.requestSlot<0||tg.requestSlot>15)return false;
     if(!Array.isArray(a)||a.length!==TD3_PATTERN_BYTES||!samePrefix(a)||a[7]!==0x78||a[8]!==tg.group||a[9]!==tg.requestSlot||a[122]!==0xF7)return false;
-    for(let i=1;i<a.length-1;i++)if(a[i]<0||a[i]>0x7F)return false;
+    for(let i=1;i<a.length-1;i++)if(!Number.isInteger(a[i])||a[i]<0||a[i]>0x7F)return false;
+    for(const[start,end]of[[0x0C,0x70],[0x72,0x7A]])for(let i=start;i<end;i++)if(a[i]>0x0F)return false;
+    if(readPair(a,0x6C)>1||readPair(a,0x6E)>16)return false;
     return true;
   }
   function pair(v){v=clamp(Math.round(v),0,255);return[(v>>4)&0x0F,v&0x0F]}
@@ -81,6 +85,7 @@
 
   function patternSteps(){
     const notes=$$('#patternSheet .note-input'),oct=$$('#patternSheet .octave-cell'),expr=$$('#patternSheet .accentSlide-cell'),gate=$$('#patternSheet .gate-cell');
+    if([notes,oct,expr,gate].some(cells=>cells.length!==16))throw error('pattern');
     return Array.from({length:16},(_,i)=>({note:notes[i]?.value?.trim().toUpperCase()||'',baseOct:Number(notes[i]?.dataset?.baseOctave||0)?1:0,oct:oct[i]?.textContent.trim().toUpperCase()||'',expr:expr[i]?.textContent.trim().toUpperCase().replace(/\s+/g,'')||'',gate:gate[i]?.textContent.trim()||''}));
   }
   function td3Pitch(step){
@@ -89,37 +94,52 @@
     let p=0x18+(NOTE[step?.note]??0)+(step?.baseOct?12:0);if(step?.oct==='D')p-=12;if(step?.oct==='U')p+=12;return p;
   }
   function assertTd3Range(steps){
+    if(!Array.isArray(steps)||steps.length!==16||steps.some(s=>!s||!['','-','●','○'].includes(s.gate)||s.note&&(!Object.hasOwn(NOTE,s.note)||!s.gate)))throw error('pattern');
     const invalid=[];
     steps.forEach((step,index)=>{const rest=!step?.note||step.gate==='-'||!step.gate;if(!rest){const pitch=td3Pitch(step);if(!Number.isInteger(pitch)||pitch<0||pitch>0x2F)invalid.push(index+1)}});
     if(invalid.length){const e=error('range');e.steps=invalid;throw e}
   }
   function semantics(steps=patternSteps()){
-    return Array.from({length:16},(_,i)=>{const s=steps[i]||{},rest=!s.note||s.gate==='-'||!s.gate;if(rest)return{gate:'rest',pitch:null,accent:false,slide:false};return{gate:s.gate==='○'?'tie':'note',pitch:td3Pitch(s),accent:String(s.expr||'').includes('A'),slide:String(s.expr||'').includes('S')}});
+    const playable=s=>!!s?.note&&s.gate!=='-'&&!!s.gate;
+    // The UI's ○ connects this pitch to the NEXT pitch, exactly as live MIDI
+    // does. Hardware tie timing stalls the pitch pool; it is not that UI gate.
+    return steps.map((s,i)=>!playable(s)?{gate:'rest',pitch:null,accent:false,slide:false}:{gate:'note',pitch:td3Pitch(s),accent:String(s.expr||'').includes('A'),slide:playable(steps[(i+1)%16])&&(s.gate==='○'||String(s.expr||'').includes('S'))});
   }
   function decodeSemantics(packet){
     const rests=unpackMask16(packet.slice(0x76,0x7A)),normal=unpackMask16(packet.slice(0x72,0x76));
-    return Array.from({length:16},(_,i)=>rests[i]?{gate:'rest',pitch:null,accent:false,slide:false}:{gate:normal[i]?'note':'tie',pitch:readPair(packet,0x0C+i*2)&0x7F,accent:!!packet[0x2D+i*2],slide:!!packet[0x4D+i*2]});
+    let pool=0;
+    return Array.from({length:16},(_,i)=>{
+      if(i>=readPair(packet,0x6E)||rests[i])return{gate:'rest',pitch:null,accent:false,slide:false};
+      const item={gate:normal[i]?'note':'tie',pitch:readPair(packet,0x0C+pool*2)&0x7F,accent:!!readPair(packet,0x2C+pool*2),slide:!!readPair(packet,0x4C+pool*2)};
+      if(normal[i])pool++;return item;
+    });
   }
   const sameSemantics=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
   function encodePattern(backup,steps=patternSteps()){
-    if(!Array.isArray(backup)||backup.length!==TD3_PATTERN_BYTES)throw error('verify');
+    if(!validPattern(backup,{group:backup?.[8],requestSlot:backup?.[9]}))throw error('verify');
     assertTd3Range(steps);
-    const out=backup.slice(),normal=[],rests=[];
+    const out=backup.slice(),timeline=semantics(steps),notes=timeline.filter(s=>s.gate==='note');
+    // TD-3 stores a compact NOTE POOL, not one pitch per timeline step.
+    // Rests live only in the timing mask. Pitch, accent and slide share the
+    // same pool index. See 303patterns.com/td3-midi.html and the independent
+    // packArrayByRests implementation in subatomicglue/behringer-td3-editor.
     for(let i=0;i<16;i++){
-      const s=steps[i]||{},rest=!s.note||s.gate==='-'||!s.gate,tie=!rest&&s.gate==='○';rests[i]=rest;normal[i]=!tie;
-      writePair(out,0x0C+i*2,rest?0x18:td3Pitch(s));
-      boolPair(out,0x2C+i*2,!rest&&String(s.expr||'').includes('A'));
-      boolPair(out,0x4C+i*2,!rest&&String(s.expr||'').includes('S'));
+      writePair(out,0x0C+i*2,notes[i]?.pitch??0x18);
+      boolPair(out,0x2C+i*2,notes[i]?.accent);
+      boolPair(out,0x4C+i*2,notes[i]?.slide);
     }
-    out[0x6E]=1;out[0x6F]=0;const normalMask=mask16(normal),restMask=mask16(rests);for(let i=0;i<4;i++){out[0x72+i]=normalMask[i];out[0x76+i]=restMask[i]}return out;
+    boolPair(out,0x6C,false);writePair(out,0x6E,16);
+    const restMask=mask16(timeline.map(s=>s.gate==='rest'));
+    for(let i=0;i<4;i++){out[0x72+i]=0x0F;out[0x76+i]=restMask[i]}return out;
   }
   function comparable(a,b){
     if(!Array.isArray(a)||!Array.isArray(b)||a.length!==TD3_PATTERN_BYTES||b.length!==TD3_PATTERN_BYTES)return false;
-    for(const[start,end]of[[0x0C,0x6C],[0x6E,0x70],[0x72,0x7A]])for(let i=start;i<end;i++)if(a[i]!==b[i])return false;
+    for(const[start,end]of[[0x0C,0x70],[0x72,0x7A]])for(let i=start;i<end;i++)if(a[i]!==b[i])return false;
     return a[8]===b[8]&&a[9]===b[9];
   }
 
-  function status(text,kind='',idle=false){const el=$('#td3DirectStatus');if(el){el.textContent=text;el.className=`td3-direct-status ${kind}`.trim();if(idle)el.dataset.idle='true';else delete el.dataset.idle}}
+  let statusRevision=0;
+  function status(text,kind='',idle=false){statusRevision++;const el=$('#td3DirectStatus');if(el){el.textContent=text;el.className=`td3-direct-status ${kind}`.trim();if(idle)el.dataset.idle='true';else delete el.dataset.idle}}
   function setBusy(on){
     td3.busy=on;const box=$('#td3DirectBox');if(!box)return;box.setAttribute('aria-busy',String(on));
     $$('#td3DirectBox .td3-direct-actions button').forEach(el=>el.disabled=on);
@@ -156,11 +176,12 @@
   function readPattern(tg){return transact([...TD3_PREFIX,0x77,tg.group,tg.requestSlot,0xF7],a=>validPattern(a,tg),TD3_PATTERN_TIMEOUT,'pattern')}
 
   async function refreshOptionalDiagnostics(op){
+    const revision=statusRevision;
     const jobs=[
       transact(TD3_FIRMWARE,a=>samePrefix(a)&&a[7]===0x09,1100,'firmware').then(x=>{td3.firmware=firmware(x)}).catch(()=>{}),
       transact(TD3_CONFIG,a=>samePrefix(a)&&a[7]===0x76,1100,'config').then(x=>{td3.config=decodeConfig(x)}).catch(()=>{})
     ];
-    await Promise.allSettled(jobs);if(op!==td3.op||!td3.verified)return;
+    await Promise.allSettled(jobs);if(op!==td3.op||!td3.verified||revision!==statusRevision||td3.pending)return;
     const extra=diagnostics();status(`${td3.product}${td3.firmware?` ${td3.firmware}`:''} — ${say('USB/SYSEX VERIFIED','USB/SYSEX DOĞRULANDI')}${extra?` · ${extra}`:''}`,configWarning()?'warn':'good');
   }
   async function verify(tg=target(),show=true){
@@ -195,7 +216,7 @@
   function saveBackup(bytes,tg){localStorage.setItem(BACKUP_KEY,JSON.stringify({bytes,target:tg,product:td3.product,created:Date.now()}))}
   function loadBackup(){try{return JSON.parse(localStorage.getItem(BACKUP_KEY)||'null')}catch(_){return null}}
   function clearPending(){if(td3.pendingTimer)clearTimeout(td3.pendingTimer);td3.pendingTimer=0;td3.pending=null;const b=$('#td3WritePattern');if(b){b.classList.remove('armed');b.textContent=say('BACKUP + WRITE','YEDEKLE + YAZ')}}
-  function armPending(packet,tg){clearPending();td3.pending={packet:packet.slice(),tg:{...tg},signature:signature(),product:td3.product,expires:Date.now()+TD3_CONFIRM_MS};const b=$('#td3WritePattern');if(b){b.classList.add('armed');b.textContent=say(`CONFIRM WRITE ${tg.label}`,`${tg.label} YAZMAYI ONAYLA`)}const p=td3.pending;td3.pendingTimer=setTimeout(()=>{if(td3.pending===p){clearPending();status(say('Write confirmation expired.','Yazma onayı zaman aşımına uğradı.'),'warn')}},TD3_CONFIRM_MS)}
+  function armPending(packet,tg,steps){clearPending();td3.pending={packet:packet.slice(),tg:{...tg},signature:JSON.stringify(steps),product:td3.product,input:td3.input,output:td3.output,expires:Date.now()+TD3_CONFIRM_MS};const b=$('#td3WritePattern');if(b){b.classList.add('armed');b.textContent=say(`CONFIRM WRITE ${tg.label}`,`${tg.label} YAZMAYI ONAYLA`)}const p=td3.pending;td3.pendingTimer=setTimeout(()=>{if(td3.pending===p){clearPending();status(say('Write confirmation expired.','Yazma onayı zaman aşımına uğradı.'),'warn')}},TD3_CONFIRM_MS)}
   function targetChanged(){
     if(td3.busy)return;
     clearPending();
@@ -206,9 +227,16 @@
     if(td3.busy)return;setBusy(true);const release=exclusive?(window.__303boxMidiRouter?.beginExclusive?.('td3-fidelity')||(()=>{})):(()=>{});
     try{if(stopAudio)window.__303boxUnifiedEngine?.stopAll?.();await nextFrame();await fn()}catch(e){status(errorText(e),'bad')}finally{release();setBusy(false);if(td3.pending){const b=$('#td3WritePattern');if(b){b.disabled=false;b.classList.add('armed');b.textContent=say(`CONFIRM WRITE ${td3.pending.tg.label}`,`${td3.pending.tg.label} YAZMAYI ONAYLA`)}}}
   }
-  async function prepareWrite(){const tg=target();await ensure(tg);const backup=await readPattern(tg);saveBackup(backup,tg);const packet=encodePattern(backup),wanted=semantics();if(!sameSemantics(wanted,decodeSemantics(packet)))throw error('verify');armPending(packet,tg);status(`${td3.product} ${tg.label} — ${say('backup saved. Confirm target and write.','yedek alındı. Hedefi kontrol edip yazmayı onaylayın.')} · ${diagnostics()}`,'warn')}
-  async function commitWrite(){const p=td3.pending;if(!p||Date.now()>p.expires)throw error('changed');if(p.signature!==signature()||p.product!==td3.product)throw error('changed');const tg=target();if(tg.group!==p.tg.group||tg.requestSlot!==p.tg.requestSlot)throw error('changed');await ensure(tg);const actual=await writeAndVerify(p.packet,tg);if(!sameSemantics(semantics(),decodeSemantics(actual)))throw error('verify');clearPending();status(`${td3.product} ${tg.label} — ${say('WRITE VERIFIED: notes, accents and slides match.','YAZMA DOĞRULANDI: nota, accent ve slide eşleşiyor.')} · ${diagnostics()}`,configWarning()?'warn':'good')}
-  async function restore(){const b=loadBackup();if(!b?.bytes||!b?.target)throw error('changed');await ensure(b.target);await writeAndVerify(b.bytes,b.target);clearPending();status(`${td3.product} ${b.target.label} — ${say('backup restored and verified.','yedek geri yüklendi ve doğrulandı.')}`,'good')}
+  async function prepareWrite(){
+    const tg=target(),steps=patternSteps();assertTd3Range(steps);
+    await ensure(tg);const backup=await readPattern(tg),packet=encodePattern(backup,steps),wanted=semantics(steps);
+    if(!sameSemantics(wanted,decodeSemantics(packet)))throw error('verify');
+    saveBackup(backup,tg);armPending(packet,tg,steps);
+    const notes=wanted.filter(s=>s.gate==='note').length,rests=16-notes;
+    status(`${td3.product} ${tg.label} — ${say(`${notes} notes / ${rests} rests · 16 steps, triplet OFF. Backup saved; confirm target and write.`,`${notes} nota / ${rests} es · 16 adım, üçleme KAPALI. Yedek alındı; hedefi kontrol edip yazmayı onaylayın.`)} · ${diagnostics()}`,'warn');
+  }
+  async function commitWrite(){const p=td3.pending;if(!p||Date.now()>p.expires)throw error('changed');if(p.signature!==signature()||p.product!==td3.product)throw error('changed');const tg=target();if(tg.group!==p.tg.group||tg.requestSlot!==p.tg.requestSlot)throw error('changed');await ensure(tg);if(p.input!==td3.input||p.output!==td3.output||p.product!==td3.product||p.signature!==signature())throw error('changed');const actual=await writeAndVerify(p.packet,tg);if(!sameSemantics(semantics(),decodeSemantics(actual)))throw error('verify');clearPending();status(`${td3.product} ${tg.label} — ${say('WRITE VERIFIED: stored notes, accents, slides and timing match.','YAZMA DOĞRULANDI: kayıtlı nota, accent, slide ve zamanlama eşleşiyor.')} · ${diagnostics()}`,configWarning()?'warn':'good')}
+  async function restore(){const b=loadBackup();if(!validPattern(b?.bytes,b?.target))throw error('changed');await ensure(b.target);await writeAndVerify(b.bytes,b.target);clearPending();status(`${td3.product} ${b.target.label} — ${say('backup restored and verified.','yedek geri yüklendi ve doğrulandı.')}`,'good')}
 
   function patchLabels(){
     const profile=$('#midiDeviceProfile');if(profile){const auto=[...profile.options].find(o=>o.value==='auto'),td=[...profile.options].find(o=>o.value==='td3');if(auto)auto.textContent='AUTO — T-8 / TD-3 / TD-3-MO';if(td)td.textContent='Behringer TD-3 / TD-3-MO'}
