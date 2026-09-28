@@ -77,7 +77,7 @@
     }
   }
   function clearQuery() {
-    const url = new URL(location.href); url.searchParams.delete('example');
+    const url = new URL(location.href); url.searchParams.delete('example'); url.searchParams.delete('lang');
     history.replaceState(history.state, '', url.pathname + url.search + url.hash);
   }
   function render() {

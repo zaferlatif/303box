@@ -60,7 +60,7 @@ test('all teaching patterns contain 16 encodable steps; article note lists match
 test('opening or cancelling a link preserves the current pattern without starting playback',()=>{
   const h=harness();assert.deepEqual(h.readSteps(),h.original.pattern);assert.equal(h.button('exampleLoad').hidden,false);
   h.button('exampleCancel').click();assert.deepEqual(h.readSteps(),h.original.pattern);assert.equal(h.calls.length,0);assert.equal(h.store.has(BACKUP),false);
-  assert.ok(!h.href().includes('example='));
+  assert.ok(!h.href().includes('example='));assert.ok(!h.href().includes('lang='),'later reloads should preserve a new language choice');
 });
 test('confirmed load preserves tempo and patch; undo survives reload and restores the previous title and steps',()=>{
   const h=harness();h.button('exampleLoad').click();
