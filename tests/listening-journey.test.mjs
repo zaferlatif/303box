@@ -63,3 +63,13 @@ test('runtime navigation updates all primary links and footer destinations when 
   context.run();assert.equal(nav[1].href,'/guides.html');assert.equal(footerNav[4].href,'/about.html');
   lang='tr';context.run();assert.equal(nav[1].textContent,'Öğren');assert.equal(nav[2].href,'/tr/303-pattern-ornekleri.html');assert.equal(mobile[3].href,'/tr/midi-donanim-rehberi.html');assert.equal(footerNav[4].href,'/tr/hakkinda.html');
 });
+
+test('late homepage translation cannot overwrite the shared navigation or restore the old dropdown',()=>{
+  const labels=['Sequencer','Learn','Examples','MIDI & Hardware','About'];
+  const links=labels.map(textContent=>({textContent}));
+  const document={documentElement:{lang:'en'},body:null,readyState:'complete',title:'',querySelector:()=>null,querySelectorAll:s=>s==='.site-header .nav a'?links:[],addEventListener(){}};
+  const window={};
+  vm.runInNewContext(read('content-stable.20260819-2000.js'),{window,document,queueMicrotask,MutationObserver:class{observe(){}},Node:{ELEMENT_NODE:1}});
+  window.__303boxContentStable.apply();assert.deepEqual(links.map(x=>x.textContent),labels);
+  assert.doesNotMatch(read('console-polish.20260824-2840.css'),/mobile-menu-toggle|#mobileMenu/);
+});

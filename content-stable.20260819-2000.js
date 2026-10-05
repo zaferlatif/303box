@@ -44,7 +44,6 @@
     }
   };
 
-  const NAV={en:['303','Rhythm','Guide','History','FAQ'],tr:['303','Ritim','Rehber','Tarihçe','SSS']};
   const key=keyName=>COPY[language()][keyName]??COPY.en[keyName]??keyName;
   const put=(selector,keyName)=>{const el=$(selector);const value=key(keyName);if(el&&el.textContent!==value)el.textContent=value};
   const putAttr=(selector,attribute,keyName)=>{const el=$(selector);const value=key(keyName);if(el&&el.getAttribute(attribute)!==value)el.setAttribute(attribute,value)};
@@ -63,7 +62,7 @@
     put('.intent-kicker','intentKicker');put('.intent-title','intentTitle');put('.intent-lead','intentLead');
     const intentKeys=[['intentOneTitle','intentOneText'],['intentTwoTitle','intentTwoText'],['intentThreeTitle','intentThreeText']];
     $$('.intent-grid article').forEach((article,index)=>{const pair=intentKeys[index];if(!pair)return;const title=$('b',article),body=$('p',article);if(title)title.textContent=key(pair[0]);if(body)body.textContent=key(pair[1])});
-    $$('.site-header .nav a').forEach((el,index)=>{const value=NAV[l][index];if(value&&el.textContent!==value)el.textContent=value});
+    // Header labels and destinations are owned together by site-shell.
     put('.sheet-kicker','sheetKicker');put('.sheet-model','sheetModel');
     putAttr('#languageButton','aria-label','changeLanguage');putAttr('#patternSheet','aria-label','patternSheetLabel');putAttr('#acidConsole','aria-label','acidConsoleLabel');putAttr('#bassOnlyScope','aria-label','scopeLabel');putAttr('#bassLiveScope','aria-label','scopeLabel');
     const current=$('#languageCurrent'),next=$('#languageNext');if(current)current.textContent=l.toUpperCase();if(next)next.textContent=l==='en'?'TR':'EN';
