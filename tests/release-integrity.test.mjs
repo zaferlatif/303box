@@ -6,8 +6,8 @@ import {fileURLToPath} from 'node:url';
 
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const read=file=>readFileSync(path.join(root,file),'utf8');
-const siteVersion='2026.09.28.2';
-const releaseEpoch='20260928-3500';
+const siteVersion='2026.10.05.1';
+const releaseEpoch='20261005-3600';
 const htmlFiles=[
   'index.html','privacy.html','guides.html','about.html','303-pattern-guide.html',
   'acid-house-guide.html','midi-hardware-guide.html','303-pattern-examples.html',

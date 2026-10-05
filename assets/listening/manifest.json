@@ -1,0 +1,1018 @@
+{
+  "bpm": 120,
+  "loops": 2,
+  "sampleRate": 22050,
+  "kind": "original educational software synthesis",
+  "examples": {
+    "sparse-a": {
+      "a": [
+        {
+          "note": "A",
+          "octave": "2",
+          "accentSlide": "A",
+          "gate": "●"
+        },
+        {
+          "note": "",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "-"
+        },
+        {
+          "note": "A",
+          "octave": "2",
+          "accentSlide": "S",
+          "gate": "●"
+        },
+        {
+          "note": "C",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "●"
+        },
+        {
+          "note": "",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "-"
+        },
+        {
+          "note": "E",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "●"
+        },
+        {
+          "note": "",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "-"
+        },
+        {
+          "note": "A",
+          "octave": "3",
+          "accentSlide": "S",
+          "gate": "●"
+        },
+        {
+          "note": "G",
+          "octave": "2",
+          "accentSlide": "A",
+          "gate": "●"
+        },
+        {
+          "note": "",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "-"
+        },
+        {
+          "note": "E",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "●"
+        },
+        {
+          "note": "",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "-"
+        },
+        {
+          "note": "C",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "●"
+        },
+        {
+          "note": "",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "-"
+        },
+        {
+          "note": "E",
+          "octave": "3",
+          "accentSlide": "A",
+          "gate": "●"
+        },
+        {
+          "note": "",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "-"
+        }
+      ],
+      "b": [
+        {
+          "note": "A",
+          "octave": "2",
+          "accentSlide": "A",
+          "gate": "●"
+        },
+        {
+          "note": "",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "-"
+        },
+        {
+          "note": "A",
+          "octave": "2",
+          "accentSlide": "S",
+          "gate": "●"
+        },
+        {
+          "note": "C",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "●"
+        },
+        {
+          "note": "",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "-"
+        },
+        {
+          "note": "",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "-"
+        },
+        {
+          "note": "",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "-"
+        },
+        {
+          "note": "A",
+          "octave": "3",
+          "accentSlide": "S",
+          "gate": "●"
+        },
+        {
+          "note": "G",
+          "octave": "2",
+          "accentSlide": "A",
+          "gate": "●"
+        },
+        {
+          "note": "",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "-"
+        },
+        {
+          "note": "E",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "●"
+        },
+        {
+          "note": "",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "-"
+        },
+        {
+          "note": "C",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "●"
+        },
+        {
+          "note": "",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "-"
+        },
+        {
+          "note": "E",
+          "octave": "3",
+          "accentSlide": "A",
+          "gate": "●"
+        },
+        {
+          "note": "",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "-"
+        }
+      ],
+      "changed": [
+        6
+      ]
+    },
+    "one-note": {
+      "a": [
+        {
+          "note": "C",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "●"
+        },
+        {
+          "note": "",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "-"
+        },
+        {
+          "note": "C",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "●"
+        },
+        {
+          "note": "",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "-"
+        },
+        {
+          "note": "C",
+          "octave": "3",
+          "accentSlide": "A",
+          "gate": "●"
+        },
+        {
+          "note": "C",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "●"
+        },
+        {
+          "note": "",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "-"
+        },
+        {
+          "note": "C",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "●"
+        },
+        {
+          "note": "",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "-"
+        },
+        {
+          "note": "C",
+          "octave": "2",
+          "accentSlide": "A",
+          "gate": "●"
+        },
+        {
+          "note": "",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "-"
+        },
+        {
+          "note": "C",
+          "octave": "3",
+          "accentSlide": "S",
+          "gate": "●"
+        },
+        {
+          "note": "C",
+          "octave": "1",
+          "accentSlide": "A",
+          "gate": "●"
+        },
+        {
+          "note": "",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "-"
+        },
+        {
+          "note": "C",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "●"
+        },
+        {
+          "note": "",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "-"
+        }
+      ],
+      "b": [
+        {
+          "note": "C",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "●"
+        },
+        {
+          "note": "",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "-"
+        },
+        {
+          "note": "C",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "●"
+        },
+        {
+          "note": "",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "-"
+        },
+        {
+          "note": "C",
+          "octave": "3",
+          "accentSlide": "A",
+          "gate": "●"
+        },
+        {
+          "note": "C",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "●"
+        },
+        {
+          "note": "",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "-"
+        },
+        {
+          "note": "C",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "●"
+        },
+        {
+          "note": "",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "-"
+        },
+        {
+          "note": "C",
+          "octave": "2",
+          "accentSlide": "A",
+          "gate": "●"
+        },
+        {
+          "note": "",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "-"
+        },
+        {
+          "note": "C",
+          "octave": "3",
+          "accentSlide": "S",
+          "gate": "●"
+        },
+        {
+          "note": "C",
+          "octave": "2",
+          "accentSlide": "A",
+          "gate": "●"
+        },
+        {
+          "note": "",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "-"
+        },
+        {
+          "note": "C",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "●"
+        },
+        {
+          "note": "",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "-"
+        }
+      ],
+      "changed": [
+        13
+      ]
+    },
+    "slide-tension": {
+      "a": [
+        {
+          "note": "E",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "●"
+        },
+        {
+          "note": "",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "-"
+        },
+        {
+          "note": "G",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "●"
+        },
+        {
+          "note": "G#",
+          "octave": "2",
+          "accentSlide": "A",
+          "gate": "●"
+        },
+        {
+          "note": "",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "-"
+        },
+        {
+          "note": "E",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "●"
+        },
+        {
+          "note": "",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "-"
+        },
+        {
+          "note": "B",
+          "octave": "3",
+          "accentSlide": "",
+          "gate": "●"
+        },
+        {
+          "note": "A",
+          "octave": "2",
+          "accentSlide": "A",
+          "gate": "●"
+        },
+        {
+          "note": "",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "-"
+        },
+        {
+          "note": "G",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "●"
+        },
+        {
+          "note": "",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "-"
+        },
+        {
+          "note": "E",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "●"
+        },
+        {
+          "note": "G",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "●"
+        },
+        {
+          "note": "G#",
+          "octave": "3",
+          "accentSlide": "A",
+          "gate": "●"
+        },
+        {
+          "note": "",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "-"
+        }
+      ],
+      "b": [
+        {
+          "note": "E",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "●"
+        },
+        {
+          "note": "",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "-"
+        },
+        {
+          "note": "G",
+          "octave": "2",
+          "accentSlide": "S",
+          "gate": "●"
+        },
+        {
+          "note": "G#",
+          "octave": "2",
+          "accentSlide": "A",
+          "gate": "●"
+        },
+        {
+          "note": "",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "-"
+        },
+        {
+          "note": "E",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "●"
+        },
+        {
+          "note": "",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "-"
+        },
+        {
+          "note": "B",
+          "octave": "3",
+          "accentSlide": "",
+          "gate": "●"
+        },
+        {
+          "note": "A",
+          "octave": "2",
+          "accentSlide": "A",
+          "gate": "●"
+        },
+        {
+          "note": "",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "-"
+        },
+        {
+          "note": "G",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "●"
+        },
+        {
+          "note": "",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "-"
+        },
+        {
+          "note": "E",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "●"
+        },
+        {
+          "note": "G",
+          "octave": "2",
+          "accentSlide": "S",
+          "gate": "●"
+        },
+        {
+          "note": "G#",
+          "octave": "3",
+          "accentSlide": "A",
+          "gate": "●"
+        },
+        {
+          "note": "",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "-"
+        }
+      ],
+      "changed": [
+        3,
+        14
+      ]
+    },
+    "offbeat": {
+      "a": [
+        {
+          "note": "",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "-"
+        },
+        {
+          "note": "D",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "●"
+        },
+        {
+          "note": "",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "-"
+        },
+        {
+          "note": "F",
+          "octave": "2",
+          "accentSlide": "A",
+          "gate": "●"
+        },
+        {
+          "note": "",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "-"
+        },
+        {
+          "note": "A",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "●"
+        },
+        {
+          "note": "",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "-"
+        },
+        {
+          "note": "C",
+          "octave": "3",
+          "accentSlide": "",
+          "gate": "●"
+        },
+        {
+          "note": "",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "-"
+        },
+        {
+          "note": "D",
+          "octave": "2",
+          "accentSlide": "A",
+          "gate": "●"
+        },
+        {
+          "note": "F",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "●"
+        },
+        {
+          "note": "",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "-"
+        },
+        {
+          "note": "",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "-"
+        },
+        {
+          "note": "A",
+          "octave": "2",
+          "accentSlide": "S",
+          "gate": "●"
+        },
+        {
+          "note": "C",
+          "octave": "3",
+          "accentSlide": "A",
+          "gate": "●"
+        },
+        {
+          "note": "",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "-"
+        }
+      ],
+      "b": [
+        {
+          "note": "D",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "●"
+        },
+        {
+          "note": "",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "-"
+        },
+        {
+          "note": "",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "-"
+        },
+        {
+          "note": "F",
+          "octave": "2",
+          "accentSlide": "A",
+          "gate": "●"
+        },
+        {
+          "note": "",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "-"
+        },
+        {
+          "note": "A",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "●"
+        },
+        {
+          "note": "",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "-"
+        },
+        {
+          "note": "C",
+          "octave": "3",
+          "accentSlide": "",
+          "gate": "●"
+        },
+        {
+          "note": "",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "-"
+        },
+        {
+          "note": "D",
+          "octave": "2",
+          "accentSlide": "A",
+          "gate": "●"
+        },
+        {
+          "note": "F",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "●"
+        },
+        {
+          "note": "",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "-"
+        },
+        {
+          "note": "",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "-"
+        },
+        {
+          "note": "A",
+          "octave": "2",
+          "accentSlide": "S",
+          "gate": "●"
+        },
+        {
+          "note": "C",
+          "octave": "3",
+          "accentSlide": "A",
+          "gate": "●"
+        },
+        {
+          "note": "",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "-"
+        }
+      ],
+      "changed": [
+        1,
+        2
+      ]
+    },
+    "accent-map": {
+      "a": [
+        {
+          "note": "A",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "●"
+        },
+        {
+          "note": "A",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "●"
+        },
+        {
+          "note": "",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "-"
+        },
+        {
+          "note": "E",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "●"
+        },
+        {
+          "note": "A",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "●"
+        },
+        {
+          "note": "",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "-"
+        },
+        {
+          "note": "G",
+          "octave": "1",
+          "accentSlide": "",
+          "gate": "●"
+        },
+        {
+          "note": "A",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "●"
+        },
+        {
+          "note": "A",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "●"
+        },
+        {
+          "note": "",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "-"
+        },
+        {
+          "note": "E",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "●"
+        },
+        {
+          "note": "A",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "●"
+        },
+        {
+          "note": "",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "-"
+        },
+        {
+          "note": "G",
+          "octave": "3",
+          "accentSlide": "S",
+          "gate": "●"
+        },
+        {
+          "note": "A",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "●"
+        },
+        {
+          "note": "",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "-"
+        }
+      ],
+      "b": [
+        {
+          "note": "A",
+          "octave": "2",
+          "accentSlide": "A",
+          "gate": "●"
+        },
+        {
+          "note": "A",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "●"
+        },
+        {
+          "note": "",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "-"
+        },
+        {
+          "note": "E",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "●"
+        },
+        {
+          "note": "A",
+          "octave": "2",
+          "accentSlide": "A",
+          "gate": "●"
+        },
+        {
+          "note": "",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "-"
+        },
+        {
+          "note": "G",
+          "octave": "1",
+          "accentSlide": "",
+          "gate": "●"
+        },
+        {
+          "note": "A",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "●"
+        },
+        {
+          "note": "A",
+          "octave": "2",
+          "accentSlide": "A",
+          "gate": "●"
+        },
+        {
+          "note": "",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "-"
+        },
+        {
+          "note": "E",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "●"
+        },
+        {
+          "note": "A",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "●"
+        },
+        {
+          "note": "",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "-"
+        },
+        {
+          "note": "G",
+          "octave": "3",
+          "accentSlide": "AS",
+          "gate": "●"
+        },
+        {
+          "note": "A",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "●"
+        },
+        {
+          "note": "",
+          "octave": "2",
+          "accentSlide": "",
+          "gate": "-"
+        }
+      ],
+      "changed": [
+        1,
+        5,
+        9,
+        14
+      ]
+    }
+  }
+}

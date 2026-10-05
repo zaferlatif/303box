@@ -1,8 +1,8 @@
 (() => {
   'use strict';
 
-  const SITE_VERSION='2026.09.28.2';
-  const RELEASE_EPOCH='20260928-3500';
+  const SITE_VERSION='2026.10.05.1';
+  const RELEASE_EPOCH='20261005-3600';
   const MIDI_LAYOUT_HREF=`./midi-layout.20260824-2800.css?v=${RELEASE_EPOCH}`;
   const CONSOLE_POLISH_HREF=`./console-polish.20260824-2840.css?v=${RELEASE_EPOCH}`;
   const PITCH_MODEL_SRC=`./pitch-octave.20260826-2940.js?v=${RELEASE_EPOCH}`;
@@ -34,7 +34,7 @@
     ['siteShellLayout2401','siteShellLayout2404','siteShellLayout2405','siteShellLayout2406','siteShellLayout2407','siteShellLayout2408','siteShellLayout2409','siteShellLayout2410','siteShellLayout2411','siteShellLayout2601','siteShellLayout2602','siteShellLayout2603','siteShellLayout2604','siteShellLayout2702','siteShellMobile2703','siteShellMobile2704','siteShellMobile2705','siteShellMobile2706','siteShellMobile2707'].forEach(id=>document.getElementById(id)?.remove());
     const style=document.createElement('style');style.id='siteShellMobile3200';style.textContent=`
       .site-header .mobile-menu-toggle,.site-header .mobile-menu{display:none}
-      @media(min-width:761px){
+      @media(min-width:1001px){
         html body .site-header .header-inner{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:26px!important;min-height:72px!important}
         html body .site-header .nav{display:flex!important;align-items:center!important;gap:26px!important;color:#aaaab0!important;font-size:.82rem!important;font-weight:700!important;white-space:nowrap!important}
         html body .site-header .brand{display:inline-flex!important}
@@ -42,20 +42,20 @@
         html body .site-header .brand-copy strong{display:block!important}
         html body .site-header .brand-copy small{display:block!important}
         html body .site-header .header-actions{display:flex!important;align-items:center!important;gap:10px!important}
-        html body .site-header .header-actions>.mini-cta{display:inline-flex!important}
+        html body .site-header .header-actions>.mini-cta{display:none!important}
         html body .site-header .mobile-menu-toggle,html body .site-header .mobile-menu{display:none!important}
       }
-      @media(min-width:761px) and (max-width:1100px){
+      @media(min-width:1001px) and (max-width:1200px){
         html body .site-header .header-inner{gap:14px!important}
         html body .site-header .nav{gap:14px!important;font-size:.74rem!important}
         html body .site-header .mini-cta{padding:0 10px!important;font-size:.7rem!important}
         html body .site-header .language-switch{padding:0 9px!important}
       }
-      @media(min-width:761px) and (max-width:860px){
+      @media(min-width:1001px) and (max-width:1100px){
         html body .site-header .brand-copy small{display:none!important}
         html body .site-header .nav{gap:10px!important;font-size:.7rem!important}
       }
-      @media(max-width:760px){
+      @media(max-width:1000px){
         html body .site-header{position:relative;z-index:1200}
         html body .site-header .header-inner{position:relative;grid-template-columns:minmax(0,1fr) auto!important;gap:12px!important}
         html body .site-header .nav{display:none!important}
@@ -72,7 +72,7 @@
         html body .site-header .mobile-menu-toggle[aria-expanded="true"] .mobile-menu-icon::before{top:6px;transform:rotate(45deg)}
         html body .site-header .mobile-menu-toggle[aria-expanded="true"] .mobile-menu-icon span{opacity:0}
         html body .site-header .mobile-menu-toggle[aria-expanded="true"] .mobile-menu-icon::after{top:6px;transform:rotate(-45deg)}
-        html body .site-header .mobile-menu{position:absolute;top:100%;left:0;right:0;display:block;border-top:1px solid #25272d;border-bottom:1px solid #30333a;background:rgba(7,8,9,.985);box-shadow:0 24px 55px rgba(0,0,0,.48);padding:14px max(16px,calc((100vw - min(calc(100vw - 32px),1180px))/2)) 20px}
+        html body .site-header .mobile-menu{position:absolute;top:100%;left:0;right:0;display:block;border-top:1px solid #25272d;border-bottom:1px solid #30333a;background:rgba(7,8,9,.985);box-shadow:0 24px 55px rgba(0,0,0,.48);padding:14px max(16px,calc((100vw - min(calc(100vw - 32px),1180px))/2)) 20px;max-height:calc(100dvh - 72px);overflow-y:auto}
         html body .site-header .mobile-menu[hidden]{display:none!important}
         html body .site-header .mobile-menu-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
         html body .site-header .mobile-menu a{min-width:0;display:flex;align-items:center;min-height:46px;padding:0 14px;border:1px solid #272a31;border-radius:10px;background:#101216;color:#c7c8ce;text-decoration:none;font-weight:800;font-size:14px}
@@ -119,20 +119,24 @@
       window.__303boxMobileMenuGlobal=true;
       document.addEventListener('click',event=>{const current=document.querySelector('.site-header');if(current&&!current.contains(event.target))setMobileMenu(false)});
       document.addEventListener('keydown',event=>{if(event.key==='Escape')setMobileMenu(false)});
-      window.addEventListener('resize',()=>{if(innerWidth>760)setMobileMenu(false)},{passive:true});
+      window.addEventListener('resize',()=>{if(innerWidth>1000)setMobileMenu(false)},{passive:true});
     }
   }
   function installSharedChrome(){
     const lang=language(),tr=lang==='tr',home=tr?'/tr/':'/',prefix='/',otherLang=tr?'en':'tr',otherHref=alternateHref(otherLang);
     const articles=tr?'/tr/rehberler.html':'/guides.html',pattern=tr?'/tr/303-pattern-rehberi.html':'/303-pattern-guide.html',midi=tr?'/tr/midi-donanim-rehberi.html':'/midi-hardware-guide.html',examples=tr?'/tr/303-pattern-ornekleri.html':'/303-pattern-examples.html',about=tr?'/tr/hakkinda.html':'/about.html';
+    const primary=[[prefix+'#sequencer','Sequencer'],[articles,tr?'Öğren':'Learn'],[examples,tr?'Örnekler':'Examples'],[midi,tr?'MIDI & Donanım':'MIDI & Hardware'],[about,tr?'Hakkında':'About']];
+    const secondary=[[prefix+'#drums',tr?'Ritim':'Rhythm'],[pattern,tr?'Pattern Rehberi':'Pattern Guide'],[prefix+'#history',tr?'Tarihçe':'History'],[prefix+'#faq',tr?'SSS':'FAQ'],[tr?'/tr/td3-usb-aktarim-laboratuvari.html':'/td3-usb-transfer-lab.html',tr?'TD-3 Aktarım':'TD-3 Transfer']];
+    const secondaryHTML=secondary.map(([href,label])=>`<a href="${href}">${label}</a>`).join('');
+    const primaryHTML=primary.map(([href,label])=>`<a href="${href}">${label}</a>`).join('');
     const header=document.querySelector('.site-header');
     if(header){
       if(header.dataset.shellChrome!==RELEASE_EPOCH){
         header.innerHTML=`<div class="shell header-inner">
         <a class="brand" href="${home}#top" aria-label="303box home"><span class="brand-glyph" aria-hidden="true">303</span><span class="brand-copy"><strong>303box</strong><small data-shell-i18n="brandTag">${text('brandTag',lang)}</small></span></a>
-        <nav class="nav" aria-label="${text('primaryNavigation',lang)}" data-shell-i18n-attr="primaryNavigation"><a href="${prefix}#sequencer">303</a><a href="${prefix}#drums" data-shell-i18n="rhythm">${text('rhythm',lang)}</a><a href="${prefix}#guide" data-shell-i18n="guide">${text('guide',lang)}</a><a href="${prefix}#history" data-shell-i18n="history">${text('history',lang)}</a><a href="${prefix}#faq" data-shell-i18n="faq">${text('faq',lang)}</a></nav>
+        <nav class="nav" aria-label="${text('primaryNavigation',lang)}" data-shell-i18n-attr="primaryNavigation">${primaryHTML}</nav>
         <div class="header-actions"><button class="language-switch" id="languageButton" data-language-switch type="button" aria-label="${text('changeLanguage',lang)}"><span id="languageCurrent" data-language-current>${lang.toUpperCase()}</span><span class="language-separator">/</span><span id="languageNext" data-language-next>${tr?'EN':'TR'}</span></button><a class="mini-cta" href="${prefix}#sequencer" data-shell-i18n="openSequencer">${text('openSequencer',lang)}</a><button class="mobile-menu-toggle" id="mobileMenuToggle" type="button" aria-expanded="false" aria-controls="mobileMenu" aria-label="${text('openMenu',lang)}"><span class="mobile-menu-icon"><span></span></span></button></div>
-        <div class="mobile-menu" id="mobileMenu" hidden><div class="mobile-menu-grid"><a href="${prefix}#sequencer">303</a><a href="${prefix}#drums">${text('rhythm',lang)}</a><a href="${prefix}#guide">${text('guide',lang)}</a><a href="${prefix}#history">${text('history',lang)}</a><a href="${prefix}#faq">${text('faq',lang)}</a></div><div class="mobile-menu-section">${tr?'İÇERİK':'CONTENT'}</div><div class="mobile-menu-grid"><a href="${articles}">${tr?'Yazılar':'Articles'}</a><a href="${pattern}">${tr?'Pattern Rehberi':'Pattern Guide'}</a><a href="${midi}">${tr?'MIDI & Donanım':'MIDI & Hardware'}</a><a href="${examples}">${tr?'Örnekler':'Examples'}</a><a href="${about}">${tr?'Hakkında':'About'}</a></div><a class="mobile-sequencer-cta" href="${prefix}#sequencer">${text('openSequencer',lang)}</a></div>
+        <div class="mobile-menu" id="mobileMenu" hidden><div class="mobile-menu-grid">${primaryHTML}</div><div class="mobile-menu-section">${tr?'REHBERLER VE BÖLÜMLER':'GUIDES AND SECTIONS'}</div><div class="mobile-menu-grid">${secondaryHTML}</div><a class="mobile-sequencer-cta" href="${prefix}#sequencer">${text('openSequencer',lang)}</a></div>
       </div>`;
         header.dataset.shellChrome=RELEASE_EPOCH;
         header.querySelectorAll('a[href*="#"]').forEach(link=>link.addEventListener('click',()=>{try{localStorage.setItem('303-lang',language())}catch(_){}}));
@@ -140,13 +144,13 @@
       }
       const brand=header.querySelector('.brand');if(brand)brand.href=`${home}#top`;
       const navLinks=header.querySelectorAll('.nav a');
-      [`${prefix}#sequencer`,`${prefix}#drums`,`${prefix}#guide`,`${prefix}#history`,`${prefix}#faq`].forEach((href,index)=>{if(navLinks[index])navLinks[index].href=href});
+      primary.forEach(([href,label],index)=>{if(navLinks[index]){navLinks[index].href=href;navLinks[index].textContent=label;navLinks[index].toggleAttribute('aria-current',false);if(href===normalizedPath())navLinks[index].setAttribute('aria-current','page')}});
       const menuGrids=header.querySelectorAll('.mobile-menu-grid');
       const primaryLinks=menuGrids[0]?.querySelectorAll('a')||[];
-      [[`${prefix}#sequencer`,'303'],[`${prefix}#drums`,text('rhythm',lang)],[`${prefix}#guide`,text('guide',lang)],[`${prefix}#history`,text('history',lang)],[`${prefix}#faq`,text('faq',lang)]].forEach(([href,label],index)=>{if(primaryLinks[index]){primaryLinks[index].href=href;primaryLinks[index].textContent=label}});
+      primary.forEach(([href,label],index)=>{if(primaryLinks[index]){primaryLinks[index].href=href;primaryLinks[index].textContent=label}});
       const contentLinks=menuGrids[1]?.querySelectorAll('a')||[];
-      [[articles,tr?'Yazılar':'Articles'],[pattern,tr?'Pattern Rehberi':'Pattern Guide'],[midi,tr?'MIDI & Donanım':'MIDI & Hardware'],[examples,tr?'Örnekler':'Examples'],[about,tr?'Hakkında':'About']].forEach(([href,label],index)=>{if(contentLinks[index]){contentLinks[index].href=href;contentLinks[index].textContent=label}});
-      const menuSection=header.querySelector('.mobile-menu-section');if(menuSection)menuSection.textContent=tr?'İÇERİK':'CONTENT';
+      secondary.forEach(([href,label],index)=>{if(contentLinks[index]){contentLinks[index].href=href;contentLinks[index].textContent=label}});
+      const menuSection=header.querySelector('.mobile-menu-section');if(menuSection)menuSection.textContent=tr?'REHBERLER VE BÖLÜMLER':'GUIDES AND SECTIONS';
       header.querySelectorAll('.mini-cta,.mobile-sequencer-cta').forEach(link=>{link.href=`${prefix}#sequencer`;link.textContent=text('openSequencer',lang)});
       const languageButton=header.querySelector('#languageButton');if(languageButton)languageButton.dataset.alternateHref=otherHref;
       if(document.body?.dataset?.page!=='home'&&!window.__303boxShellLanguageNavigation){
@@ -158,10 +162,11 @@
     if(!footer){footer=document.createElement('footer');footer.className='site-footer';document.body.appendChild(footer)}
     const disclaimer='/#disclaimer',shortcuts='/#shortcuts';
     if(footer.dataset.shellChrome!==RELEASE_EPOCH){
-      footer.innerHTML=`<div class="shell footer-inner"><div class="z3z-credit"><span data-shell-i18n="footerCredit">${text('footerCredit',lang)}</span><a href="https://instagram.com/zafer.pro" target="_blank" rel="me noopener" data-social-platform="instagram" data-social-placement="footer">Z3Z / @zafer.pro</a><small class="site-version" data-site-version>v${SITE_VERSION}</small></div><div class="footer-links"><a href="${disclaimer}" data-disclaimer-link="true" data-shell-i18n="footerDisclaimer">${text('footerDisclaimer',lang)}</a><a href="${shortcuts}" data-shortcuts-link="true" data-shell-i18n="footerShortcuts">${text('footerShortcuts',lang)}</a><a href="/privacy.html" data-shell-i18n="footerPrivacy">${text('footerPrivacy',lang)}</a><a href="https://instagram.com/zafer.pro" rel="me noopener" target="_blank" data-social-platform="instagram" data-social-placement="footer">Instagram</a><a href="https://youtube.com/@zaferlatif" rel="noopener" target="_blank" data-social-platform="youtube" data-social-placement="footer">YouTube</a></div></div>`;
+      footer.innerHTML=`<div class="shell footer-inner"><div class="z3z-credit"><span data-shell-i18n="footerCredit">${text('footerCredit',lang)}</span><a href="https://instagram.com/zafer.pro" target="_blank" rel="me noopener" data-social-platform="instagram" data-social-placement="footer">Z3Z / @zafer.pro</a><small class="site-version" data-site-version>v${SITE_VERSION}</small></div><div class="footer-links"><span class="footer-content-links">${primaryHTML}</span><a href="${disclaimer}" data-disclaimer-link="true" data-shell-i18n="footerDisclaimer">${text('footerDisclaimer',lang)}</a><a href="${shortcuts}" data-shortcuts-link="true" data-shell-i18n="footerShortcuts">${text('footerShortcuts',lang)}</a><a href="/privacy.html" data-shell-i18n="footerPrivacy">${text('footerPrivacy',lang)}</a><a href="https://instagram.com/zafer.pro" rel="me noopener" target="_blank" data-social-platform="instagram" data-social-placement="footer">Instagram</a><a href="https://youtube.com/@zaferlatif" rel="noopener" target="_blank" data-social-platform="youtube" data-social-placement="footer">YouTube</a></div></div>`;
       footer.dataset.shellChrome=RELEASE_EPOCH;
       footer.querySelectorAll('a[href^="/#"]').forEach(link=>link.addEventListener('click',()=>{try{localStorage.setItem('303-lang',language())}catch(_){}}));
     }
+    footer.querySelectorAll('.footer-content-links a').forEach((link,index)=>{if(primary[index]){link.href=primary[index][0];link.textContent=primary[index][1]}});
     const disclaimerLink=footer.querySelector('[data-disclaimer-link]');if(disclaimerLink)disclaimerLink.href=disclaimer;
     const shortcutsLink=footer.querySelector('[data-shortcuts-link]');if(shortcutsLink)shortcutsLink.href=shortcuts;
   }

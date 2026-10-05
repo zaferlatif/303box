@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION='20260928-3500';
+  const VERSION='20261005-3600';
   let revealed=false;
   const root=document.documentElement;
   root.classList.add('app-booting');
