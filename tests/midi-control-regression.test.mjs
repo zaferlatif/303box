@@ -78,8 +78,10 @@ test('live MIDI instructions require port and receive-channel agreement',()=>{
   assert.match(index,/MIDI control\/input port/);
   assert.match(index,/receive channel/);
   assert.match(index,/MIDI control\/input portunun/);
-  assert.match(english,/same physical route shown in <strong>OUTPUT<\/strong>/);
-  assert.match(turkish,/seçili MIDI control\/input portu/);
+  assert.match(english,/device’s selected MIDI input route.*same physical connection/);
+  assert.match(english,/match their channel numbers/);
+  assert.match(turkish,/Cihazın seçili MIDI giriş yolu.*aynı fiziksel bağlantıyı/);
+  assert.match(turkish,/kanal numaralarını eşleştir/);
 });
 
 test('shell and app preserve live listeners across rerenders',()=>{

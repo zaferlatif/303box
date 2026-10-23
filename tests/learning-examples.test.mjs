@@ -82,3 +82,16 @@ test('a failed runtime leaves a visible guide route and does not allow loading i
 test('language switching updates an open load prompt',()=>{
   const h=harness();h.document.documentElement.lang='tr';h.document.dispatchEvent(new Event('303box:languagechange'));assert.equal(h.button('exampleLoad').textContent,'Bu pattern’i yükle');assert.match(h.button('exampleHeading').textContent,/Seyrek A/);
 });
+
+test('each recorded A/B version loads the exact steps and remains undoable without changing the patch',()=>{
+  const manifest=JSON.parse(readFileSync(new URL('../assets/listening/manifest.json',import.meta.url),'utf8'));
+  const ids={'sparse-a':['sparse-a','sparse-a-rest'],'one-note':['one-note','one-note-short-drop'],'slide-tension':['slide-tension-dry','slide-tension'],offbeat:['offbeat','offbeat-downbeat'],'accent-map':['accent-map-flat','accent-map']};
+  for(const [key,pair]of Object.entries(ids))for(const [i,id]of pair.entries()){
+    const h=harness({id});
+    assert.deepEqual(h.readSteps(),h.original.pattern,'merely opening a variant must not replace work');
+    h.button('exampleLoad').click();
+    assert.deepEqual(h.readSteps(),manifest.examples[key][i?'b':'a']);
+    assert.deepEqual(JSON.parse(h.store.get(SESSION)).knobs,h.original.knobs);
+    h.button('exampleUndo').click();assert.deepEqual(h.readSteps(),h.original.pattern);
+  }
+});

@@ -83,7 +83,9 @@ def block(key,tr):
         rows+=f'<tr><th scope="row">{v.upper()}</th>{cells}</tr>'
     table=f'<div class="ab-table-wrap" tabindex="0" role="region" aria-label="{esc(heading)}"><table class="ab-table"><caption>{esc(caption)}</caption><thead><tr><th scope="col">{"Sürüm" if tr else "Version"}</th>'+''.join(f'<th scope="col">{i}</th>' for i in range(1,17))+f'</tr></thead><tbody>{rows}</tbody></table></div>'
     note=('120 BPM · 2 ölçü · Aynı synth ayarı. Eğitim için yazılımla üretilmiştir; TD-3 kaydı değildir. Aşağıdaki örnek yükleme bağlantısı yazıdaki orijinal pattern’i açar.' if tr else '120 BPM · 2 bars · Same synth settings. Software-generated teaching audio, not a TD-3 recording. The example-loading link opens the original pattern described in the article.')
-    return f'<!-- comparison:{key} --><div class="ab-comparison"><h3>{heading}</h3><p>{esc(labels[2])}</p><div class="ab-players">{players}</div>{table}<p class="ab-note">{esc(note)}</p></div><!-- /comparison:{key} -->'
+    load_ids={'sparse-a':('sparse-a','sparse-a-rest'),'one-note':('one-note','one-note-short-drop'),'slide-tension':('slide-tension-dry','slide-tension'),'offbeat':('offbeat','offbeat-downbeat'),'accent-map':('accent-map-flat','accent-map')}
+    actions='<div class="workshop-actions">'+''.join(f'<a class="learning-open" data-learning-example="{id}" href="/?example={id}&amp;lang={"tr" if tr else "en"}#sequencer">'+(f'{v}’yı sequencer’da aç' if tr and v=='A' else f'{v}’yi sequencer’da aç' if tr else f'Open {v} in the sequencer')+'</a>' for v,id in zip(['A','B'],load_ids[key]))+'</div>'
+    return f'<!-- comparison:{key} --><div class="ab-comparison"><h3>{heading}</h3><p>{esc(labels[2])}</p><div class="ab-players">{players}</div>{table}<p class="ab-note">{esc(note)}</p></div>{actions}<!-- /comparison:{key} -->'
 
 for path,tr in [('303-pattern-examples.html',False),('tr/303-pattern-ornekleri.html',True)]:
     p=ROOT/path;s=p.read_text()

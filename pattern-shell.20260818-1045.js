@@ -167,9 +167,8 @@
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bootSettle,{once:true});else bootSettle();
 
   document.addEventListener('303box:ready',()=>{
-    if(location.hash==='#shortcuts'){openShortcuts();return}
-    if(localStorage.getItem(STORAGE_KEY))return;
-    setTimeout(()=>{if(!localStorage.getItem(STORAGE_KEY))openShortcuts()},900);
+    // Keep the first visit clear; help opens through an explicit link or ? key.
+    if(location.hash==='#shortcuts')openShortcuts();
   },{once:true});
   document.addEventListener('303box:languagechange',()=>{syncActionLabels();installFooterShortcutLink();normalizeDrumVoices()});
 

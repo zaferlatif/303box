@@ -1,0 +1,44 @@
+303box TD-3 test record / TD-3 test kaydı
+Blank template — not a completed test / Boş şablon — tamamlanmış test değildir.
+
+Date / Tarih:
+303box footer version / Footer sürümü:
+Device model / Cihaz modeli:
+Firmware (or unknown / veya bilinmiyor):
+Browser + version / Tarayıcı + sürüm:
+Operating system / İşletim sistemi:
+Physical cable route / Fiziksel kablo yolu:
+MIDI output name / MIDI çıkış adı:
+MIDI input name / MIDI giriş adı:
+Device receive channel / Cihaz alıcı kanalı:
+303box BASS CH:
+
+LIVE TEST / CANLI TEST
+Pattern: C2 on steps 1, 5, 9, 13; other steps rest.
+Pattern: 1, 5, 9, 13. adımlar C2; diğer adımlar es.
+120 BPM, no accent/slide / accent ve slide yok.
+Clock and transport off / Clock ve transport kapalı.
+Browser audio result / Tarayıcı sesi sonucu:
+Hardware note order and rests / Cihaz nota sırası ve esler:
+STOP result / DUR sonucu:
+
+MEMORY TEST / HAFIZA TESTİ (optional / isteğe bağlı)
+Use only a disposable slot after backup / Yedekten sonra yalnız boşaltılabilir slot kullan.
+Group / Grup:
+Section / Bölüm:
+Pattern slot / Pattern slotu:
+Test pattern notes / Test pattern notaları:
+Pre-write read result / Yazma öncesi okuma sonucu:
+Backup saved and recoverable / Yedek saklandı ve geri alınabilir:
+Write result, exact message / Yazma sonucu, tam mesaj:
+Read-back byte comparison / Geri okuma bayt karşılaştırması:
+Device-only playback after stopping browser / Tarayıcı durduktan sonra yalnız cihaz çalması:
+Audible note order / Duyulan nota sırası:
+Rests / Esler:
+Accents / Vurgular:
+Slides / Kaymalar:
+Restore result if attempted / Denendiyse geri yükleme sonucu:
+Recording reference if available / Varsa kayıt referansı:
+
+Mark unperformed checks NOT TESTED / Yapılmayan kontrollere TEST EDİLMEDİ yaz.
+A byte match is not an audible playback test / Bayt eşleşmesi duyulan sonucu doğrulamaz.

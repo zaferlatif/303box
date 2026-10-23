@@ -17,6 +17,17 @@
     offbeat: {en:'Offbeat D minor', tr:'Offbeat D minör', steps:pattern(['','D','','F','','A','','C','','D','F','','','A','C',''], [4,10,15], [14], [8,15])},
     'accent-map': {en:'A accent map', tr:'A accent haritası', steps:pattern(['A','A','','E','A','','G','A','A','','E','A','','G','A',''], [1,5,9,14], [14], [14], [7])}
   };
+  // These variants are the exact A/B decisions shown in the listening lessons.
+  function variant(source, en, tr, change) {
+    const steps=examples[source].steps.map(step=>({...step}));
+    change(steps);
+    return {en,tr,steps};
+  }
+  examples['sparse-a-rest']=variant('sparse-a','Sparse A: rest on step 6','Seyrek A: 6. adım es',s=>{s[5].note='';s[5].gate='-';});
+  examples['one-note-short-drop']=variant('one-note','C: one-octave drop','C: bir oktav iniş',s=>{s[12].octave='2';});
+  examples['slide-tension-dry']=variant('slide-tension','E: slides off','E: slide kapalı',s=>s.forEach(step=>{step.accentSlide=step.accentSlide.replace('S','');}));
+  examples['offbeat-downbeat']=variant('offbeat','D minor: downbeat entry','D minör: güçlü vuruşta giriş',s=>{[s[0],s[1]]=[s[1],s[0]];});
+  examples['accent-map-flat']=variant('accent-map','A: accents off','A: vurgular kapalı',s=>s.forEach(step=>{step.accentSlide=step.accentSlide.replace('A','');}));
   function valid(snapshot) {
     return snapshot && Number.isInteger(snapshot.baseOctave) && snapshot.baseOctave >= 1 && snapshot.baseOctave <= 5 &&
       typeof snapshot.title === 'string' && snapshot.steps?.length === 16 && snapshot.steps.every(s =>
